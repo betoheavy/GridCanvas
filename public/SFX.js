@@ -46,7 +46,7 @@ class SFX {
 	}
 
 	set playing(isIt){
-		console.log( 'it is ', isIt )
+		
 		this._isPlaying = isIt;
 	}
 	get playing(){
