@@ -2,8 +2,16 @@ let GC;
 let left = false;
 window.onload = main;
 
+const sfxList = {
+	floppa_miau: './sfx/floppa/miau.ogg'
+}
+
+var sfxGame;
+
+
 function main() {
     GC = new GridCanvas('mainCanvas');
+		sfxGame = new SFX(sfxList);
     const IL = new ImageLoader();
 
     GC.onClick(getCoords);
@@ -37,6 +45,9 @@ function main() {
         if (e.code == 'KeyS'){
             GC.moveCamera(0,-1);
         }
+				if(e.code == 'KeyG'){
+					sfxGame.play('floppa_miau')
+				}
     }
 
 }
