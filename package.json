@@ -1,5 +1,5 @@
 {
-  "name": "demo",
+  "name": "gridcanvas",
   "version": "1.0.0",
   "description": "",
   "main": "Server.js",
@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "author": "",
+  "author": "Roberto Guerra",
   "license": "ISC",
   "dependencies": {
     "socket.io": "^4.5.1"
