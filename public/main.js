@@ -7,11 +7,15 @@ const sfxList = {
 }
 
 var sfxGame;
+var controles;
 
 
 function main() {
     GC = new GridCanvas('mainCanvas');
+		
 		sfxGame = new SFX(sfxList);
+		
+
     const IL = new ImageLoader();
 
     GC.onClick(getCoords);
@@ -27,29 +31,61 @@ function main() {
     });
 
     //window.addEventListener('keypress', logKey, true);
-    window.addEventListener('keydown', logKey, true);
+    // window.addEventListener('keydown', logKey, true);
 
-    function logKey(e) {
-        //console.log(` ${e.code}`);
-        if (e.code == 'KeyD'){
-            GC.moveCamera(-1,0);
-            left = false;
-        }
-        if (e.code == 'KeyA'){
-            GC.moveCamera(1,0);
-            left = true;
-        }
-        if (e.code == 'KeyW'){
-            GC.moveCamera(0,1);
-        }
-        if (e.code == 'KeyS'){
-            GC.moveCamera(0,-1);
-        }
-				if(e.code == 'KeyG'){
-					sfxGame.play('floppa_miau')
-				}
-    }
+    // function logKey(e) {
+    //     console.log(` ${e.code}`);
+    //     if (e.code == 'KeyD'){
+    //         GC.moveCamera(-1,0);
+    //         left = false;
+    //     }
+    //     if (e.code == 'KeyA'){
+    //         GC.moveCamera(1,0);
+    //         left = true;
+    //     }
+    //     if (e.code == 'KeyW'){
+    //         GC.moveCamera(0,1);
+    //     }
+    //     if (e.code == 'KeyS'){
+    //         GC.moveCamera(0,-1);
+    //     }
+		// 		if(e.code == 'KeyG'){
+		// 			sfxGame.play('floppa_miau')
+		// 		}
+    // }
 
+		function move(diccionarioPressed, controls){
+			// console.log( 'diccionarioPressed', diccionarioPressed )
+
+			console.log('diccionarioPressed[controls.right]', diccionarioPressed)
+
+			if( diccionarioPressed[controls.right] ){
+				GC.moveCamera(-1,0);
+				left = false;
+			}
+			if( diccionarioPressed[controls.left] ){
+				GC.moveCamera(1,0);
+				left = true;
+			}
+			if( diccionarioPressed[controls.up] ){
+				GC.moveCamera(0,1);
+			}
+			if( diccionarioPressed[controls.down] ){
+				GC.moveCamera(0,-1);
+			}
+			if( diccionarioPressed[controls.miau] ){
+				sfxGame.play('floppa_miau')
+			}
+
+
+			
+			// if (diccionarioPressed['Control'] && event.key == 'a') {
+			// 		alert(event.key);
+			// }
+ 
+		}
+
+		controles = new Control(move);
 }
   
 function customDraw(ctx, img) {
