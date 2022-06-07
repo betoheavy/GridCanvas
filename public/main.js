@@ -9,6 +9,31 @@ const sfxList = {
 var sfxGame;
 var controles;
 
+function move(diccionarioPressed, controls){
+
+	if( diccionarioPressed[controls.right] ){
+		GC.moveCamera(-1,0);
+		left = false;
+	}
+	if( diccionarioPressed[controls.left] ){
+		GC.moveCamera(1,0);
+		left = true;
+	}
+	if( diccionarioPressed[controls.up] ){
+		GC.moveCamera(0,1);
+	}
+	if( diccionarioPressed[controls.down] ){
+		GC.moveCamera(0,-1);
+	}
+	if( diccionarioPressed[controls.miau] ){
+		sfxGame.play('floppa_miau')
+	}
+
+	// if (diccionarioPressed['Control'] && event.key == 'a') {
+	// 		alert(event.key);
+	// }
+
+}
 
 function main() {
     GC = new GridCanvas('mainCanvas');
@@ -55,9 +80,6 @@ function main() {
     // }
 
 		function move(diccionarioPressed, controls){
-			// console.log( 'diccionarioPressed', diccionarioPressed )
-
-			console.log('diccionarioPressed[controls.right]', diccionarioPressed)
 
 			if( diccionarioPressed[controls.right] ){
 				GC.moveCamera(-1,0);
@@ -77,8 +99,6 @@ function main() {
 				sfxGame.play('floppa_miau')
 			}
 
-
-			
 			// if (diccionarioPressed['Control'] && event.key == 'a') {
 			// 		alert(event.key);
 			// }
@@ -105,7 +125,7 @@ function customDraw(ctx, img) {
 
     ctx.drawGrid(customGrid2);
     ctx.drawStaticGrid(customGrid);
-
+		controles.triggerInput()
 }
 
 function getCoords(evt){

@@ -41,6 +41,15 @@ class Control {
 		this.setEvents();
 	}
 
+	triggerInput(customCallback){
+		if(!!this.callbackDown){
+			this.callbackDown(this.diccionarioPressedKeys, this.controlBtns);
+		}
+		if(!!customCallback){
+			customCallback();
+		}
+	}
+
 	setEvents(){
 
 		window.addEventListener('keydown', (event) => {
@@ -51,9 +60,9 @@ class Control {
 
 			this.diccionarioPressedKeys[key] = true;
 
-			if(!!this.callbackDown){
-				this.callbackDown(this.diccionarioPressedKeys, this.controlBtns);
-			}
+			// if(!!this.callbackDown){
+			// 	this.callbackDown(this.diccionarioPressedKeys, this.controlBtns);
+			// }
 
 			this.postDown();
 		});
