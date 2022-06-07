@@ -1,47 +1,12 @@
-let GC;
-let left = false;
+
 window.onload = main;
 
-const sfxList = {
-	floppa_miau: './sfx/floppa/miau.ogg'
-}
-
-var sfxGame;
-var controles;
-
-function move(diccionarioPressed, controls){
-
-	if( diccionarioPressed[controls.right] ){
-		GC.moveCamera(-1,0);
-		left = false;
-	}
-	if( diccionarioPressed[controls.left] ){
-		GC.moveCamera(1,0);
-		left = true;
-	}
-	if( diccionarioPressed[controls.up] ){
-		GC.moveCamera(0,1);
-	}
-	if( diccionarioPressed[controls.down] ){
-		GC.moveCamera(0,-1);
-	}
-	if( diccionarioPressed[controls.miau] ){
-		sfxGame.play('floppa_miau')
-	}
-
-	// if (diccionarioPressed['Control'] && event.key == 'a') {
-	// 		alert(event.key);
-	// }
-
-}
-
 function main() {
-    GC = new GridCanvas('mainCanvas');
-		
-		sfxGame = new SFX(sfxList);
-		
+    const GC    = new GridCanvas('mainCanvas');
+    const IL    = new ImageLoader();
+    const SFX   = new SFXPlayer({floppa_miau: './sfx/floppa/miau.ogg'});
 
-    const IL = new ImageLoader();
+    let left    = false;
 
     GC.onClick(getCoords);
 
@@ -51,83 +16,43 @@ function main() {
     IL.addImageURL("img/trasparent.png");
     
     IL.onLoad(imageArray =>{
-        GC.images = imageArray;
-        GC.start(customDraw);
-    });
 
-    //window.addEventListener('keypress', logKey, true);
-    // window.addEventListener('keydown', logKey, true);
+        var background  = new GridLayer();
+        var player      = new GridLayer();
+        var controles   = new Control(move);
 
-    // function logKey(e) {
-    //     console.log(` ${e.code}`);
-    //     if (e.code == 'KeyD'){
-    //         GC.moveCamera(-1,0);
-    //         left = false;
-    //     }
-    //     if (e.code == 'KeyA'){
-    //         GC.moveCamera(1,0);
-    //         left = true;
-    //     }
-    //     if (e.code == 'KeyW'){
-    //         GC.moveCamera(0,1);
-    //     }
-    //     if (e.code == 'KeyS'){
-    //         GC.moveCamera(0,-1);
-    //     }
-		// 		if(e.code == 'KeyG'){
-		// 			sfxGame.play('floppa_miau')
-		// 		}
-    // }
-
-		function move(diccionarioPressed, controls){
-
-			if( diccionarioPressed[controls.right] ){
-				GC.moveCamera(-1,0);
-				left = false;
-			}
-			if( diccionarioPressed[controls.left] ){
-				GC.moveCamera(1,0);
-				left = true;
-			}
-			if( diccionarioPressed[controls.up] ){
-				GC.moveCamera(0,1);
-			}
-			if( diccionarioPressed[controls.down] ){
-				GC.moveCamera(0,-1);
-			}
-			if( diccionarioPressed[controls.miau] ){
-				sfxGame.play('floppa_miau')
-			}
-
-			// if (diccionarioPressed['Control'] && event.key == 'a') {
-			// 		alert(event.key);
-			// }
- 
-		}
-
-		controles = new Control(move);
-}
-  
-function customDraw(ctx, img) {
-    img[2].flipX = left;
-    let customGrid = [[3]];
-
-    let customGrid2 = [];
-
-    for (let x = 0; x < 18; x++){
-        let col = [];
-        for (let y = 0; y < 18; y++){
-            if (y == 0 || y == 17 || x == 0 || x== 17) col.push(2);
-            else col.push(1);
+        let customGrid = [];
+        for (let x = 0; x < 18; x++){
+            let col = [];
+            for (let y = 0; y < 18; y++){
+                if (y == 0 || y == 17 || x == 0 || x== 17) col.push(imageArray[1]);
+                else col.push(imageArray[0]);
+            }
+            customGrid.push(col);
         }
-        customGrid2.push(col);
-    }
 
-    ctx.drawGrid(customGrid2);
-    ctx.drawStaticGrid(customGrid);
-		controles.triggerInput()
+        background.grid = customGrid;
+        player.grid     = [[imageArray[2]]];
+
+        
+        GC.addGrid(background);
+        GC.addGrid(player);
+        GC.start(ctx =>{
+            player.grid[0][0].flipX = left;
+						controles.triggerInput()
+        });
+
+
+        function move(dp, controls){
+            if( dp[controls.right] ){background.moveLayer(-1,0);   left = false;}
+            if( dp[controls.left] ) {background.moveLayer(1,0);    left = true;}
+            if( dp[controls.up] )   {background.moveLayer(0,1);}
+            if( dp[controls.down] ) {background.moveLayer(0,-1);}
+            if( dp[controls.miau] ) {SFX.play('floppa_miau')}
+        }
+    });
 }
-
+    
 function getCoords(evt){
     let minDistanceSquared = Math.sqrt(window.innerWidth * window.innerHeight);
 

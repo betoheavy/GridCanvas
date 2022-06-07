@@ -1,5 +1,5 @@
-class SFX {
-
+class SFXPlayer {
+	
 	constructor(soundUrlList){
 
 		this._isPlaying = false;
@@ -8,14 +8,10 @@ class SFX {
 		this.sfxDic = soundUrlList;
 		this.player = new Audio();
 
-		
 		this.setEvents();
 	}
 
 	setEvents(){
-
-		let that = this;
-
 		this.player.addEventListener('canplay', (e)=>{
 			this.onCanPlay(e)
 		});
@@ -40,15 +36,15 @@ class SFX {
 	startPlaying(){
 		this.playing = true;
 	}
+
 	finishPlaying(){
-		
 		this.playing = false;
 	}
 
 	set playing(isIt){
-		
 		this._isPlaying = isIt;
 	}
+
 	get playing(){
 		return this._isPlaying;
 	}
@@ -60,16 +56,12 @@ class SFX {
 		}
 
 		if( name == null ){
-
 			this.player.load();
-			
 		}else{
-
 			this.changeSFX(name);
 		}
 		
 		this.startPlaying();
 		this.player.play();
-		
 	}
 }

@@ -3,24 +3,24 @@ class GridCanvas {
     constructor(id) {
         this.canvas  = document.getElementById(id);
         this.context = this.canvas.getContext('2d');
-        this._grid = 9;
         
-        this._images = [];
-
-        this._camX = 0;
-        this._camY = 0;
-
+        this._grid = 9;
+        this._grids = [];
         this._maxArea = 0;
 
         this._onDraw = false;
         this._play = false;
     }
 
-    set images(value) {
-        this._images = value;
+    set grids(value) {
+        this._grids = value;
     }
-    get images() {
-        return this._images;
+    get grids() {
+        return this._grids;
+    }
+
+    addGrid(grid){
+        this._grids.push(grid);
     }
 
     onClick(customFunction){
@@ -34,27 +34,19 @@ class GridCanvas {
         window.addEventListener('resize', this.resizeCanvas.bind(this), false);
         this.resizeCanvas();
 
-        while (this._onDraw && this._play){
+        while (this._play){
             this.context.fillStyle = "black";
             this.context.fillRect(-this.canvas.width/2, -this.canvas.height/2, this.canvas.width, this.canvas.height);
 
-            this._onDraw(this ,this.images);
+            for (let grid of this._grids) this.drawGrid(grid);
+            if (this._onDraw ) this._onDraw(this ,this.grids);
+
+            this._resized = false;
             await this.delay(16); // 60 FPS WOW
         }
     }
 
-    moveCamera(x,y){
-        this._camX+=x;
-        this._camY+=y;
-
-        this.context.translate(
-            x/this._grid, y/this._grid
-        );
-        console.log(this._camX, this._camY)
-    }
-
     resizeCanvas() {
-        
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         this._maxArea = Math.sqrt(window.innerWidth * window.innerHeight) / this._grid; //lado de los cubos de la grid
@@ -69,89 +61,40 @@ class GridCanvas {
             this._maxArea
         );
 
+        this.context.save();
+    }
+
+    drawGrid(oGrid){
+
+        this.context.restore(); //cuando dibujemos un layer nuevo, restaurar al posicion inicial
+        this.context.save();    //cuando restaura "ocupa" el save, asi que mejor guardarlo enseguida
+
         this.context.translate(
-            this._camX/this._grid, this._camY/this._grid
+            oGrid.posX/this._grid, oGrid.posY/this._grid
         );
-    }
 
-    drawGrid(grid){
-        let gridH = grid.length;
-        let gridW = 0;
-            
-        for (let row of grid){
-            if (row) gridW = (row.length > gridW) ? row.length: gridW;
-        }
-
-        let hCenter = ((gridH % 2) > 0)? (gridH - 1) / 2 : gridH/2;
-        let wCenter = ((gridW % 2) > 0)? (gridW - 1) / 2 : gridW/2;
-
-        for (let h = 0; h < gridH; h++){
-            for (let w = 0; w < grid[h].length; w++){
-                if (grid[h][w]){
-                    let canvasImage = this.images[grid[h][w]-1];
-
-                    if (canvasImage.flipX){
-                        this.context.scale(-1, 1);
-                        this.context.drawImage(
-                            canvasImage.image,
-                            w-wCenter,
-                            h-hCenter,
-                            1,
-                            1
-                        );
-                        this.context.scale(-1, 1);
-                    }else{
-                        this.context.drawImage(
-                            canvasImage.image,
-                            w-wCenter,
-                            h-hCenter,
-                            1,
-                            1
-                        );
-                    }
-                }
+        oGrid.each((canvasImage,h,w) =>{
+            if (canvasImage.flipX){
+                this.context.scale(-1, 1);
+                
+                this.context.drawImage(
+                    canvasImage.image, 
+                    w-oGrid.wCenter - 1, 
+                    h-oGrid.hCenter
+                    ,1,1
+                );
+                
+                this.context.scale(-1, 1);
             }
-        }
-    }
-
-    drawStaticGrid(grid){
-        let gridH = grid.length;
-        let gridW = 0;
-            
-        for (let row of grid){
-            if (row) gridW = (row.length > gridW) ? row.length: gridW;
-        }
-
-        let hCenter = ((gridH % 2) > 0)? (gridH - 1) / 2 : gridH/2;
-        let wCenter = ((gridW % 2) > 0)? (gridW - 1) / 2 : gridW/2;
-
-        for (let h = 0; h < gridH; h++){
-            for (let w = 0; w < grid[h].length; w++){
-                if (grid[h][w]){
-                    let canvasImage = this.images[grid[h][w]-1];
-                    
-                    if (canvasImage.flipX){
-                        this.context.scale(-1, 1);
-                        this.context.drawImage(
-                            canvasImage.image,
-                            w-wCenter - 1 + (this._camX/this._grid),
-                            h-hCenter - (this._camY/this._grid),
-                            1,
-                            1
-                        );
-                        this.context.scale(-1, 1);
-                    }else{
-                        this.context.drawImage(
-                            canvasImage.image,
-                            w-wCenter - (this._camX/this._grid),
-                            h-hCenter - (this._camY/this._grid),
-                            1,
-                            1
-                        );
-                    }
-                }
+            else{
+                this.context.drawImage(
+                    canvasImage.image, 
+                    w-oGrid.wCenter, 
+                    h-oGrid.hCenter, 
+                    1, 1
+                );
             }
-        }
+        })
     }
 
     delay(ms){
