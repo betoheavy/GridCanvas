@@ -4,7 +4,7 @@ window.onload = main;
 function main() {
     const GC    = new GridCanvas('mainCanvas');
     const IL    = new ImageLoader();
-    const SFX   = new SFXPlayer({floppa_miau: './sfx/floppa/miau.ogg'});
+    const SFX   = new SFXPlayer({floppa_miau: './sfx/floppa/miau.ogg', puaj: './sfx/floppa/guah.wav'});
 
     let left    = false;
 
@@ -14,12 +14,28 @@ function main() {
     IL.addImageURL("img/block.svg");
     IL.addImageURL("img/floppa.png");
     IL.addImageURL("img/trasparent.png");
+		IL.addImageURL("img/sword.png");
     
     IL.onLoad(imageArray =>{
 
-        var background  = new GridLayer();
+				var background  = new GridLayer();
+				var objects  = new GridLayer();
         var player      = new GridLayer();
-        var controles   = new Control(move);
+
+				let controlCallbackDown = move,
+					controlCallbackUp = null,
+					controlBtns = null,
+					controlMouse = {
+						click:(e)=>{
+							
+						}
+					}
+        var controles   = new Control(
+					controlCallbackDown
+					, controlCallbackUp
+					, controlBtns
+					, controlMouse
+				);
 
         let customGrid = [];
         for (let x = 0; x < 18; x++){
@@ -33,9 +49,11 @@ function main() {
 
         background.grid = customGrid;
         player.grid     = [[imageArray[2]]];
+				objects.grid		= [[imageArray[3]]];
 
         
         GC.addGrid(background);
+				GC.addGrid(objects);
         GC.addGrid(player);
         GC.start(ctx =>{
             player.grid[0][0].flipX = left;
@@ -44,11 +62,13 @@ function main() {
 
 
         function move(dp, controls){
+					
             if( dp[controls.right] ){background.moveLayer(-1,0);   left = false;}
             if( dp[controls.left] ) {background.moveLayer(1,0);    left = true;}
             if( dp[controls.up] )   {background.moveLayer(0,1);}
             if( dp[controls.down] ) {background.moveLayer(0,-1);}
             if( dp[controls.miau] ) {SFX.play('floppa_miau')}
+						if( dp[controls.click] ){SFX.play('puaj')}
         }
     });
 }
