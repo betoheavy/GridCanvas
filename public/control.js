@@ -1,4 +1,3 @@
-
 class ControlBtns {
 
 	constructor(up='w', down='s', left='a', right='d'){
@@ -9,22 +8,6 @@ class ControlBtns {
 
 		this.miau = 'g'
 	}
-
-	// set up(u){	this.up = u;	}
-
-	// get up(){	return this.up;	}
-
-	// set down(u){	this.down = u;	}
-
-	// get down(){	return this.down;	}
-
-	// set left(u){	this.left = u;	}
-
-	// get left(){	return this.left;	}
-	
-	// set right(u){	this.right = u;	}
-
-	// get right(){	return this.right;	}
 }
 
 class Control {
