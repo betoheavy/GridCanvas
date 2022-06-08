@@ -30,6 +30,14 @@ class GridLayer {
         return this._posY;
     }
 
+    set posX(val){
+        this._posX = val;
+    }
+
+    set posY(val){
+        this._posY = val;
+    }
+
     set grid(arry){
         this._grid = arry;
 
@@ -57,6 +65,37 @@ class GridLayer {
     moveLayer(x,y){
         this._posX+=x;
         this._posY+=y;
+    }
+
+    isColliding(anotherGrid){
+        let collided = false;
+        let thisGrid = this;
+
+        thisGrid.each(checkWithAnother);
+
+        function checkWithAnother(thisCell, th, tw){
+            if (thisCell.collide){
+                anotherGrid.each((anotherCell,ah,aw)=>{
+                    if (anotherCell.collide){
+                        let thisPosX    = tw - thisGrid.wCenter    + thisGrid.posX;
+                        let anotherPosX = aw - anotherGrid.wCenter + anotherGrid.posX;
+
+                        if (thisPosX > (anotherPosX-1) && thisPosX < (anotherPosX + 1)){
+                            let thisPosY    = th - thisGrid.hCenter    + thisGrid.posY;
+                            let anotherPosY = ah - anotherGrid.hCenter + anotherGrid.posY;
+
+                            if (thisPosY > (anotherPosY-1) && thisPosY < (anotherPosY + 1)){
+                                collided = true;
+                                return;
+                            }
+                        }
+                    }
+                });
+            }
+            if (collided) return;
+        }
+
+        return collided;
     }
 
 }

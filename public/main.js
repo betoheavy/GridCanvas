@@ -18,9 +18,9 @@ function main() {
     
     IL.onLoad(imageArray =>{
 
-				var background  = new GridLayer();
-				var objects  = new GridLayer();
-        var player      = new GridLayer();
+				let background  = new GridLayer();
+				let objects     = new GridLayer();
+        let player      = new GridLayer();
 
 				let controlCallbackDown = move,
 					controlCallbackUp = null,
@@ -30,12 +30,15 @@ function main() {
 							
 						}
 					}
-        var controles   = new Control(
+        let controles   = new Control(
 					controlCallbackDown
 					, controlCallbackUp
 					, controlBtns
 					, controlMouse
 				);
+
+        imageArray[1].collide = true;
+        imageArray[2].collide = true;
 
         let customGrid = [];
         for (let x = 0; x < 18; x++){
@@ -47,6 +50,11 @@ function main() {
             customGrid.push(col);
         }
 
+        //dibuja uu pasillo en la esquina para ver si floppa pasa
+        customGrid[2][2] = imageArray[1];
+        customGrid[2][3] = imageArray[1];
+        customGrid[3][2] = imageArray[1];
+
         background.grid = customGrid;
         player.grid     = [[imageArray[2]]];
 				objects.grid		= [[imageArray[3]]];
@@ -57,16 +65,24 @@ function main() {
         GC.addGrid(player);
         GC.start(ctx =>{
             player.grid[0][0].flipX = left;
-						controles.triggerInput()
+						controles.triggerInput();
+
+            if (player.isColliding(background)){
+              background.posX = background.safeX;
+              background.posY = background.safeY;
+            }else{
+                background.safeX = background.posX;
+                background.safeY = background.posY;
+            }
         });
 
 
         function move(dp, controls){
 					
-            if( dp[controls.right] ){background.moveLayer(-1,0);   left = false;}
-            if( dp[controls.left] ) {background.moveLayer(1,0);    left = true;}
-            if( dp[controls.up] )   {background.moveLayer(0,1);}
-            if( dp[controls.down] ) {background.moveLayer(0,-1);}
+            if( dp[controls.right] ){background.moveLayer(-1/8,0);   left = false;}
+            if( dp[controls.left] ) {background.moveLayer(1/8,0);    left = true;}
+            if( dp[controls.up] )   {background.moveLayer(0,1/8);}
+            if( dp[controls.down] ) {background.moveLayer(0,-1/8);}
             if( dp[controls.miau] ) {SFX.play('floppa_miau')}
 						if( dp[controls.click] ){SFX.play('puaj')}
         }

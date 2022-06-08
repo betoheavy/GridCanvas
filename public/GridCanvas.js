@@ -38,8 +38,8 @@ class GridCanvas {
             this.context.fillStyle = "black";
             this.context.fillRect(-this.canvas.width/2, -this.canvas.height/2, this.canvas.width, this.canvas.height);
 
-            for (let grid of this._grids) this.drawGrid(grid);
             if (this._onDraw ) this._onDraw(this ,this.grids);
+            for (let grid of this._grids) this.drawGrid(grid);
 
             this._resized = false;
             await this.delay(16); // 60 FPS WOW
@@ -70,7 +70,7 @@ class GridCanvas {
         this.context.save();    //cuando restaura "ocupa" el save, asi que mejor guardarlo enseguida
 
         this.context.translate(
-            oGrid.posX/this._grid, oGrid.posY/this._grid
+            oGrid.posX, oGrid.posY
         );
 
         oGrid.each((canvasImage,h,w) =>{
