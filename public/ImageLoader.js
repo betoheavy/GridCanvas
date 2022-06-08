@@ -1,8 +1,11 @@
 class ImageLoader {
-    constructor() {
-        this.imagesURL = [];
+    constructor(images=[]) {
+        this.imagesURL = images;
         this.images = [];
         this.imagePromises = [];
+
+				this.promisesStates = [];
+				this.loading = false;
     }
 
     addImageURL(url){
@@ -10,11 +13,14 @@ class ImageLoader {
     }
 
     async onLoad(customFunction){
+				this.loading = true;
         for(let imageURL of this.imagesURL){
             this.imagePromises.push(this.loadImage(imageURL));
         }
         this.images = await Promise.all(this.imagePromises);
-        customFunction(this.images);
+        if(!!customFunction)	customFunction(this.images);
+				this.loading = false;
+				return this.images;
     }
 
     loadImage(url){

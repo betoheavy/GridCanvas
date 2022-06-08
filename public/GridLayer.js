@@ -1,5 +1,8 @@
 class GridLayer {
-    constructor() {
+    constructor(uid) {
+
+			this.uid = uid || (new Date().getTime());
+
         this._grid = [];
         this._heigth = 0;
         this._width = 0;
@@ -61,6 +64,8 @@ class GridLayer {
             }
         }
     }
+
+		addItem(newItem){	this._grid.push(newItem);	}
 
     moveLayer(x,y){
         this._posX+=x;

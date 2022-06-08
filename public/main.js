@@ -24,17 +24,12 @@ function main() {
 
 				let controlCallbackDown = move,
 					controlCallbackUp = null,
-					controlBtns = null,
-					controlMouse = {
-						click:(e)=>{
-							
-						}
-					}
+					controlBtns = null;
+				
         let controles   = new Control(
 					controlCallbackDown
 					, controlCallbackUp
 					, controlBtns
-					, controlMouse
 				);
 
         imageArray[1].collide = true;
@@ -57,34 +52,37 @@ function main() {
 
         background.grid = customGrid;
         player.grid     = [[imageArray[2]]];
-				objects.grid		= [[imageArray[3]]];
+				objects.grid		= [[imageArray[4]]];
 
         
         GC.addGrid(background);
 				GC.addGrid(objects);
         GC.addGrid(player);
+				GC.focus = player;
         GC.start(ctx =>{
             player.grid[0][0].flipX = left;
 						controles.triggerInput();
-
-            if (player.isColliding(background)){
-              background.posX = background.safeX;
-              background.posY = background.safeY;
-            }else{
-                background.safeX = background.posX;
-                background.safeY = background.posY;
-            }
         });
+
+				let swordGO = new GameObject(
+					objects
+					, 'sword_test'
+					, ['img/sword.png']
+					, ()=>{}
+					, {}
+				);
 
 
         function move(dp, controls){
+
+					let vel = 1/8;
 					
-            if( dp[controls.right] ){background.moveLayer(-1/8,0);   left = false;}
-            if( dp[controls.left] ) {background.moveLayer(1/8,0);    left = true;}
-            if( dp[controls.up] )   {background.moveLayer(0,1/8);}
-            if( dp[controls.down] ) {background.moveLayer(0,-1/8);}
-            if( dp[controls.miau] ) {SFX.play('floppa_miau')}
-						if( dp[controls.click] ){SFX.play('puaj')}
+					if( dp[controls.right] ){GC.moveCamera(-vel,0);left = false;}
+					if( dp[controls.left] ) {GC.moveCamera(vel,0); left = true;}
+					if( dp[controls.up] )   {GC.moveCamera(0,vel)}
+					if( dp[controls.down] ) {GC.moveCamera(0,-vel)}
+					if( dp[controls.miau] ) {SFX.play('floppa_miau')}
+					if( dp[controls.click] ){SFX.play('puaj')}
         }
     });
 }
