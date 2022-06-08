@@ -38,7 +38,7 @@ class GameObject{
 	 * @param {function} onUpdate 
 	 * @param {object} meta 
 	 */
-	constructor(grid, name, sprites, onUpdate, meta={}){
+	constructor(grid, name, sprites, meta={}){
 
 		this.uid = name+(new Date().getTime());
 		this.gameObjectName = name;
@@ -46,14 +46,15 @@ class GameObject{
 		this._grid = grid;
 
 		this.sprites = new Sprite(sprites);
-		this.updateFunction = onUpdate;
 
 		let {
 			hasCollition=false
 			,x,y, gridPos
+			,onUpdate
 		} = meta;
 
 		this.hasCollition = hasCollition;
+		this.updateFunction = onUpdate;
 		
 		this.position = new GridPos( {x,y, gridPos} );
 		this.start();
@@ -76,9 +77,9 @@ class GameObject{
 	}
 
 	drawInPosition(loadedImages){
-		
-		this._grid.addItem( loadedImages )
-		console.log( 'hola on cargar', this.sprites )
+
+		let arr = [...[...this._grid.grid.flat(), ...loadedImages] ]
+		this._grid.grid = [arr]
 	}
 
 	onUpdate(){

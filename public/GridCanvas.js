@@ -71,6 +71,8 @@ class GridCanvas {
 
     drawGrid(oGrid){
 
+			// console.log('oGrid', oGrid)
+
         this.context.restore(); //cuando dibujemos un layer nuevo, restaurar al posicion inicial
         this.context.save();    //cuando restaura "ocupa" el save, asi que mejor guardarlo enseguida
 

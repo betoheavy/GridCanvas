@@ -52,7 +52,7 @@ function main() {
 
         background.grid = customGrid;
         player.grid     = [[imageArray[2]]];
-				objects.grid		= [[imageArray[4]]];
+				// objects.grid		= [[imageArray[4]]];
 
         
         GC.addGrid(background);
@@ -64,13 +64,10 @@ function main() {
 						controles.triggerInput();
         });
 
-				let swordGO = new GameObject(
-					objects
-					, 'sword_test'
-					, ['img/sword.png']
-					, ()=>{}
-					, {}
-				);
+				
+
+				let swordGO = new GameObject(objects, 'sword_test', ['img/sword.png'], {});
+				let fueguitoGO = new GameObject(objects, 'fuego', ['img/trasparent.png'], {});
 
 
         function move(dp, controls){
