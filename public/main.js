@@ -50,7 +50,7 @@ function main() {
             customGrid.push(col);
         }
 
-        //dibuja uu pasillo en la esquina para ver si floppa pasa
+        //dibuja un pasillo en la esquina para ver si Floppa pasa
         customGrid[2][2] = imageArray[1];
         customGrid[2][3] = imageArray[1];
         customGrid[3][2] = imageArray[1];
