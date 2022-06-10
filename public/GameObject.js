@@ -1,20 +1,157 @@
-class GridPos{
-	constructor({x=0, y=0, gridPos}){
+class Position{
+	/**
+	 * Control position in coordinates x and y in objects
+	 * options{onChange} function(Position) execute every time x or y changes
+	 * 
+	 * @param {int} x
+	 * @param {int} y
+	 * @param {object} options
+	 */
+	constructor(x=0, y=0, options){
+		this.uid = 'Position'+(new Date().getTime());
+		this._x = x;
+		this._y = y;
+		this._lastx = x;
+		this._lasty = y;
+		this._afterFunction = {};
+		this._afterFunctionCount = 0 ;
 
-		if( gridPos != null ){
-			this({x: gridPos.posX, y: gridPos.posY});
-		}else{
-			this.x = x;
-			this.y = y;
+		let onChange = false;
+
+		if (options){
+			let {
+				onChange = false
+			} = options;
+		}
+
+		this._onChange = onChange;
+	}
+	get x(){
+		return this._x;
+	}
+	set x(val){
+		this._lastx = this._x;
+		this._x = val;	
+		if(this._onChange) this._onChange(this);
+		this.executeAfterFunction();
+	}
+	get y(){
+		return this._y;
+	}
+	set y(val){
+		this._lasty = this._y;
+		this._y = val;
+		if(this._onChange) this._onChange(this);
+		this.executeAfterFunction();
+	}
+	get lastX(){
+		return this._lastX;
+	}
+	get lastY(){
+		return this._lastY;
+	}
+	/**
+	 * Set the exact position of x and y
+	 * Shorthand of set.x and set.y 
+	 * 
+	 * @param {int} x
+	 * @param {int} y
+	 */
+	set(x,y){
+		this._lastx = this._x;
+		this._lasty = this._y;
+		this._x = x;
+		this._y = y;
+		if(this._onChange) this._onChange(this);
+		this.executeAfterFunction();
+	}
+
+	/**
+	 * Add the position x and y to the current positio
+	 * 
+	 * @param {int} x
+	 * @param {int} y
+	 */
+	move(x,y){
+		this._lastx = this._x;
+		this._lasty = this._y;
+		this._x+= x;
+		this._y+= y;
+		if(this._onChange) this._onChange(this);
+		this.executeAfterFunction();
+	}
+
+	/**
+	 * Copy all movements of another position
+	 * 
+	 * @param {Position} anotherPosition
+	 */
+	follow(anotherPosition){
+		let thisPosition = this;
+		let followFunction = function(oPos){
+			thisPosition.move(oPos.x-oPos.lastX, oPos.y-oPos.lastY);
+		};
+
+		anotherPosition.addAfterFunction(this.uid, followFunction);
+	}
+
+	/**
+	 * remove the follow() link between 2 Positions
+	 * 
+	 * @param {Position} anotherPosition
+	 */
+	unfollow(anotherPosition){
+		anotherPosition.removeAfterFunction(this.uid);
+	}
+
+	/**
+	 * set a function(x,y) tha execute every time x or y changes
+	 * 
+	 * @param {function} onchange
+	 */
+	set onChange(onchange){
+		this._onChange = onchange;
+	}
+
+	/**
+	 * allow to execute functions after x or y changes
+	 * this functions execute after the 'onChange' function
+	 * 
+	 * @param {string} id
+	 * @param {function} afterFunction
+	 */
+	addAfterFunction(id,afterFunction){
+		this._afterFunction[id] = afterFunction;
+		this._afterFunctionCount++;
+	}
+
+	/**
+	 * remove a fuction added with addAfterFunction() using id
+	 * 
+	 * @param {string} id
+	 */
+	removeAfterFunction(id){
+		if (this._afterFunctionCount > 0) {
+			delete this._afterFunction[id];
+			this._afterFunctionCount--;
 		}
 	}
-	get posX(){	return this.x;	}
-	set posX(newX){	this.x = newX;	}
-	get posY(){	return this.y;	}
-	set posY(newY){	this.y = newY;	}
+
+	/**
+	 * execute all afterFunctions stored
+	 */
+	executeAfterFunction(){
+		if (this._afterFunctionCount > 0){
+			let keys = Object.keys(this._afterFunction);
+
+			for(let key of keys){
+				this._afterFunction[key](this);
+			}
+		}
+	}	
 }
 
-class Sprite{
+class Sprite_enrike{
 	constructor(images){
 		this.images = new ImageLoader(images);
 		this._spriteIndex = 0;
@@ -42,9 +179,7 @@ class GameObject{
 
 		this.uid = name+(new Date().getTime());
 		this.gameObjectName = name;
-
 		this._grid = grid;
-
 		this.sprites = new Sprite(sprites);
 
 		let {
@@ -56,7 +191,7 @@ class GameObject{
 		this.hasCollition = hasCollition;
 		this.updateFunction = onUpdate;
 		
-		this.position = new GridPos( {x,y, gridPos} );
+		this.position = new Position( {x,y, gridPos} );
 		this.start();
 	}
 
@@ -65,20 +200,16 @@ class GameObject{
 	}
 
 	start(){
-		this.sprites.loadSprites((spr)=>{
-			// console.log( 'spr', spr )
-		}).then(resp=>{
-
-			this.drawInPosition(resp);
-
+		this.sprites.onImagesLoaded().then(resp=>{
+			this.drawInPosition();
 		}).catch(err=>{
 			console.error(err);
 		})
 	}
 
-	drawInPosition(loadedImages){
+	drawInPosition(){
 
-		let arr = [...[...this._grid.grid.flat(), ...loadedImages] ]
+		let arr = [...[...this._grid.grid.flat(), this.sprites] ]
 		this._grid.grid = [arr]
 	}
 

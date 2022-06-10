@@ -1,7 +1,7 @@
 class GridLayer {
-    constructor(uid) {
+    constructor() {
 
-			this.uid = uid || (new Date().getTime());
+		this.uid = 'GridLayer'+(new Date().getTime());
 
         this._grid = [];
         this._heigth = 0;
@@ -9,8 +9,10 @@ class GridLayer {
         this._hcenter = 0;
         this._wcenter = 0;
         
-        this._posX = 0;
-        this._posY = 0;
+        //this._posX = 0;
+        //this._posY = 0;
+
+        this._position = new Position();
     }
 
     get grid(){
@@ -25,6 +27,7 @@ class GridLayer {
         return this._wcenter;
     }
 
+    /*
     get posX(){
         return this._posX;
     }
@@ -39,6 +42,15 @@ class GridLayer {
 
     set posY(val){
         this._posY = val;
+    }
+    */
+
+    set position(pos){
+        this._position = pos;
+    }
+    
+    get position(){
+        return this._position;
     }
 
     set grid(arry){
@@ -65,11 +77,8 @@ class GridLayer {
         }
     }
 
-		addItem(newItem){	this._grid.push(newItem);	}
-
-    moveLayer(x,y){
-        this._posX+=x;
-        this._posY+=y;
+	addItem(newItem){	
+        this._grid.push(newItem);	
     }
 
     isColliding(anotherGrid){
@@ -82,12 +91,12 @@ class GridLayer {
             if (thisCell.collide){
                 anotherGrid.each((anotherCell,ah,aw)=>{
                     if (anotherCell.collide){
-                        let thisPosX    = tw - thisGrid.wCenter    + thisGrid.posX;
-                        let anotherPosX = aw - anotherGrid.wCenter + anotherGrid.posX;
+                        let thisPosX    = tw - thisGrid.wCenter    + thisGrid.position.x;
+                        let anotherPosX = aw - anotherGrid.wCenter + anotherGrid.position.x;
 
                         if (thisPosX > (anotherPosX-1) && thisPosX < (anotherPosX + 1)){
-                            let thisPosY    = th - thisGrid.hCenter    + thisGrid.posY;
-                            let anotherPosY = ah - anotherGrid.hCenter + anotherGrid.posY;
+                            let thisPosY    = th - thisGrid.hCenter    + thisGrid.position.y;
+                            let anotherPosY = ah - anotherGrid.hCenter + anotherGrid.position.y;
 
                             if (thisPosY > (anotherPosY-1) && thisPosY < (anotherPosY + 1)){
                                 collided = true;

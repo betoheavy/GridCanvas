@@ -3,9 +3,8 @@ class ImageLoader {
         this.imagesURL = images;
         this.images = [];
         this.imagePromises = [];
-
-				this.promisesStates = [];
-				this.loading = false;
+        this.promisesStates = [];
+        this.loading = false;
     }
 
     addImageURL(url){
@@ -13,22 +12,24 @@ class ImageLoader {
     }
 
     async onLoad(customFunction){
-				this.loading = true;
+		this.loading = true;
+        
         for(let imageURL of this.imagesURL){
             this.imagePromises.push(this.loadImage(imageURL));
         }
+
         this.images = await Promise.all(this.imagePromises);
         if(!!customFunction)	customFunction(this.images);
-				this.loading = false;
-				return this.images;
+		
+        this.loading = false;
+		return this.images;
     }
 
     loadImage(url){
         return new Promise(resolve => {
             let image = new Image();
             image.addEventListener('load', () => {
-                let CI = new CanvasImage([image]);
-                resolve(CI);
+                resolve(image);
             });
             image.src = url;
         });
