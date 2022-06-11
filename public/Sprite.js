@@ -1,14 +1,11 @@
 class Sprite{
-    constructor(images = []) {
+    constructor(images = [], options = {}) {
 
         this._imageArray = [];
-        this._index = 0;
-        this._flipX = false;
-        this._collide = false;
         this._length = 0;
         this._isReady = false;
 
-        if (images !== Array) images = [images];
+        if (!Array.isArray(images)) images = [images];
         if (images.length == 0) throw new Error("No images provided");
 
         let thisSprite = this;
@@ -27,10 +24,31 @@ class Sprite{
             }).catch(err=>{
                 console.error(err);
             })
-        }    
+        }
+
+        let{
+            index = 0,
+            flipX = false,
+            ticks = 30
+        }= options;
+
+        this._index = index;
+        this._flipX = flipX;
+        this._ticks = ticks;
+
+        this.currentTick = 0;
+
     }
 
     get image() {
+        
+        if (this.currentTick < this._ticks){
+            this.currentTick++;
+        }else{
+            this.currentTick = 0;
+            this._index++;
+            if (this._index >= this._length) this._index = 0;
+        }
         return this._imageArray[this._index];
     }
 
@@ -46,10 +64,6 @@ class Sprite{
         this._index = val;
     }
 
-    set collide(val){
-        this._collide = val;
-    }
-
     onImagesLoaded(onLoad){
 		return this.imageLoader.onLoad(onLoad);
 	}
@@ -61,7 +75,6 @@ class Sprite{
     clone(){
         let cloned = new CanvasImage(this._imageArray);
         cloned.flipX = this._flipX;
-        cloned.collide = this._collide;
         return cloned;
     }
 }

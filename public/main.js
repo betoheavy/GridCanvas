@@ -8,9 +8,10 @@ let objects     = new GridLayer();
 let player      = new GridLayer();
 
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
+
 let base = new GameObject(['img/base.svg'], {});
 let bloc = new GameObject(['img/block.svg'], {collide:true});
-let flop = new GameObject(['img/floppa.png'], {collide:true});
+let flop = new GameObject(['img/floppa_front_1.svg', 'img/floppa_front_2.svg'], {collide:true});
 let fire = new GameObject(['img/trasparent.png'], {grid:objects});
 let swrd = new GameObject(['img/sword.png'], {grid:objects});
 
@@ -18,6 +19,7 @@ let swrd = new GameObject(['img/sword.png'], {grid:objects});
 let controles   = new Control(move, null, null);
  
 //los layers necesitan una matriz para colocar objetos
+
 let customGrid = [];
 for (let x = 0; x < 18; x++){
     let col = [];
@@ -32,6 +34,7 @@ customGrid[2][3] = bloc;
 customGrid[3][2] = bloc;
 
 background.grid = customGrid;
+
 player.grid     = [[flop]];
 
 //si los objetos tienen un layer asignado, ellos puede colocarse ellos mismos (como el layer "objects")
