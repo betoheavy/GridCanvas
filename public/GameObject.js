@@ -1,173 +1,3 @@
-class Position{
-	/**
-	 * Control position in coordinates x and y in objects
-	 * options{onChange} function(Position) execute every time x or y changes
-	 * 
-	 * @param {int} x
-	 * @param {int} y
-	 * @param {object} options
-	 */
-	constructor(x=0, y=0, options){
-		this.uid = 'Position'+(new Date().getTime());
-		this._x = x;
-		this._y = y;
-		this._lastx = x;
-		this._lasty = y;
-		this._afterFunction = {};
-		this._afterFunctionCount = 0 ;
-
-		let onChange = false;
-
-		if (options){
-			let {
-				onChange = false
-			} = options;
-		}
-
-		this._onChange = onChange;
-	}
-	get x(){
-		return this._x;
-	}
-	set x(val){
-		this._lastx = this._x;
-		this._x = val;	
-		if(this._onChange) this._onChange(this);
-		this.executeAfterFunction();
-	}
-	get y(){
-		return this._y;
-	}
-	set y(val){
-		this._lasty = this._y;
-		this._y = val;
-		if(this._onChange) this._onChange(this);
-		this.executeAfterFunction();
-	}
-	get lastX(){
-		return this._lastX;
-	}
-	get lastY(){
-		return this._lastY;
-	}
-	/**
-	 * Set the exact position of x and y
-	 * Shorthand of set.x and set.y 
-	 * 
-	 * @param {int} x
-	 * @param {int} y
-	 */
-	set(x,y){
-		this._lastx = this._x;
-		this._lasty = this._y;
-		this._x = x;
-		this._y = y;
-		if(this._onChange) this._onChange(this);
-		this.executeAfterFunction();
-	}
-
-	/**
-	 * Add the position x and y to the current positio
-	 * 
-	 * @param {int} x
-	 * @param {int} y
-	 */
-	move(x,y){
-		this._lastx = this._x;
-		this._lasty = this._y;
-		this._x+= x;
-		this._y+= y;
-		if(this._onChange) this._onChange(this);
-		this.executeAfterFunction();
-	}
-
-	/**
-	 * Copy all movements of another position
-	 * 
-	 * @param {Position} anotherPosition
-	 */
-	follow(anotherPosition){
-		let thisPosition = this;
-		let followFunction = function(oPos){
-			thisPosition.move(oPos.x-oPos.lastX, oPos.y-oPos.lastY);
-		};
-
-		anotherPosition.addAfterFunction(this.uid, followFunction);
-	}
-
-	/**
-	 * remove the follow() link between 2 Positions
-	 * 
-	 * @param {Position} anotherPosition
-	 */
-	unfollow(anotherPosition){
-		anotherPosition.removeAfterFunction(this.uid);
-	}
-
-	/**
-	 * set a function(x,y) tha execute every time x or y changes
-	 * 
-	 * @param {function} onchange
-	 */
-	set onChange(onchange){
-		this._onChange = onchange;
-	}
-
-	/**
-	 * allow to execute functions after x or y changes
-	 * this functions execute after the 'onChange' function
-	 * 
-	 * @param {string} id
-	 * @param {function} afterFunction
-	 */
-	addAfterFunction(id,afterFunction){
-		this._afterFunction[id] = afterFunction;
-		this._afterFunctionCount++;
-	}
-
-	/**
-	 * remove a fuction added with addAfterFunction() using id
-	 * 
-	 * @param {string} id
-	 */
-	removeAfterFunction(id){
-		if (this._afterFunctionCount > 0) {
-			delete this._afterFunction[id];
-			this._afterFunctionCount--;
-		}
-	}
-
-	/**
-	 * execute all afterFunctions stored
-	 */
-	executeAfterFunction(){
-		if (this._afterFunctionCount > 0){
-			let keys = Object.keys(this._afterFunction);
-
-			for(let key of keys){
-				this._afterFunction[key](this);
-			}
-		}
-	}	
-}
-
-class Sprite_enrike{
-	constructor(images){
-		this.images = new ImageLoader(images);
-		this._spriteIndex = 0;
-	}
-	get isReady(){	return !this.images.loading;	}
-	set isReady(newVal){}
-
-	get baseSprite(){	return this.images[0];	}
-
-	get currentSprite(){	return this.images[this._spriteIndex]	}
-
-	loadSprites(onLoad){
-		return this.images.onLoad(onLoad);
-	}
-}
-
 class GameObject{
 	/**
 	 * @param {string} name 
@@ -175,42 +5,65 @@ class GameObject{
 	 * @param {function} onUpdate 
 	 * @param {object} meta 
 	 */
-	constructor(grid, name, sprites, meta={}){
+	constructor(sprite, meta={}){
 
-		this.uid = name+(new Date().getTime());
-		this.gameObjectName = name;
-		this._grid = grid;
-		this.sprites = new Sprite(sprites);
+		this.uid = "GameObject"+(new Date().getTime());
+        this._sprites = []; 
+        
+        if (sprite.length){
+            if (sprite[0].constructor.name === "Sprite") this._sprites = sprite;
+            if (sprite[0].constructor.name === "String") this._sprites.push(new Sprite(sprite));
+        }
 
-		let {
-			hasCollition=false
-			,x,y, gridPos
-			,onUpdate
-		} = meta;
+        if (this._sprites === undefined){
+            throw new Error("GameObject sprite must be a string or a sprite");
+        }
 
-		this.hasCollition = hasCollition;
-		this.updateFunction = onUpdate;
+        let {
+            collide = false,
+            position = new Position(),
+            index = 0,
+            grid = false
+        } = meta;
 		
-		this.position = new Position( {x,y, gridPos} );
-		this.start();
+
+        this._grid = grid;
+		this._collide = collide;
+        this._position = position;
+        this._index = index;
+
+        this.drawInPosition();
+
 	}
 
 	get sprite(){
-		return this.sprites.baseSprite;
+		return this._sprites[this._index];
 	}
 
-	start(){
-		this.sprites.onImagesLoaded().then(resp=>{
-			this.drawInPosition();
-		}).catch(err=>{
-			console.error(err);
-		})
-	}
+    get collide(){
+        return this._collide;
+    }
+
+    set collide(value){
+        this._collide = value;
+    }
+    
+    get position(){
+        return this._position;
+    }
+    set grid(value){
+        this._grid = value;
+        this.drawInPosition();
+    }
+    get grid(){
+        return this._grid;
+    }
 
 	drawInPosition(){
-
-		let arr = [...[...this._grid.grid.flat(), this.sprites] ]
-		this._grid.grid = [arr]
+        if (this._grid){
+		    let arr = [...[...this._grid.grid.flat(), this] ];
+		    this._grid.grid = [arr];
+        }
 	}
 
 	onUpdate(){

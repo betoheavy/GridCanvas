@@ -4,7 +4,7 @@ class GridCanvas {
         this.canvas  = document.getElementById(id);
         this.context = this.canvas.getContext('2d');
         
-        this._grid = 9;
+        this._gridSquared = 9;
         this._grids = [];
         this._maxArea = 0;
 
@@ -55,7 +55,7 @@ class GridCanvas {
     resizeCanvas() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-        this._maxArea = Math.sqrt(window.innerWidth * window.innerHeight) / this._grid; //lado de los cubos de la grid
+        this._maxArea = Math.sqrt(window.innerWidth * window.innerHeight) / this._gridSquared; //lado de los cubos de la grid
 
         this.context.translate(
             this.canvas.width/2 - this._maxArea/2, 
@@ -81,26 +81,29 @@ class GridCanvas {
             oGrid.position.x, oGrid.position.y
         );
 
-        oGrid.each((canvasImage,h,w) =>{
-            if (canvasImage.flipX){
-                this.context.scale(-1, 1);
-                
-                this.context.drawImage(
-                    canvasImage.image, 
-                    w-oGrid.wCenter - 1, 
-                    h-oGrid.hCenter
-                    ,1,1
-                );
-                
-                this.context.scale(-1, 1);
-            }
-            else{
-                this.context.drawImage(
-                    canvasImage.image, 
-                    w-oGrid.wCenter, 
-                    h-oGrid.hCenter, 
-                    1, 1
-                );
+        oGrid.each((gameObject,h,w) =>{
+            let oSprite = gameObject.sprite;
+            if (oSprite.isReady){
+                if (oSprite.flipX){
+                    this.context.scale(-1, 1);
+                    
+                    this.context.drawImage(
+                        oSprite.image, 
+                        w-oGrid.center.x - 1, 
+                        h-oGrid.center.y
+                        ,1,1
+                    );
+                    
+                    this.context.scale(-1, 1);
+                }
+                else{
+                    this.context.drawImage(
+                        oSprite.image, 
+                        w-oGrid.center.x, 
+                        h-oGrid.center.y, 
+                        1, 1
+                    );
+                }
             }
         })
     }
