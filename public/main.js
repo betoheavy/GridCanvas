@@ -8,18 +8,36 @@ let objects     = new GridLayer();
 let player      = new GridLayer();
 
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
-
 let base = new GameObject(['img/base.svg'], {});
 let bloc = new GameObject(['img/block.svg'], {collide:true});
-let flop = new GameObject(['img/floppa_front_1.svg', 'img/floppa_front_2.svg'], {collide:true});
 let fire = new GameObject(['img/trasparent.png'], {grid:objects});
 let swrd = new GameObject(['img/sword.png'], {grid:objects});
 
+// "flop" sera un gameObject mas complejo, con varios sprites (algunos animados)
+let sptFront    = new Sprite('img/floppa/front.svg');
+let sptFrontMv  = new Sprite(['img/floppa/front_1.svg', 'img/floppa/front_2.svg'],{ticks:15});
+let sptLeft     = new Sprite('img/floppa/left.svg');
+let sptLeftMv   = new Sprite(['img/floppa/left_1.svg','img/floppa/left_2.svg'],{ticks:15});
+let sptBack     = new Sprite('img/floppa/back.svg');
+let sptBackMv   = new Sprite(['img/floppa/back_1.svg','img/floppa/back_2.svg'],{ticks:15});
+
+//pasamos nuestros sprites a un objeto para despues ponerlo en el constructor de "flop" (GameObject)
+let flopSprites = {
+    front:      sptFront,
+    frontMove : sptFrontMv,
+    left:       sptLeft,
+    leftMove:   sptLeftMv,
+    back:       sptBack,
+    backMove:   sptBackMv,
+}
+
+//"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en "front"
+let flop = new GameObject(flopSprites, {collide:true, index:"front"});
+
 // un objeto Control para ejecutar la funcion "move" mas abajo
-let controles   = new Control(move, null, null);
+let controles = new Control(move, stopMove, null);
  
 //los layers necesitan una matriz para colocar objetos
-
 let customGrid = [];
 for (let x = 0; x < 18; x++){
     let col = [];
@@ -45,11 +63,7 @@ GC.addGrid(player);
 // focus permite tener un layer que no se mueva al mover la camara
 GC.focus = player;
 
-//esta variable a ocupamos para cambiar de orientacion el Sprite de "flop" segun los controles en "move()"
-let left = false;
-
 GC.start(ctx =>{
-    flop.sprite.flipX = left;
     controles.triggerInput();
 });
 
@@ -57,10 +71,39 @@ GC.start(ctx =>{
 function move(dp, controls){
     let vel = 1/8;
     
-    if( dp[controls.right] ){GC.moveCamera(-vel,0);left = false;}
-    if( dp[controls.left] ) {GC.moveCamera(vel,0); left = true;}
-    if( dp[controls.up] )   {GC.moveCamera(0,vel)}
-    if( dp[controls.down] ) {GC.moveCamera(0,-vel)}
-    if( dp[controls.miau] ) {SFX.play('floppa_miau')}
-    if( dp[controls.click] ){SFX.play('puaj')}
+    if(dp[controls.right]){
+        GC.moveCamera(-vel,0);
+        flop.index = "leftMove";
+        flop.sprite.flipX = true;
+    }
+    if(dp[controls.left]) {
+        GC.moveCamera(vel,0);
+        flop.index = "leftMove";
+        flop.sprite.flipX= false;
+    }
+    if(dp[controls.up]){
+        GC.moveCamera(0,vel);
+        flop.index = "backMove";
+    }
+    if(dp[controls.down] ) {
+        GC.moveCamera(0,-vel)
+        flop.index = "frontMove";
+    }
+    if(dp[controls.miau]) {SFX.play('floppa_miau')}
+    if(dp[controls.click]){SFX.play('puaj')}
+}
+
+function stopMove(dp, controls){
+    if (flop.index == "frontMove"){
+        flop.index = "front";
+    }
+    if (flop.index == "leftMove"){
+        let currentFlipX = flop.sprite.flipX;
+        flop.index = "left";
+        flop.sprite.flipX = currentFlipX;
+    }
+    if (flop.index == "backMove"){
+        flop.index = "back";
+    }
+        
 }

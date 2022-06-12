@@ -1,4 +1,10 @@
 class Sprite{
+    /**
+     * Contoller for drawing and managing Sprites with images 
+     * 
+     * @param {array[HTMLImageElement|String]} images 
+     * @param {Object} options 
+     */
     constructor(images = [], options = {}) {
 
         this._imageArray = [];

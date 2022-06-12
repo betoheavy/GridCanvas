@@ -8,21 +8,31 @@ class GameObject{
 	constructor(sprite, meta={}){
 
 		this.uid = "GameObject"+(new Date().getTime());
-        this._sprites = []; 
+        this._sprites = {}; 
+
+        let defaultIndex = '0';
+
+        if (sprite.constructor.name === "Sprite") sprite = [sprite];
+        if (sprite.constructor.name === "String") sprite = [sprite];
         
-        if (sprite.length){
-            if (sprite[0].constructor.name === "Sprite") this._sprites = sprite;
-            if (sprite[0].constructor.name === "String") this._sprites.push(new Sprite(sprite));
+        if (sprite.constructor.name === "Object"){
+            this._sprites = sprite;
+            defaultIndex = Object.keys(sprite)[0];
         }
 
-        if (this._sprites === undefined){
-            throw new Error("GameObject sprite must be a string or a sprite");
+        if (sprite.constructor.name === "Array"){
+            if (sprite.length){
+                if (sprite[0].constructor.name === "Sprite") for (let i in sprite) this._sprites[i] = sprite[i];
+                if (sprite[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprite);
+            }else{
+                throw new Error("GameObject sprite can't be empty");
+            }
         }
 
         let {
             collide = false,
             position = new Position(),
-            index = 0,
+            index = defaultIndex,
             grid = false
         } = meta;
 		
@@ -47,7 +57,12 @@ class GameObject{
     set collide(value){
         this._collide = value;
     }
-    
+    set index(value){
+        this._index = value;
+    }
+    get index(){
+        return this._index;
+    }
     get position(){
         return this._position;
     }
