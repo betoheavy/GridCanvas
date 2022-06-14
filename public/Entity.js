@@ -1,4 +1,4 @@
-class GameObject{
+class Entity{
 	/**
 	 * @param {string} name 
 	 * @param {Images URL Array} sprites 
@@ -7,7 +7,7 @@ class GameObject{
 	 */
 	constructor(sprite, meta={}){
 
-		this.uid = "GameObject"+(new Date().getTime());
+		this.uid = "Entity"+(new Date().getTime());
         this._sprites = {}; 
 
         let defaultIndex = '0';
@@ -25,7 +25,7 @@ class GameObject{
                 if (sprite[0].constructor.name === "Sprite") for (let i in sprite) this._sprites[i] = sprite[i];
                 if (sprite[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprite);
             }else{
-                throw new Error("GameObject sprite can't be empty");
+                throw new Error("Entity sprite can't be empty");
             }
         }
 
@@ -76,12 +76,20 @@ class GameObject{
 
 	drawInPosition(){
         if (this._grid){
-		    let arr = [...[...this._grid.grid.flat(), this] ];
-		    this._grid.grid = [arr];
+		    this._grid.addEntity(this);
         }
 	}
 
 	onUpdate(){
 		this.updateFunction();
 	}
+
+    clone(){
+        return new Entity(this._sprites,{
+            collide: this.collide,
+            position: new Position(this.position.x, this.position.y),
+            index: this.index,
+            grid: this.grid
+        })
+    }
 }

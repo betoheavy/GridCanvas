@@ -3,16 +3,10 @@ class GridLayer {
 
 		this.uid = 'GridLayer'+(new Date().getTime());
 
-        this._grid = [];
-        this._heigth = 0;
-        this._width = 0;
-
+        this._entities = [];
+        this._entitiesLength = 0;
         this._center = new Position();
         this._position = new Position();
-    }
-
-    get grid(){
-        return this._grid;
     }
 
     get center(){
@@ -27,32 +21,39 @@ class GridLayer {
         return this._position;
     }
 
-    set grid(arry){
-        this._grid = arry;
-
-        this._heigth = this._grid.length;
-        this._width = 0;
+    set grid(array){
+        
+        let heigth = array.length;
+        let width = 0;
             
-        for (let row of this._grid){
-            if (row) this._width = (row.length > this._width) ? row.length: this._width;
-        }
+        for (let row of array) if (row) width = (row.length > width) ? row.length: width;
 
-        this._center.y = ((this._heigth % 2) > 0)? (this._heigth - 1) / 2 : this._heigth/2;
-        this._center.x = ((this._width % 2)  > 0)? (this._width -  1) / 2 : this._width/2;
-    }
+        let cx = ((heigth % 2) > 0)? (heigth - 1) / 2 : heigth/2;
+        let cy = ((width % 2)  > 0)? (width -  1) / 2 : width/2;
 
-    each(funct){
-        for (let h = 0; h < this._heigth; h++){
-            for (let w = 0; w < this._grid[h].length; w++){
-                if (this._grid[h][w]){
-                    funct(this._grid[h][w],h,w);
+        for (let row = 0; row < heigth; row++){
+            for (let col = 0; col < width; col++){
+                if (array[row] && array[row][col]){
+                    let cloned = array[row][col].clone();
+                    cloned.position.set(col-cy,cx-row);
+                    this._entities.push(cloned);
+                    this._entitiesLength++;
                 }
             }
         }
     }
 
-	addItem(newItem){	
-        this._grid.push(newItem);	
+    each(funct){
+        for (let h = 0; h < this._entitiesLength; h++){
+            if (this._entities[h]){
+                funct(this._entities[h],h);
+            }
+        }
+    }
+
+	addEntity(newItem){	
+        this._entities.push(newItem);	
+        this._entitiesLength++;
     }
 
     isColliding(anotherGrid){
@@ -61,10 +62,18 @@ class GridLayer {
 
         thisGrid.each(checkWithAnother);
 
-        function checkWithAnother(thisCell, th, tw){
+        function checkWithAnother(thisCell, pos){
             if (thisCell.collide){
-                anotherGrid.each((anotherCell,ah,aw)=>{
+
+                let th = -thisCell.position.y;
+                let tw = thisCell.position.x;
+
+                anotherGrid.each((anotherCell, pos2)=>{
                     if (anotherCell.collide){
+
+                        let ah = -anotherCell.position.y;
+                        let aw = anotherCell.position.x;
+
                         let thisPosX    = tw - thisGrid.center.x    + thisGrid.position.x;
                         let anotherPosX = aw - anotherGrid.center.x + anotherGrid.position.x;
 

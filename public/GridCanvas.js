@@ -81,8 +81,12 @@ class GridCanvas {
             oGrid.position.x, oGrid.position.y
         );
 
-        oGrid.each((gameObject,h,w) =>{
-            let oSprite = gameObject.sprite;
+        oGrid.each((entity,pos) =>{
+
+            let oSprite = entity.sprite;
+            let h = entity.position.y;
+            let w = entity.position.x;
+            
             if (oSprite.isReady){
                 if (oSprite.flipX){
                     this.context.scale(-1, 1);
@@ -90,7 +94,7 @@ class GridCanvas {
                     this.context.drawImage(
                         oSprite.image, 
                         w-oGrid.center.x - 1, 
-                        h-oGrid.center.y
+                        -h-oGrid.center.y
                         ,1,1
                     );
                     
@@ -100,7 +104,7 @@ class GridCanvas {
                     this.context.drawImage(
                         oSprite.image, 
                         w-oGrid.center.x, 
-                        h-oGrid.center.y, 
+                        -h-oGrid.center.y, 
                         1, 1
                     );
                 }
