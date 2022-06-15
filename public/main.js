@@ -53,7 +53,10 @@ customGrid[3][2] = bloc;
 
 background.grid = customGrid;
 
-player.grid     = [[flop]];
+//usar la funcion .grid clona los objetos para poder ponerle posiciones
+//player.grid     = [[flop]];
+// mejor ponerlo directamente
+player.addEntity(flop);
 
 //si los objetos tienen un layer asignado, ellos puede colocarse ellos mismos (como el layer "objects")
 GC.addGrid(background);
