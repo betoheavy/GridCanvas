@@ -42,21 +42,17 @@ let customGrid = [];
 for (let x = 0; x < 18; x++){
     let col = [];
     for (let y = 0; y < 18; y++){
-        if (y == 0 || y == 17 || x == 0 || x== 17) col.push(bloc);
-        else col.push(base);
+        if (y == 0 || y == 17 || x == 0 || x== 17) col.push(bloc.clone());
+        else col.push(base.clone());
     }
     customGrid.push(col);
 }
-customGrid[2][2] = bloc;
-customGrid[2][3] = bloc;
-customGrid[3][2] = bloc;
+customGrid[2][2] = bloc.clone();
+customGrid[2][3] = bloc.clone();
+customGrid[3][2] = bloc.clone();
 
-background.grid = customGrid;
-
-//usar la funcion .grid clona los objetos para poder ponerle posiciones
-//player.grid     = [[flop]];
-// mejor ponerlo directamente
-player.addEntity(flop);
+background.grid(customGrid);
+player.grid([[flop]]);
 
 //si los objetos tienen un layer asignado, ellos puede colocarse ellos mismos (como el layer "objects")
 GC.addGrid(background);

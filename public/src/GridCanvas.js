@@ -1,10 +1,10 @@
 class GridCanvas {
     
-    constructor(id) {
+    constructor(id, options = {}) {
         this.canvas  = document.getElementById(id);
         this.context = this.canvas.getContext('2d');
         
-        this._gridSquared = 9;
+        
         this._grids = [];
         this._maxArea = 0;
 
@@ -13,6 +13,18 @@ class GridCanvas {
 
 		this._background = null;
 		this._focus = null;
+
+        let{
+            frameDuration = 16,
+            backgroundColor = "black",
+            gridSquared = 9
+        }= options;
+
+        this._gridSquared = gridSquared;
+        this.backgroundColor = backgroundColor;
+        this.frameDuration = frameDuration;
+
+
     }
 
     set grids(value) {
@@ -41,14 +53,14 @@ class GridCanvas {
         this.resizeCanvas();
 
         while (this._play){
-            this.context.fillStyle = "black";
+            this.context.fillStyle = this.backgroundColor;
             this.context.fillRect(-this.canvas.width/2, -this.canvas.height/2, this.canvas.width, this.canvas.height);
 
             if (this._onDraw ) this._onDraw(this ,this.grids);
             for (let grid of this._grids) this.drawGrid(grid);
 
             this._resized = false;
-            await this.delay(16); // 60 FPS WOW
+            await this.delay(this.frameDuration);
         }
     }
 

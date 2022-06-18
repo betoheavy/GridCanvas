@@ -21,7 +21,7 @@ class GridLayer {
         return this._position;
     }
 
-    set grid(array){
+    grid(array, clone = false){
         
         let heigth = array.length;
         let width = 0;
@@ -34,7 +34,8 @@ class GridLayer {
         for (let row = 0; row < heigth; row++){
             for (let col = 0; col < width; col++){
                 if (array[row] && array[row][col]){
-                    let cloned = array[row][col].clone();
+                    let cloned = array[row][col];
+                    if (clone) cloned = cloned.clone();
                     cloned.position.set(col-cy,cx-row);
                     this._entities.push(cloned);
                     this._entitiesLength++;
