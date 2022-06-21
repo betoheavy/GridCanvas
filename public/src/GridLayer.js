@@ -103,13 +103,13 @@ class GridLayer {
         function checkWithAnother(thisCell, pos){
             if (thisCell.collide){
 
-                let th = -thisCell.position.y;
+                let th = thisCell.position.y;
                 let tw = thisCell.position.x;
 
                 anotherGrid.each((anotherCell, pos2)=>{
                     if (anotherCell.collide){
 
-                        let ah = -anotherCell.position.y;
+                        let ah = anotherCell.position.y;
                         let aw = anotherCell.position.x;
 
                         let thisPosX    = tw - thisGrid.center.x    + thisGrid.position.x;

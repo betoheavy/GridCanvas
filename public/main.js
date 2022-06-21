@@ -71,21 +71,21 @@ function move(dp, controls){
     let vel = 1/8;
     
     if(dp[controls.right]){
-        GC.moveCamera(-vel,0);
+        GC.moveAllLayers(-vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = true;
     }
     if(dp[controls.left]) {
-        GC.moveCamera(vel,0);
+        GC.movmoveAllLayerseAll(vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX= false;
     }
     if(dp[controls.up]){
-        GC.moveCamera(0,vel);
+        GC.moveAllLayers(0,-vel);
         flop.index = "backMove";
     }
     if(dp[controls.down] ) {
-        GC.moveCamera(0,-vel)
+        GC.moveAllLayers(0,vel)
         flop.index = "frontMove";
     }
     if(dp[controls.miau]) {SFX.play('floppa_miau')}

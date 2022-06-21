@@ -90,7 +90,7 @@ class GridCanvas {
         this.context.save();    //cuando restaura "ocupa" el save, asi que mejor guardarlo enseguida
 
         this.context.translate(
-            oGrid.position.x, oGrid.position.y
+            oGrid.position.x, -oGrid.position.y
         );
 
         oGrid.each((entity,pos) =>{
@@ -133,44 +133,42 @@ class GridCanvas {
      * @param {*} x 
      * @param {*} y 
      */
-    moveCamera( x, y ){
+    moveAllLayers( x, y ){
         
-        // focus es la layer a la que se le centrara
-        // la camara y chekeara colisiones
-        let focus = this._focus;
-        // el resto de las layer que se moveran
-        let layersToMove = this.grids.filter(grid=>grid!=focus);
-        // layer colisionada
-        let collidedLayer = null;;
+        let focus           = this._focus;
+        let layersToMove    = this.grids.filter(grid=>grid!=focus);
+        let collidedLayer   = null;
+        let lLength         = layersToMove.length;
 
-        for( let i=0; i<layersToMove.length; i++){
+
+        //primero chequea que no haya ningun colisionando (para no guardar safes incorrectos)
+        for( let i=0; i<lLength; i++){
 
             let layer = layersToMove[i];
-            // se mueve una de las layers
             layer.position.move(x, y);
-            // en caso de que la layer focus colisione con otra layer
-            // o ya se haya colisionado anteriormente
-            // se vuelve a la ultima pos safe
-            if (focus.isColliding(layer) || !!collidedLayer){
+
+            if (focus && (focus.isColliding(layer) || !!collidedLayer)){
                 layer.position.x = layer.safeX;
                 layer.position.y = layer.safeY;
-                // se actualiza las layer anteriores
+
                 for( let c=i; c>=0; c-- ){
                     let prelayer = layersToMove[c];
                     prelayer.position.x = prelayer.safeX;
                     prelayer.position.y = prelayer.safeY;
                 }
-                // se actualiza que layer coliosono
-                // y se salta el resto del for
+
                 collidedLayer = layer;
-                continue;
-            }else{
-                // en caso de que no haya problema, se actualiza la posicion
-                // de la layer
+                i = lLength;
+            }
+        }
+        
+        // si no encotro ninguna, guarda los safes
+        for( let i=0; i<lLength; i++){
+            let layer = layersToMove[i];
+            if(!collidedLayer){
                 layer.safeX = layer.position.x;
                 layer.safeY = layer.position.y;
             }
-            
         }
     }
 }
