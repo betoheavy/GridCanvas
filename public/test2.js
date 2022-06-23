@@ -10,7 +10,7 @@ let player = new GridLayer();
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
 let X = new Entity(['img/isometric/green.svg'], {});
 let _ = new Entity(['img/isometric/brown.svg'], {});
-let O = new Entity(['img/isometric/dither.svg'], {collide:true,});
+let O = new Entity(['img/isometric/dither.svg'], {collision:true,});
 
 // "flop" sera un gameObject mas complejo, con varios sprites (algunos animados)
 let sptFront    = new Sprite('img/floppa/front.svg');
@@ -31,7 +31,7 @@ let flopSprites = {
 }
 
 //"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en "front"
-let flop = new Entity(flopSprites, {collide:true, index:"front", grid:player});
+let flop = new Entity(flopSprites, {collision:true, index:"front", grid:player});
  
 //los layers necesitan una matriz para colocar objetos
 let customGrid = [
@@ -45,11 +45,11 @@ let customGrid = [
     [_,_,X,_,_,_,X,_,X,_,X,_,X,_,X,_,_,_,X,_,X,_,X,_,_,_,X,_,X,_,_],
     [_,_,_,X,X,_,X,_,X,_,X,X,X,_,X,_,_,_,X,_,X,_,X,X,X,_,_,X,_,_,_],
     [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,_,X,X,_,_,X,_,X,X,X,_,X,X,X,_,_,X,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,_,X,_,X,_,X,_,X,_,_,_,X,_,_,_,X,_,X,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,_,X,_,X,_,X,_,X,X,X,_,X,_,X,_,X,_,X,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,_,X,_,X,_,X,_,X,_,_,_,X,_,X,_,X,_,X,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,_,X,X,_,_,X,_,X,X,X,_,X,X,X,_,_,X,_,_,_,_,_,_,_,_],
+    [_,_,_,X,_,_,_,X,_,_,X,_,_,X,X,_,_,_,X,X,_,X,X,X,_,X,_,_,_,_,_],
+    [_,_,_,X,X,_,X,X,_,X,_,X,_,X,_,X,_,X,_,_,_,X,_,_,_,X,_,_,_,_,_],
+    [_,_,_,X,_,X,_,X,_,X,X,X,_,X,X,_,_,X,_,_,_,X,X,X,_,X,_,_,_,_,_],
+    [_,_,_,X,_,_,_,X,_,X,_,X,_,X,X,_,_,X,_,_,_,X,_,_,_,X,_,_,_,_,_],
+    [_,_,_,X,_,_,_,X,_,X,_,X,_,X,_,X,_,_,X,X,_,X,X,X,_,X,X,X,_,_,_],
     [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
     [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
     [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],

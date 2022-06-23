@@ -144,5 +144,34 @@ class Position{
 				this._afterFunction[key](this);
 			}
 		}
-	}	
+	}
+    /**
+	 * calcule the distance from this to another position "oPos"
+     * 
+     * @param {position} oPos
+     * @return {number} distance
+	 */
+    distanceTo(oPos){
+        return ((this.x - oPos.x) ** 2 + (this.y - oPos.y) ** 2) ** (1/2);
+    }
+
+    /**
+	 * sum this position with another position, and return a new instance with both added
+     * 
+     * @param {position} another
+     * @return {position} added
+	 */
+    add(another){
+        return new Position(this.x + another.x, this.y + another.y);
+    }
+
+    /**
+	 * substract this position with another position, and return a new instance with both substract
+     * 
+     * @param {position} another
+     * @return {position} substracted
+	 */
+    sub(another){
+        return new Position(this.x - another.x, this.y - another.y);
+    }
 }

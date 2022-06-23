@@ -9,7 +9,7 @@ let player      = new GridLayer();
 
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
 let base = new Entity(['img/base.svg'], {});
-let bloc = new Entity(['img/block.svg'], {collide:true});
+let bloc = new Entity(['img/block.svg'], {collision:true});
 let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
 let swrd = new Entity(['img/sword.png'], {grid:objects, position: new Position(2,3)});
 
@@ -32,7 +32,7 @@ let flopSprites = {
 }
 
 //"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en "front"
-let flop = new Entity(flopSprites, {collide:true, index:"front"});
+let flop = new Entity(flopSprites, {collision:true, index:"front"});
 
 // un objeto Control para ejecutar la funcion "move" mas abajo
 let controles = new Control(move, stopMove, null);
@@ -76,9 +76,9 @@ function move(dp, controls){
         flop.sprite.flipX = true;
     }
     if(dp[controls.left]) {
-        GC.movmoveAllLayerseAll(vel,0);
+        GC.moveAllLayers(vel,0);
         flop.index = "leftMove";
-        flop.sprite.flipX= false;
+        flop.sprite.flipX = false;
     }
     if(dp[controls.up]){
         GC.moveAllLayers(0,-vel);

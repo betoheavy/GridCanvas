@@ -1,11 +1,9 @@
 class Entity{
 	/**
-	 * @param {string} name 
-	 * @param {Images URL Array} sprites 
-	 * @param {function} onUpdate 
-	 * @param {object} meta 
+	 * @param {Sprite|String|Array[Sprite|String]|Object[Sprite]} sprite
+	 * @param {object} options 
 	 */
-	constructor(sprite, meta={}){
+	constructor(sprite, options={}){
 
 		this.uid = "Entity"+(new Date().getTime());
         this._sprites = {}; 
@@ -30,15 +28,22 @@ class Entity{
         }
 
         let {
-            collide = false,
+            collision = false,
             position = new Position(),
             index = defaultIndex,
             grid = false
-        } = meta;
+        } = options;
 		
+        if (collision === true){
+            collision = new Collision();
+        }
+
+        if (collision.constructor.name === "Collision"){
+            collision.entity = this;
+        }
 
         this._grid = grid;
-		this._collide = collide;
+		this._collision = collision;
         this._position = position;
         this._index = index;
 
@@ -50,12 +55,15 @@ class Entity{
 		return this._sprites[this._index];
 	}
 
-    get collide(){
-        return this._collide;
+    get collision(){
+        return this._collision;
     }
 
-    set collide(value){
-        this._collide = value;
+    set collision(value){
+        if (value.constructor.name === "Collision"){
+            value.entity = this;
+        }
+        this._collision = value;
     }
     set index(value){
         this._index = value;
@@ -76,7 +84,8 @@ class Entity{
 
 	drawInPosition(){
         if (this._grid){
-		    this._grid.addEntity(this);
+            let find = this._grid.entities.findIndex(entity => entity === this);
+            if (find == -1) this._grid.addEntity(this);
         }
 	}
 
@@ -86,7 +95,7 @@ class Entity{
 
     clone(){
         return new Entity(this._sprites,{
-            collide: this.collide,
+            collision: (!!this.collision) ? this.collision.clone(): this.collision,
             position: new Position(this.position.x, this.position.y),
             index: this.index,
             grid: this.grid

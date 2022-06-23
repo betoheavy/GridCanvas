@@ -17,9 +17,11 @@ class GridCanvas {
         let{
             frameDuration = 16,
             backgroundColor = "black",
-            gridSquared = 9
+            gridSquared = 9,
+            debug = false
         }= options;
 
+        this.debug = debug;
         this._gridSquared = gridSquared;
         this.backgroundColor = backgroundColor;
         this.frameDuration = frameDuration;
@@ -93,7 +95,7 @@ class GridCanvas {
             oGrid.position.x, -oGrid.position.y
         );
 
-        oGrid.each((entity,pos) =>{
+        for (let entity of oGrid.entities){
 
             let oSprite = entity.sprite;
             let h = entity.position.y;
@@ -121,7 +123,7 @@ class GridCanvas {
                     );
                 }
             }
-        })
+        }
     }
 
     delay(ms){
@@ -147,7 +149,9 @@ class GridCanvas {
             let layer = layersToMove[i];
             layer.position.move(x, y);
 
-            if (focus && (focus.isColliding(layer) || !!collidedLayer)){
+            let collided = focus.isColliding(layer) ;
+
+            if (focus && (collided || !!collidedLayer)){
                 layer.position.x = layer.safeX;
                 layer.position.y = layer.safeY;
 

@@ -2,9 +2,9 @@ class GridLayer {
     constructor() {
 
 		this.uid = 'GridLayer'+(new Date().getTime());
+        this.entities = [];
+        this.entitiesLength = 0;
 
-        this._entities = [];
-        this._entitiesLength = 0;
         this._center = new Position();
         this._position = new Position();
     }
@@ -37,8 +37,7 @@ class GridLayer {
                     let cloned = array[row][col];
                     if (clone) cloned = cloned.clone();
                     cloned.position.set(col-cy,cx-row);
-                    this._entities.push(cloned);
-                    this._entitiesLength++;
+                    this.addEntity(cloned);
                 }
             }
         }
@@ -70,66 +69,36 @@ class GridLayer {
 
                     let cloned = array[row][col];
                     if (clone) cloned = cloned.clone();
-
-
                     cloned.position.set((x * isoX ) + (y * isoX ) , (y * isoY ) - (x * isoY ));
-                    this._entities.push(cloned);
-                    this._entitiesLength++;
+
+                    this.addEntity(cloned);
                 }
             }
         }
     }
 
-
-    each(funct){
-        for (let h = 0; h < this._entitiesLength; h++){
-            if (this._entities[h]){
-                funct(this._entities[h],h);
-            }
-        }
-    }
-
 	addEntity(newItem){	
-        this._entities.push(newItem);	
-        this._entitiesLength++;
+        this.entities.push(newItem);
+        newItem.grid = this;
+        this.entitiesLength++;
     }
 
-    isColliding(anotherGrid){
+    isColliding(otherGrid){
         let collided = false;
         let thisGrid = this;
 
-        thisGrid.each(checkWithAnother);
-
-        function checkWithAnother(thisCell, pos){
-            if (thisCell.collide){
-
-                let th = thisCell.position.y;
-                let tw = thisCell.position.x;
-
-                anotherGrid.each((anotherCell, pos2)=>{
-                    if (anotherCell.collide){
-
-                        let ah = anotherCell.position.y;
-                        let aw = anotherCell.position.x;
-
-                        let thisPosX    = tw - thisGrid.center.x    + thisGrid.position.x;
-                        let anotherPosX = aw - anotherGrid.center.x + anotherGrid.position.x;
-
-                        if (thisPosX > (anotherPosX-1) && thisPosX < (anotherPosX + 1)){
-                            let thisPosY    = th - thisGrid.center.y    + thisGrid.position.y;
-                            let anotherPosY = ah - anotherGrid.center.y + anotherGrid.position.y;
-
-                            if (thisPosY > (anotherPosY-1) && thisPosY < (anotherPosY + 1)){
-                                collided = true;
-                                return;
-                            }
-                        }
+        for (let thisCell of thisGrid.entities){
+            if (thisCell.collision){
+                for (let otherCell of otherGrid.entities){
+                    if (otherCell.collision){
+                        collided = thisCell.collision.collide(otherCell.collision);
+                        if (collided) break;     
                     }
-                });
+                }
             }
-            if (collided) return;
+            if (collided) break;  
         }
-
+        
         return collided;
     }
 
