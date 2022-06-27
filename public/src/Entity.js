@@ -74,6 +74,9 @@ class Entity{
     get position(){
         return this._position;
     }
+    set position(value){
+        this._position = value;
+    }
     set grid(value){
         this._grid = value;
         this.drawInPosition();
@@ -92,6 +95,30 @@ class Entity{
 	onUpdate(){
 		this.updateFunction();
 	}
+
+    isColliding(otherObject, ignore = []){
+
+        if (otherObject.constructor.name == "GridLayer"){
+            if (this.collision){
+                let arraycol = otherObject.entities.map(entity => {
+                    if (!ignore.includes(entity.collision)) return entity.collision;
+                    else return false;
+                });
+
+                arraycol = arraycol.filter(collision => !!collision)
+
+                return this.collision.collide(arraycol);
+            }
+        }
+
+        if (otherObject.constructor.name == "Entity"){
+            if (this.collision && otherObject.collision){
+                return this.collision.collide(otherObject.collision);
+            }
+        }
+
+        return false;
+    }
 
     clone(){
         return new Entity(this._sprites,{

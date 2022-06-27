@@ -174,4 +174,13 @@ class Position{
     sub(another){
         return new Position(this.x - another.x, this.y - another.y);
     }
+
+    /**
+	 * clone the Position
+     * 
+     * @return {position} cloned
+	 */
+    clone(){ 
+        return new Position(this.x, this.y);
+    }
 }

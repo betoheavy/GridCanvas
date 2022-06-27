@@ -83,14 +83,14 @@ class GridLayer {
         this.entitiesLength++;
     }
 
-    isColliding(otherGrid){
+    isColliding(otherGrid, ignore = []){
         let collided = false;
         let thisGrid = this;
 
         for (let thisCell of thisGrid.entities){
             if (thisCell.collision){
                 for (let otherCell of otherGrid.entities){
-                    if (otherCell.collision){
+                    if (otherCell.collision && !ignore.includes(otherCell)){
                         collided = thisCell.collision.collide(otherCell.collision);
                         if (collided) break;     
                     }

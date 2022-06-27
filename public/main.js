@@ -1,5 +1,5 @@
 // GridCanvas se encarga de dibujar y SFXPlayer de cargar los sonidos
-const GC    = new GridCanvas('mainCanvas');
+const GC    = new GridCanvas('mainCanvas',{debug:true});
 const SFX   = new SFXPlayer({floppa_miau: './sfx/floppa/miau.ogg', puaj: './sfx/floppa/guah.wav'});
 
 //los objetos se manejan en layers
@@ -9,7 +9,7 @@ let player      = new GridLayer();
 
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
 let base = new Entity(['img/base.svg'], {});
-let bloc = new Entity(['img/block.svg'], {collision:true});
+let bloc = new Entity(['img/block.svg'], {collision:new Collision("circle")});
 let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
 let swrd = new Entity(['img/sword.png'], {grid:objects, position: new Position(2,3)});
 
@@ -32,7 +32,7 @@ let flopSprites = {
 }
 
 //"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en "front"
-let flop = new Entity(flopSprites, {collision:true, index:"front"});
+let flop = new Entity(flopSprites, {collision:new Collision("circle"), index:"front"});
 
 // un objeto Control para ejecutar la funcion "move" mas abajo
 let controles = new Control(move, stopMove, null);
@@ -42,14 +42,14 @@ let customGrid = [];
 for (let x = 0; x < 18; x++){
     let col = [];
     for (let y = 0; y < 18; y++){
-        if (y == 0 || y == 17 || x == 0 || x== 17) col.push(bloc.clone());
+        if (y == 0 || y == 17 || x == 0 || x== 17) col.push(base.clone());
         else col.push(base.clone());
     }
     customGrid.push(col);
 }
-customGrid[2][2] = bloc.clone();
-customGrid[2][3] = bloc.clone();
-customGrid[3][2] = bloc.clone();
+//customGrid[2][2] = bloc.clone();
+//customGrid[2][3] = bloc.clone();
+customGrid[7][8] = bloc.clone();
 
 background.grid(customGrid);
 player.grid([[flop]]);

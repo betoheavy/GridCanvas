@@ -86,14 +86,24 @@ class GridCanvas {
 
     drawGrid(oGrid){
 
-			// console.log('oGrid', oGrid)
-
         this.context.restore(); //cuando dibujemos un layer nuevo, restaurar al posicion inicial
         this.context.save();    //cuando restaura "ocupa" el save, asi que mejor guardarlo enseguida
 
         this.context.translate(
             oGrid.position.x, -oGrid.position.y
         );
+
+        oGrid.entities.sort((a,b)=>{
+            if (a.position.y > b.position.y) return -1;
+            else{
+                if (a.position.y < b.position.y) return 1;
+                else{
+                    if (a.position.x < b.position.x) return -1;
+                    else if (a.position.x > b.position.x) return 1;
+                    else return 0 ;
+                }
+            }
+        });
 
         for (let entity of oGrid.entities){
 
@@ -107,7 +117,7 @@ class GridCanvas {
                     
                     this.context.drawImage(
                         oSprite.image, 
-                        w-oGrid.center.x - 1, 
+                        -w-oGrid.center.x - 1, 
                         -h-oGrid.center.y
                         ,1,1
                     );
@@ -122,6 +132,37 @@ class GridCanvas {
                         1, 1
                     );
                 }
+            }
+        }
+
+        if (this.debug){
+            for (let entity of oGrid.entities){
+
+                if (entity.collision){
+                    let oCollision = entity.collision;
+
+                    if (oCollision.type == "rectangle"){
+                        this.context.fillStyle = "rgba(255, 0, 0, 0.5)";
+                        this.context.fillRect(
+                            entity.position.x + oCollision.offset.x - oGrid.center.x,
+                            - entity.position.y - oCollision.offset.y - oGrid.center.y,
+                            oCollision.width,
+                            oCollision.height);
+                    }
+
+                    if (oCollision.type == "circle"){
+                        this.context.beginPath();
+                        this.context.arc(
+                            entity.position.x + oCollision.offset.x - oGrid.center.x + oCollision.width/2,
+                            - entity.position.y - oCollision.offset.y - oGrid.center.y + oCollision.height/2, 
+                            oCollision.radius, 
+                            0, 2 * Math.PI, false);
+                        this.context.fillStyle = "rgba(255, 0, 0, 0.5)";
+                        this.context.fill();
+                    }
+
+                }
+                
             }
         }
     }
@@ -148,30 +189,56 @@ class GridCanvas {
 
             let layer = layersToMove[i];
             layer.position.move(x, y);
+            if (focus.constructor.name === "Entity" && layer == focus.grid) focus.position.move(-x,-y);
 
-            let collided = focus.isColliding(layer) ;
+            if (focus){
 
-            if (focus && (collided || !!collidedLayer)){
-                layer.position.x = layer.safeX;
-                layer.position.y = layer.safeY;
+                if (focus.constructor.name === "GridLayer"){
+                    let collided = focus.isColliding(layer) ;
 
-                for( let c=i; c>=0; c-- ){
-                    let prelayer = layersToMove[c];
-                    prelayer.position.x = prelayer.safeX;
-                    prelayer.position.y = prelayer.safeY;
+                    if (collided || !!collidedLayer){
+                        layer.position = layer.safePosition;
+
+                        for( let c=i; c>=0; c-- ){
+                            let prelayer = layersToMove[c];
+                            prelayer.position = prelayer.safePosition;
+                        }
+
+                        collidedLayer = layer;
+                        i = lLength;
+                    }
                 }
 
-                collidedLayer = layer;
-                i = lLength;
+                if (focus.constructor.name === "Entity"){
+                    let collided = focus.isColliding(layer,[focus.collision]) ;
+
+                    if (collided || !!collidedLayer){
+
+                        layer.position = layer.safePosition.clone();
+                        focus.position = focus.safePosition.clone();
+
+                        for( let c=i; c>=0; c-- ){
+                            let prelayer = layersToMove[c];
+                            prelayer.position = prelayer.safePosition.clone();
+                        }
+
+                        collidedLayer = layer;
+                        i = lLength;
+                    }
+                }
             }
         }
         
         // si no encotro ninguna, guarda los safes
-        for( let i=0; i<lLength; i++){
-            let layer = layersToMove[i];
-            if(!collidedLayer){
-                layer.safeX = layer.position.x;
-                layer.safeY = layer.position.y;
+        if(!collidedLayer){
+
+            if (focus.constructor.name === "Entity"){
+                focus.safePosition = focus.position.clone();
+            }
+
+            for( let i=0; i<lLength; i++){
+                let layer = layersToMove[i];
+                layer.safePosition = layer.position.clone();
             }
         }
     }

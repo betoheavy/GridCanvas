@@ -1,16 +1,15 @@
 // GridCanvas se encarga de dibujar y SFXPlayer de cargar los sonidos
-const GC    = new GridCanvas('mainCanvas',{backgroundColor:"Lavender",gridSquared:18});
+const GC    = new GridCanvas('mainCanvas',{backgroundColor:"Lavender",gridSquared:18, debug:false});
 const SFX   = new SFXPlayer({floppa_miau: './sfx/floppa/miau.ogg', puaj: './sfx/floppa/guah.wav'});
 
 //los objetos se manejan en layers
 let test  = new GridLayer();
 let cerco = new GridLayer();
-let player = new GridLayer();
 
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
 let X = new Entity(['img/isometric/green.svg'], {});
 let _ = new Entity(['img/isometric/brown.svg'], {});
-let O = new Entity(['img/isometric/dither.svg'], {collision:true,});
+let O = new Entity(['img/isometric/dither.svg'], {collision:new Collision("circle",{radius:0.1}),});
 
 // "flop" sera un gameObject mas complejo, con varios sprites (algunos animados)
 let sptFront    = new Sprite('img/floppa/front.svg');
@@ -30,9 +29,6 @@ let flopSprites = {
     backMove:   sptBackMv,
 }
 
-//"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en "front"
-let flop = new Entity(flopSprites, {collision:true, index:"front", grid:player});
- 
 //los layers necesitan una matriz para colocar objetos
 let customGrid = [
     [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
@@ -81,12 +77,14 @@ cerco.position.move(0,0.5);
 // un objeto Control para ejecutar la funcion "move" mas abajo
 let controles = new Control(move, stopMove, null);
 
+//"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en "front"
+let flop = new Entity(flopSprites, {collision:new Collision("circle"), index:"front", grid:cerco});
+
 //si los objetos tienen un layer asignado, ellos puede colocarse ellos mismos (como el layer "objects")
 GC.addGrid(test);
 GC.addGrid(cerco);
-GC.addGrid(player);
 
-GC.focus = player;
+GC.focus = flop;
 
 GC.start(ctx =>{
     controles.triggerInput();
@@ -94,24 +92,24 @@ GC.start(ctx =>{
 
 //controla el teclado
 function move(dp, controls){
-    let vel = 1/16;
+    let vel = 1/8;
     
     if(dp[controls.right]){
-        GC.moveAllLayers(-vel,0);
+        GC.moveAllLayers(-vel,(vel/2));
         flop.index = "leftMove";
         flop.sprite.flipX = true;
     }
     if(dp[controls.left]) {
-        GC.moveAllLayers(vel,0);
+        GC.moveAllLayers(vel,(-vel/2));
         flop.index = "leftMove";
         flop.sprite.flipX= false;
     }
     if(dp[controls.up]){
-        GC.moveAllLayers(0,-vel);
+        GC.moveAllLayers((-vel*2),-vel);
         flop.index = "backMove";
     }
     if(dp[controls.down] ) {
-        GC.moveAllLayers(0,vel)
+        GC.moveAllLayers((vel*2),vel)
         flop.index = "frontMove";
     }
     if(dp[controls.miau]) {SFX.play('floppa_miau')}
