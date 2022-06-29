@@ -201,7 +201,7 @@ class GridCanvas {
 
                         for( let c=i; c>=0; c-- ){
                             let prelayer = layersToMove[c];
-                            prelayer.position = prelayer.safePosition;
+                            prelayer.position = prelayer.safePosition.clone();;
                         }
 
                         collidedLayer = layer;

@@ -28,9 +28,7 @@ class Control {
 
 		this.callbackDown = callbackDown;
 		this.callbackUp =callbackUp;
-
 		this.controlBtns = (controlBtns||new ControlBtns());
-
 		this.dicActiveControls = {};
 		
 		this.setEvents();
@@ -65,15 +63,10 @@ class Control {
 		}
 
 		let upEventFunction = (event)=>{
-			this.preDown();
-
+			this.preUp();
 			let key = event.key;
 			delete this.dicActiveControls[key];
-
-			if(!!this.callbackUp){
-				this.callbackUp();
-			}
-
+			if(!!this.callbackUp) this.callbackUp();
 			this.postUp()
 		}
 
