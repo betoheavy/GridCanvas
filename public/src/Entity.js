@@ -54,6 +54,9 @@ class Entity{
 	get sprite(){
 		return this._sprites[this._index];
 	}
+    get sprites(){
+        return this._sprites;
+    }
 
     get collision(){
         return this._collision;

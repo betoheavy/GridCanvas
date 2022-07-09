@@ -31,13 +31,13 @@ let flopSprites = {
     backMove:   sptBackMv,
 }
 
-//"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en "front"
+//"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en el sprite "front"
 let flop = new Entity(flopSprites, {collision:new Collision("rectangle"), index:"front"});
 
 // un objeto Control para ejecutar la funcion "move" mas abajo
 let controles = new Control(move, stopMove, null);
  
-//los layers necesitan una matriz para colocar objetos
+//a los layers se les agregaran entities utilizando una matriz de objectos entity y la funcion "grid"
 let customGrid = [];
 for (let x = 0; x < 18; x++){
     let col = [];
@@ -51,10 +51,11 @@ customGrid[2][2] = bloc.clone();
 customGrid[2][3] = bloc.clone();
 customGrid[7][8] = bloc.clone();
 
+//si los objetos tienen un layer asignado, ellos puede colocarse ellos mismos (como el layer "objects")
 background.grid(customGrid);
 player.grid([[flop]]);
 
-//si los objetos tienen un layer asignado, ellos puede colocarse ellos mismos (como el layer "objects")
+// ahora agregaremos los layers al gridCanvas
 GC.addGrid(background);
 GC.addGrid(objects);
 GC.addGrid(player);
@@ -74,11 +75,17 @@ function move(dp, controls){
         GC.moveAllLayers(-vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = true;
+        Object.values(flop.sprites).forEach(sprite => {
+            sprite.hue++;
+        });
     }
     if(dp[controls.left]) {
         GC.moveAllLayers(vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = false;
+        Object.values(flop.sprites).forEach(sprite => {
+            sprite.hue--;
+        });
     }
     if(dp[controls.up]){
         GC.moveAllLayers(0,-vel);
