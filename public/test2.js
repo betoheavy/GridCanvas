@@ -87,33 +87,60 @@ GC.addGrid(cerco);
 GC.focus = flop;
 
 GC.start(ctx =>{
-    controles.triggerInput();
+    controles.capture();
 });
 
 //controla el teclado
-function move(dp, controls){
-    let vel = 1/8;
-    
-    if(dp[controls.right]){
-        GC.moveAllLayers(-vel,(vel/2));
+function move(dp){
+    let velX = 1/4;
+    let velY = 1/8;
+
+    //no diagonal
+    if(dp["w"] && !dp["a"] && !dp["d"]){
+        GC.moveAllLayers(0,-velY);
+    }
+    if(dp["a"] && !dp["w"] && !dp["s"]){
+        GC.moveAllLayers(velX,0);
+    }
+    if(dp["s"] && !dp["a"] && !dp["d"]){
+        GC.moveAllLayers(0,velY);
+    }
+    if(dp["d"] && !dp["w"] && !dp["s"]){
+        GC.moveAllLayers(-velX,0);
+    }
+
+    //diagonal
+    if(dp["w"] && dp["d"]){
+        GC.moveAllLayers(-velX,-velY);
+    }
+    if(dp["w"] && dp["a"]){
+        GC.moveAllLayers(velX,-velY);
+    }
+    if(dp["s"] && dp["d"]){
+        GC.moveAllLayers(-velX,velY);
+    }
+    if(dp["s"] && dp["a"]){
+        GC.moveAllLayers(velX,velY);
+    }
+
+    //sprites
+    if(dp["d"]){
         flop.index = "leftMove";
         flop.sprite.flipX = true;
     }
-    if(dp[controls.left]) {
-        GC.moveAllLayers(vel,(-vel/2));
+    if(dp["a"]) {
         flop.index = "leftMove";
         flop.sprite.flipX= false;
     }
-    if(dp[controls.up]){
-        GC.moveAllLayers((-vel*2),-vel);
+    if(dp["w"]){
         flop.index = "backMove";
     }
-    if(dp[controls.down] ) {
-        GC.moveAllLayers((vel*2),vel)
+    if(dp["s"] ) {
         flop.index = "frontMove";
     }
-    if(dp[controls.miau]) {SFX.play('floppa_miau')}
-    if(dp[controls.click]){SFX.play('puaj')}
+
+    if(dp["g"]) {SFX.play('puaj')}
+    //if(dp[controls.click]){SFX.play('puaj')}
 }
 
 function stopMove(dp, controls){

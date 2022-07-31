@@ -134,7 +134,6 @@ class GridCanvas {
                     cached = oSprite.setCacheImage(this._maxArea);
                 }
                     
-
                 if (oSprite.flipX){
                     this.context.scale(-1, 1);
                     
@@ -144,15 +143,9 @@ class GridCanvas {
                         -h-oGrid.center.y
                         ,1,1
                     );
+
+                    this.context.scale(-1, 1);
                     
-                    /*
-                    this.context.putImageData(oSprite.image, 
-                        0, 0,
-                        -w-oGrid.center.x - 1, 
-                        -h-oGrid.center.y, 
-                        1,1)
-                    
-                    this.context.scale(-1, 1);*/
                 }
                 else{
                     this.context.drawImage(
@@ -160,15 +153,7 @@ class GridCanvas {
                         w-oGrid.center.x, 
                         -h-oGrid.center.y, 
                         1, 1
-                    );
-                    /*
-                    this.context.putImageData(oSprite.image, 
-                        0, 0,
-                        w-oGrid.center.x, 
-                        -h-oGrid.center.y, 
-                        1,1)
-                    */
-                    
+                    );               
                 }
                 
             }
