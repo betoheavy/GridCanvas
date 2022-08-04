@@ -11,7 +11,7 @@ let player      = new GridLayer();
 let base = new Entity(['img/base.svg'], {});
 let bloc = new Entity(['img/block.svg'], {collision:new Collision("rectangle")});
 let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
-let swrd = new Entity(['img/sword.png'], {grid:objects, position: new Position(2,3)});
+let swrd = new Entity(['img/3x3.png'], {grid:objects, position: new Position(2,3)});
 
 // "flop" sera un gameObject mas complejo, con varios sprites (algunos animados)
 let sptFront    = new Sprite('img/floppa/front.svg');
@@ -21,7 +21,7 @@ let sptLeftMv   = new Sprite(['img/floppa/left_1.svg','img/floppa/left_2.svg'],{
 let sptBack     = new Sprite('img/floppa/back.svg');
 let sptBackMv   = new Sprite(['img/floppa/back_1.svg','img/floppa/back_2.svg'],{ticks:15});
 
-//pasamos nuestros sprites a un objeto para despues ponerlo en el constructor de "flop" (GameObject)
+//pasamos nuestros sprites a un objeto para despues ponerlo en el constructor del GameObject "flop"
 let flopSprites = {
     front:      sptFront,
     frontMove : sptFrontMv,
@@ -34,10 +34,11 @@ let flopSprites = {
 //"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en el sprite "front"
 let flop = new Entity(flopSprites, {collision:new Collision("rectangle"), index:"front"});
 
-// un objeto Control para ejecutar la funcion "move" mas abajo
-let controles = new Control(move, stopMove, null);
+// un objeto Control para ejecutar la funcion "move()" y "stopMove()" mas abajo
+let controles = new Control(move, stopMove);
  
-//a los layers se les agregaran entities utilizando una matriz de objectos entity y la funcion "grid"
+//a los layers se les agregaran entities utilizando una matriz de objectos entity y la funcion "grid()" el cual los ordenara en forma de rejilla
+//(es necesario clonar los objetos usando "clone()", ya que sino intentara poner el mismo objeto en todos los lugares)
 let customGrid = [];
 for (let x = 0; x < 18; x++){
     let col = [];
@@ -64,14 +65,14 @@ GC.addGrid(player);
 GC.focus = player;
 
 GC.start(ctx =>{
-    controles.triggerInput();
+    controles.capture();
 });
 
-//controla el teclado
-function move(dp, controls){
+//las funciones que controlan el teclado
+function move(button){
     let vel = 1/8;
     
-    if(dp[controls.right]){
+    if(button['d']){
         GC.moveAllLayers(-vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = true;
@@ -79,7 +80,7 @@ function move(dp, controls){
             sprite.hue++;
         });
     }
-    if(dp[controls.left]) {
+    if(button['a']) {
         GC.moveAllLayers(vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = false;
@@ -87,18 +88,17 @@ function move(dp, controls){
             sprite.hue--;
         });
     }
-    if(dp[controls.up]){
+    if(button['w']){
         GC.moveAllLayers(0,-vel);
         flop.index = "backMove";
     }
-    if(dp[controls.down] ) {
+    if(button['s'] ) {
         GC.moveAllLayers(0,vel)
         flop.index = "frontMove";
     }
-    if(dp[controls.miau]) {SFX.play('floppa_miau')}
-    if(dp[controls.click]){SFX.play('puaj')}
+    if(button['f'])         {SFX.play('floppa_miau')}
+    if(button['mousedown']) {SFX.play('puaj')}
 }
-
 function stopMove(dp, controls){
     if (flop.index == "frontMove"){
         flop.index = "front";

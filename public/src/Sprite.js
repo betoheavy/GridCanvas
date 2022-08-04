@@ -4,6 +4,14 @@ class Sprite{
      * 
      * @param {array[HTMLImageElement|String]} images 
      * @param {Object} options 
+     * 
+     * options are;
+     *  index: (0)      place of the array of images to draw
+     *  flipX: (false)  whether to flip the image horizontally
+     *  ticks: (30)     number of ticks to draw next image 
+     *  hue:   (0)      the hue of the image
+     *  pixel: (true)   draw without smoothing the image
+     * 
      */
     constructor(images = [], options = {}) {
 
@@ -36,12 +44,14 @@ class Sprite{
             flipX = false,
             ticks = 30,
             hue = 0,
+            pixel = true,
         }= options;
 
         this._index = index;
         this._flipX = flipX;
         this._ticks = ticks;
-        this._hue    = hue;
+        this._hue   = hue;
+        this._pixel = pixel;
 
         this.currentTick = 0;
 
@@ -49,7 +59,8 @@ class Sprite{
 
     set imageArrayOriginal(array){
         this._imageArrayOriginal    = array;
-        this._imageArrayCache       = array;
+        // no dejar la imagen original como cached: no permite hacerle cambios con canvas
+        //this._imageArrayCache       = array;
         this._length                = this._imageArrayOriginal.length;
         this._isReady               = true;
         for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = true;
@@ -112,8 +123,7 @@ class Sprite{
         canvas.width    = square;
         canvas.height   = square;
 
-        //canvas.style.cssFloat = "right";
-        //document.body.appendChild(canvas);
+        if (this._pixel) context.imageSmoothingEnabled = false;
 
         context.drawImage(img, 0, 0, canvas.width, canvas.height);
         
