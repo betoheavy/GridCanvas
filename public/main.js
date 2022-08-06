@@ -76,17 +76,11 @@ function move(button){
         GC.moveAllLayers(-vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = true;
-        Object.values(flop.sprites).forEach(sprite => {
-            sprite.hue++;
-        });
     }
     if(button['a']) {
         GC.moveAllLayers(vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = false;
-        Object.values(flop.sprites).forEach(sprite => {
-            sprite.hue--;
-        });
     }
     if(button['w']){
         GC.moveAllLayers(0,-vel);
@@ -98,6 +92,8 @@ function move(button){
     }
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {SFX.play('puaj')}
+    if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}
+    if(button['e'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue++;});}
 }
 function stopMove(dp, controls){
     if (flop.index == "frontMove"){

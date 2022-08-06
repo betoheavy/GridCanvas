@@ -99,7 +99,10 @@ class Sprite{
     }
 
     set flipX(val){
-        this._flipX = val;
+        if (val != this._flipX){
+            this._flipX = val;
+            for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
+        }
     }
 
     set hue(val){
@@ -124,8 +127,14 @@ class Sprite{
         canvas.height   = square;
 
         if (this._pixel) context.imageSmoothingEnabled = false;
-
-        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        if (this._flipX) {
+            context.scale(-1, 1);
+            context.drawImage(img, -canvas.width, 0, canvas.width, canvas.height);
+            context.scale(-1, 1);
+        }else{
+            context.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
         
         const imgData   = context.getImageData(0, 0, canvas.width, canvas.height)
         const dLength   = imgData.data.length

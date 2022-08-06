@@ -1,13 +1,13 @@
 class GridCanvas {
     /**
      * Main class for managing a canvas as a grid
-     * id is the html id of the canvas
+     * id is the html DOM id of the canvas
      * 
      * the options are:
-     *  frameDuration   = {int} number of milliseconds of animation;
-     *  backgroundColor = {String} color of the background;
-     *  gridSquared     = {int} number of total squares shown in the canvas, the number is squared so 2 = 4 squares, 9 = 81 squares, etc..
-     *  debug           = {boolean{ indicating  whether the canvas is debug enabled;
+     *  frameDuration   = {int}     number of milliseconds of animation;
+     *  backgroundColor = {String}  color of the background;
+     *  gridSquared     = {int}     number of total squares shown in the canvas, the number is squared so 2 = 4 squares, 9 = 81 squares, etc..
+     *  debug           = {boolean} indicating  whether the canvas is debug enabled;
      * 
      * @param {"String"} id
      * @param {"Object"} options 
@@ -37,7 +37,6 @@ class GridCanvas {
         this._gridSquared = gridSquared;
         this.backgroundColor = backgroundColor;
         this.frameDuration = frameDuration;
-
     }
 
     set grids(value) {
@@ -95,7 +94,6 @@ class GridCanvas {
         this.context.save();
         
         let ccontext = this.canvas.getContext('2d');
-        let sideSquare = this._maxArea/this._gridSquared;
         ccontext.scale(this._maxArea , this._maxArea);
     }
 
@@ -134,7 +132,7 @@ class GridCanvas {
                     cached = oSprite.setCacheImage(this._maxArea);
                 }
                     
-                if (oSprite.flipX){
+                /*if (oSprite.flipX){
                     this.context.scale(-1, 1);
                     
                     this.context.drawImage(
@@ -147,14 +145,14 @@ class GridCanvas {
                     this.context.scale(-1, 1);
                     
                 }
-                else{
+                else{*/
                     this.context.drawImage(
                         cached, 
                         w-oGrid.center.x, 
                         -h-oGrid.center.y, 
                         1, 1
                     );               
-                }
+                //}
                 
             }
         }
