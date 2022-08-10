@@ -7,6 +7,14 @@ let background  = new GridLayer();
 let objects     = new GridLayer();
 let player      = new GridLayer();
 
+//los layers los veran camaras
+let mainCamera = new Camera();
+let miniCamera = new Camera({widthPercent: 25, heightPercent: 25, hPosition: 75});
+
+//agregamos nuestras camaras al renderer
+GC.cameras = {main: mainCamera, mini: miniCamera}
+GC.mainCamera = "main";
+
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
 let base = new Entity(['img/base.svg'], {});
 let bloc = new Entity(['img/block.svg'], {collision:new Collision("rectangle")});
@@ -61,8 +69,8 @@ GC.addGrid(background);
 GC.addGrid(objects);
 GC.addGrid(player);
 
-// focus permite tener un layer que no se mueva al mover la camara
-GC.focus = player;
+// la camara principal seguira al floppa
+//mainCamera.position.follow(flop.position);
 
 GC.start(ctx =>{
     controles.capture();
@@ -73,21 +81,26 @@ function move(button){
     let vel = 1/8;
     
     if(button['d']){
-        GC.moveAllLayers(-vel,0);
+        //GC.moveAllLayers(-vel,0);
+        mainCamera.position.move(vel,0);
+        flop.position.move(vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = true;
     }
     if(button['a']) {
-        GC.moveAllLayers(vel,0);
+        mainCamera.position.move(-vel,0);
+        flop.position.move(-vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = false;
     }
     if(button['w']){
-        GC.moveAllLayers(0,-vel);
+        mainCamera.position.move(0,vel);
+        flop.position.move(0,vel);
         flop.index = "backMove";
     }
     if(button['s'] ) {
-        GC.moveAllLayers(0,vel)
+        mainCamera.position.move(0,-vel);
+        flop.position.move(0,-vel);
         flop.index = "frontMove";
     }
     if(button['f'])         {SFX.play('floppa_miau')}
