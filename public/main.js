@@ -9,7 +9,7 @@ let player      = new GridLayer();
 
 //los layers los veran camaras
 let mainCamera = new Camera();
-let miniCamera = new Camera({widthPercent: 25, heightPercent: 25, hPosition: 75});
+let miniCamera = new Camera({widthPercent: 25, heightPercent: 25, hPosition: 75, tiles:700});
 
 //agregamos nuestras camaras al renderer
 GC.cameras = {main: mainCamera, mini: miniCamera}
@@ -70,7 +70,7 @@ GC.addGrid(objects);
 GC.addGrid(player);
 
 // la camara principal seguira al floppa
-//mainCamera.position.follow(flop.position);
+mainCamera.position.follow(flop.position);
 
 GC.start(ctx =>{
     controles.capture();
@@ -79,48 +79,45 @@ GC.start(ctx =>{
 //las funciones que controlan el teclado
 function move(button){
     let vel = 1/8;
+    let x = flop.position.x;
+    let y = flop.position.y;
     
     if(button['d']){
-        //GC.moveAllLayers(-vel,0);
-        mainCamera.position.move(vel,0);
         flop.position.move(vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = true;
-        //vuelve para atras
-        if (flop.isColliding(background)){
-            mainCamera.position.move(-vel,0);
-            flop.position.move(-vel,0);
-        }
+
+        if (flop.isColliding(background)) flop.position.set(x,y);
+        else {x = flop.position.x; y = flop.position.y;}
     }
     if(button['a']) {
-        mainCamera.position.move(-vel,0);
         flop.position.move(-vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = false;
-        //vuelve para atras
-        if (flop.isColliding(background)){
-            mainCamera.position.move(vel,0);
-            flop.position.move(vel,0);
-        }
+
+        if (flop.isColliding(background)) flop.position.set(x,y);
+        else {x = flop.position.x; y = flop.position.y;}
     }
     if(button['w']){
-        mainCamera.position.move(0,vel);
         flop.position.move(0,vel);
         flop.index = "backMove";
-        if (flop.isColliding(background)){
-            mainCamera.position.move(0,-vel);
-            flop.position.move(0,-vel);
-        }
+
+        if (flop.isColliding(background)) flop.position.set(x,y);
+        else {x = flop.position.x; y = flop.position.y;}
     }
     if(button['s'] ) {
-        mainCamera.position.move(0,-vel);
         flop.position.move(0,-vel);
         flop.index = "frontMove";
-        if (flop.isColliding(background)){
-            mainCamera.position.move(0,vel);
-            flop.position.move(0,vel);
-        }
+
+        if (flop.isColliding(background)) flop.position.set(x,y);
+        else {x = flop.position.x; y = flop.position.y;}
     }
+
+    /* se coloca en cada boton, para mas fluidez del movimiento
+    if (flop.isColliding(background)){
+        flop.position.set(x,y);
+    }*/
+
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {SFX.play('puaj')}
     if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}

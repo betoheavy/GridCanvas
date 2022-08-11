@@ -41,10 +41,10 @@ class Position{
 		this.executeAfterFunction();
 	}
 	get lastX(){
-		return this._lastX;
+		return this._lastx;
 	}
 	get lastY(){
-		return this._lastY;
+		return this._lasty;
 	}
 	/**
 	 * Set the exact position of x and y
