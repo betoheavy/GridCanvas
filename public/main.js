@@ -86,22 +86,40 @@ function move(button){
         flop.position.move(vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = true;
+        //vuelve para atras
+        if (flop.isColliding(background)){
+            mainCamera.position.move(-vel,0);
+            flop.position.move(-vel,0);
+        }
     }
     if(button['a']) {
         mainCamera.position.move(-vel,0);
         flop.position.move(-vel,0);
         flop.index = "leftMove";
         flop.sprite.flipX = false;
+        //vuelve para atras
+        if (flop.isColliding(background)){
+            mainCamera.position.move(vel,0);
+            flop.position.move(vel,0);
+        }
     }
     if(button['w']){
         mainCamera.position.move(0,vel);
         flop.position.move(0,vel);
         flop.index = "backMove";
+        if (flop.isColliding(background)){
+            mainCamera.position.move(0,-vel);
+            flop.position.move(0,-vel);
+        }
     }
     if(button['s'] ) {
         mainCamera.position.move(0,-vel);
         flop.position.move(0,-vel);
         flop.index = "frontMove";
+        if (flop.isColliding(background)){
+            mainCamera.position.move(0,vel);
+            flop.position.move(0,vel);
+        }
     }
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {SFX.play('puaj')}

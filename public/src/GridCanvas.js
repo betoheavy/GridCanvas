@@ -6,7 +6,6 @@ class GridCanvas {
      * @param {"object"}    options                 - default options
      * @param {"boolean"}   options.frameDuration   - number of milliseconds of animation;
      * @param {"string"}    options.backgroundColor - color of the background;
-     * @param {"number"}    options.gridSquared     - number of total squares shown in the canvas, the number is squared so 2 = 4 squares, 9 = 81 squares, etc..
      * @param {"boolean"}   options.debug           - indicating  whether the canvas is debug enabled;
      *                                                                                                                      
      */
@@ -27,14 +26,12 @@ class GridCanvas {
         let{
             frameDuration = 16,
             backgroundColor = "black",
-            gridSquared = 27,
             cameras = [new Camera()],
             mainCamera = '0',
             debug = false
         }= options;
 
         this.debug              = debug;
-        this._gridSquared       = gridSquared;
         this.backgroundColor    = backgroundColor;
         this.frameDuration      = frameDuration;
         this._cameras           = cameras;
@@ -76,12 +73,34 @@ class GridCanvas {
         this.resizeCanvas();
 
         while (this._play){
+            //rellenamos el fondo negro
             this.context.fillStyle = this.backgroundColor;
             this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
             if (this._onDraw )                  this._onDraw(this ,this.grids);
-            for (let grid of this._grids)       this.drawGrid(grid);
-            for (let idx in this._cameras)      this.drawCamera(this._cameras[idx]);
+            
+            // ordena los Grids antes de dibujarlos
+            for (let oGrid of this._grids){
+                oGrid.entities.sort((a,b)=>{
+                    if (a.position.y > b.position.y) return -1;
+                    else{
+                        if (a.position.y < b.position.y) return 1;
+                        else{
+                            if (a.position.x < b.position.x) return -1;
+                            else if (a.position.x > b.position.x) return 1;
+                            else return 0 ;
+                        }
+                    }
+                });
+            }
+
+            //primero renderiza la camara principal
+            this.drawCamera(this._cameras[this._mainCamera]);
+
+            //luego las demas camaras (esto asegura que los sprites salgan con la calidad de la principal)
+            for (let idx in this._cameras){
+                if(this._cameras[idx] !== this._cameras[this._mainCamera]) this.drawCamera(this._cameras[idx]);
+            }
 
             await this.delay(this.frameDuration);
         }
@@ -112,35 +131,27 @@ class GridCanvas {
         }
     }
 
-    drawGrid(oGrid){
+    // TODO: trasladar esto a helpers
+    delay(ms){
+        return new Promise(res => setTimeout(res, ms))
+    };
 
-        let indexMaxArea = this.cameras[this._mainCamera].maxArea;
+    drawCamera(camera){
+        // limpiamos la camara
+        camera.context.clearRect(-camera.canvas.width/2, -camera.canvas.height/2, camera.canvas.width, camera.canvas.height);
 
-        for (let idx in this._cameras){
-
-            let camera = this._cameras[idx];
+        // rellenamos la camara con los sprites de los grids
+        for (let grid of this._grids){
+            let indexMaxArea = this.cameras[this._mainCamera].maxArea;
 
             camera.context.restore(); //cuando dibujemos un layer nuevo, restaurar al posicion inicial
             camera.context.save();    //cuando restaura "ocupa" el save, asi que mejor guardarlo enseguida
 
             camera.context.translate(
-                oGrid.position.x, -oGrid.position.y
+                grid.position.x, -grid.position.y
             );
 
-            oGrid.entities.sort((a,b)=>{
-                if (a.position.y > b.position.y) return -1;
-                else{
-                    if (a.position.y < b.position.y) return 1;
-                    else{
-                        if (a.position.x < b.position.x) return -1;
-                        else if (a.position.x > b.position.x) return 1;
-                        else return 0 ;
-                    }
-                }
-            });
-
-            for (let entity of oGrid.entities){
-
+            for (let entity of grid.entities){
                 let oSprite = entity.sprite;
                 let h = entity.position.y;
                 let w = entity.position.x;
@@ -151,52 +162,45 @@ class GridCanvas {
 
                     camera.context.drawImage(
                         cached, 
-                        w-oGrid.center.x-camera.position.x, 
-                        -h-oGrid.center.y+camera.position.y, 
+                        w-grid.center.x-camera.position.x, 
+                        -h-grid.center.y+camera.position.y, 
                         1, 1
                     );
                 }
             }
+
+            if (this.debug){
+                for (let entity of grid.entities){
+    
+                    if (entity.collision){
+                        let oCollision = entity.collision;
+    
+                        if (oCollision.type == "rectangle"){
+                            camera.context.fillStyle = "rgba(255, 0, 0, 0.5)";
+                            camera.context.fillRect(
+                                entity.position.x + oCollision.offset.x - grid.center.x -camera.position.x,
+                                - entity.position.y - oCollision.offset.y - grid.center.y +camera.position.y,
+                                oCollision.width,
+                                oCollision.height);
+                        }
+    
+                        if (oCollision.type == "circle"){
+                            camera.context.beginPath();
+                            camera.context.arc(
+                                entity.position.x + oCollision.offset.x - grid.center.x + oCollision.width/2 -camera.position.x,
+                                - entity.position.y - oCollision.offset.y - grid.center.y + oCollision.height/2 +camera.position.y, 
+                                oCollision.radius, 
+                                0, 2 * Math.PI, false);
+                            camera.context.fillStyle = "rgba(255, 0, 0, 0.5)";
+                            camera.context.fill();
+                        }
+                    }
+                    
+                }
+            }
         }
 
-        /*if (this.debug){
-            for (let entity of oGrid.entities){
-
-                if (entity.collision){
-                    let oCollision = entity.collision;
-
-                    if (oCollision.type == "rectangle"){
-                        this.context.fillStyle = "rgba(255, 0, 0, 0.5)";
-                        this.context.fillRect(
-                            entity.position.x + oCollision.offset.x - oGrid.center.x,
-                            - entity.position.y - oCollision.offset.y - oGrid.center.y,
-                            oCollision.width,
-                            oCollision.height);
-                    }
-
-                    if (oCollision.type == "circle"){
-                        this.context.beginPath();
-                        this.context.arc(
-                            entity.position.x + oCollision.offset.x - oGrid.center.x + oCollision.width/2,
-                            - entity.position.y - oCollision.offset.y - oGrid.center.y + oCollision.height/2, 
-                            oCollision.radius, 
-                            0, 2 * Math.PI, false);
-                        this.context.fillStyle = "rgba(255, 0, 0, 0.5)";
-                        this.context.fill();
-                    }
-
-                }
-                
-            }
-        }*/
-    }
-
-    // TODO: trasladar esto a helpers
-    delay(ms){
-        return new Promise(res => setTimeout(res, ms))
-    };
-
-    drawCamera(camera){
+        // dibujamos la camara en en caanvas principal
         this.context.drawImage(
             camera.canvas, 
             (this.canvas.width/100)*camera.hPosition, 
