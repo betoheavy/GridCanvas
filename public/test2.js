@@ -84,7 +84,8 @@ let flop = new Entity(flopSprites, {collision:new Collision("circle"), index:"fr
 GC.addGrid(test);
 GC.addGrid(cerco);
 
-GC.focus = flop;
+let camera = GC.cameras[GC.mainCamera];
+camera.position.follow(flop.position);
 
 GC.start(ctx =>{
     controles.capture();
@@ -92,36 +93,19 @@ GC.start(ctx =>{
 
 //controla el teclado
 function move(dp){
-    let velX = 1/4;
-    let velY = 1/8;
+    
 
     //no diagonal
-    if(dp["w"] && !dp["a"] && !dp["d"]){
-        GC.moveAllLayers(0,-velY);
-    }
-    if(dp["a"] && !dp["w"] && !dp["s"]){
-        GC.moveAllLayers(velX,0);
-    }
-    if(dp["s"] && !dp["a"] && !dp["d"]){
-        GC.moveAllLayers(0,velY);
-    }
-    if(dp["d"] && !dp["w"] && !dp["s"]){
-        GC.moveAllLayers(-velX,0);
-    }
+    if(dp["w"] && !dp["a"] && !dp["d"]) moveFlop( 0, 1);
+    if(dp["a"] && !dp["w"] && !dp["s"]) moveFlop(-1, 0);
+    if(dp["s"] && !dp["a"] && !dp["d"]) moveFlop( 0,-1);
+    if(dp["d"] && !dp["w"] && !dp["s"]) moveFlop( 1, 0);
 
     //diagonal
-    if(dp["w"] && dp["d"]){
-        GC.moveAllLayers(-velX,-velY);
-    }
-    if(dp["w"] && dp["a"]){
-        GC.moveAllLayers(velX,-velY);
-    }
-    if(dp["s"] && dp["d"]){
-        GC.moveAllLayers(-velX,velY);
-    }
-    if(dp["s"] && dp["a"]){
-        GC.moveAllLayers(velX,velY);
-    }
+    if(dp["w"] && dp["d"])              moveFlop( 1, 1);
+    if(dp["w"] && dp["a"])              moveFlop(-1, 1);
+    if(dp["s"] && dp["d"])              moveFlop( 1,-1);
+    if(dp["s"] && dp["a"])              moveFlop(-1,-1);
 
     //sprites
     if(dp["d"]){
@@ -141,6 +125,19 @@ function move(dp){
 
     if(dp["g"]) {SFX.play('puaj')}
     //if(dp[controls.click]){SFX.play('puaj')}
+
+    function moveFlop(vx,vy){
+        let velX    = 1/4;
+        let velY    = 1/8;
+        let x       = flop.position.x;
+        let y       = flop.position.y;
+
+        flop.position.move(velX*vx, velY*vy)
+
+        // no puedo ver si flop colisiona con cerco, ya que flop ES PARTE de cerco, y se chequea con el mismo.
+        // asi que se agrega la colision del flop a la lista de ignorados
+        if (flop.isColliding(cerco,[flop.collision])) flop.position.set(x,y);
+    }
 }
 
 function stopMove(dp, controls){
