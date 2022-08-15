@@ -151,6 +151,7 @@ class GridCanvas {
                 grid.position.x, -grid.position.y
             );
 
+            // ciclo que dibuja cada grid
             for (let entity of grid.entities){
                 let oSprite = entity.sprite;
                 let h = entity.position.y;
@@ -160,15 +161,21 @@ class GridCanvas {
                     let cached = oSprite.image;    
                     if (!cached) cached = oSprite.setCacheImage(indexMaxArea);
 
+                    if (oSprite.colSpan != 1){
+                        console.log("debug");
+                    }
+
                     camera.context.drawImage(
                         cached, 
-                        w-grid.center.x-camera.position.x, 
-                        -h-grid.center.y+camera.position.y, 
-                        1, 1
+                        w   -grid.center.x  -camera.position.x  -oSprite.centerX, 
+                        -h  -grid.center.y  +camera.position.y  +oSprite.centerY, 
+                        oSprite.colSpan * 1, 
+                        oSprite.rowSpan * 1
                     );
                 }
             }
 
+            //ciclo extra para debuggear
             if (this.debug){
                 for (let entity of grid.entities){
     
@@ -210,79 +217,6 @@ class GridCanvas {
         );
     }
 
-    /**
-     * sistema para mover camara multi layers
-     * TODO : mover a clase camera
-     * @param {*} x 
-     * @param {*} y 
-     */
-    /*moveAllLayers( x, y ){
-        
-        let focus           = this._focus;
-        let layersToMove    = this.grids.filter(grid=>grid!=focus);
-        let collidedLayer   = null;
-        let lLength         = layersToMove.length;
-
-
-        //primero chequea que no haya ningun colisionando (para no guardar safes incorrectos)
-        for( let i=0; i<lLength; i++){
-
-            let layer = layersToMove[i];
-            layer.position.move(x, y);
-            if (focus.constructor.name === "Entity" && layer == focus.grid) focus.position.move(-x,-y);
-
-            if (focus){
-
-                if (focus.constructor.name === "GridLayer"){
-                    let collided = focus.isColliding(layer) ;
-
-                    if (collided || !!collidedLayer){
-                        layer.position = layer.safePosition;
-
-                        for( let c=i; c>=0; c-- ){
-                            let prelayer = layersToMove[c];
-                            prelayer.position = prelayer.safePosition.clone();;
-                        }
-
-                        collidedLayer = layer;
-                        i = lLength;
-                    }
-                }
-
-                if (focus.constructor.name === "Entity"){
-                    let collided = focus.isColliding(layer,[focus.collision]) ;
-
-                    if (collided || !!collidedLayer){
-
-                        layer.position = layer.safePosition.clone();
-                        focus.position = focus.safePosition.clone();
-
-                        for( let c=i; c>=0; c-- ){
-                            let prelayer = layersToMove[c];
-                            prelayer.position = prelayer.safePosition.clone();
-                        }
-
-                        collidedLayer = layer;
-                        i = lLength;
-                    }
-                }
-            }
-        }
-        
-        // si no encotro ninguna, guarda los safes
-        if(!collidedLayer){
-
-            if (focus.constructor.name === "Entity"){
-                focus.safePosition = focus.position.clone();
-            }
-
-            for( let i=0; i<lLength; i++){
-                let layer = layersToMove[i];
-                layer.safePosition = layer.position.clone();
-            }
-        }
-    }
-    */
 }
 
 

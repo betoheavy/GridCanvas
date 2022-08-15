@@ -21,6 +21,10 @@ let bloc = new Entity(['img/block.svg'], {collision:new Collision("rectangle")})
 let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
 let swrd = new Entity(['img/3x3.png'], {grid:objects, position: new Position(2,3)});
 
+//agregaremos una entidad de largo 2
+let twerSprite  = new Sprite('img/isometric/eiffel.png',{rowSpan:2, centerY: -1});
+let twer        = new Entity(twerSprite, {grid:objects, position: new Position(3,0),collision:new Collision("rectangle")});
+
 // "flop" sera un gameObject mas complejo, con varios sprites (algunos animados)
 let sptFront    = new Sprite('img/floppa/front.svg');
 let sptFrontMv  = new Sprite(['img/floppa/front_1.svg', 'img/floppa/front_2.svg'],{ticks:15});
@@ -78,45 +82,33 @@ GC.start(ctx =>{
 
 //las funciones que controlan el teclado
 function move(button){
-    let vel = 1/8;
-    let x = flop.position.x;
-    let y = flop.position.y;
-    
     if(button['d']){
-        flop.position.move(vel,0);
+        moveFlop(1,0);
         flop.index = "leftMove";
         flop.sprite.flipX = true;
-
-        if (flop.isColliding(background)) flop.position.set(x,y);
-        else {x = flop.position.x; y = flop.position.y;}
     }
     if(button['a']) {
-        flop.position.move(-vel,0);
+        moveFlop(-1,-0);
         flop.index = "leftMove";
         flop.sprite.flipX = false;
-
-        if (flop.isColliding(background)) flop.position.set(x,y);
-        else {x = flop.position.x; y = flop.position.y;}
     }
     if(button['w']){
-        flop.position.move(0,vel);
+        moveFlop(0,1);
         flop.index = "backMove";
-
-        if (flop.isColliding(background)) flop.position.set(x,y);
-        else {x = flop.position.x; y = flop.position.y;}
     }
     if(button['s'] ) {
-        flop.position.move(0,-vel);
+        moveFlop(0,-1);
         flop.index = "frontMove";
-
-        if (flop.isColliding(background)) flop.position.set(x,y);
-        else {x = flop.position.x; y = flop.position.y;}
     }
 
-    /* se coloca en cada boton, para mas fluidez del movimiento
-    if (flop.isColliding(background)){
-        flop.position.set(x,y);
-    }*/
+    function moveFlop(vx,vy){
+        let vel = 1/8;
+        let x = flop.position.x;
+        let y = flop.position.y;
+
+        flop.position.move(vel * vx, vel * vy);
+        if (flop.isColliding(background) || flop.isColliding(objects)) flop.position.set(x,y);
+    }
 
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {SFX.play('puaj')}

@@ -40,19 +40,27 @@ class Sprite{
         }
 
         let{
-            index = 0,
-            flipX = false,
-            ticks = 30,
-            hue = 0,
-            pixel = true,
+            index   = 0,
+            flipX   = false,
+            ticks   = 30,
+            colSpan = 1,
+            rowSpan = 1,
+            centerX = 0,
+            centerY = 0,
+            hue     = 0,
+            pixel   = true,
         }= options;
 
-        this._index = index;
-        this._flipX = flipX;
-        this._ticks = ticks;
-        this._hue   = hue;
-        this._pixel = pixel;
+        this._index     = index;
+        this._flipX     = flipX;
+        this._ticks     = ticks;
+        this._hue       = hue;
+        this._pixel     = pixel;
 
+        this.colSpan   = colSpan;
+        this.rowSpan   = rowSpan;
+        this.centerX   = centerX;
+        this.centerY   = centerY;
         this.currentTick = 0;
 
     }
@@ -123,8 +131,8 @@ class Sprite{
         const context   = canvas.getContext("2d");
         const img       = this._imageArrayOriginal[this._index];
 
-        canvas.width    = square;
-        canvas.height   = square;
+        canvas.width    = square*this.rowSpan;
+        canvas.height   = square*this.colSpan;
 
         if (this._pixel) context.imageSmoothingEnabled = false;
         

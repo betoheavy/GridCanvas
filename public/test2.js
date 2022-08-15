@@ -11,6 +11,9 @@ let X = new Entity(['img/isometric/green.svg'], {});
 let _ = new Entity(['img/isometric/brown.svg'], {});
 let O = new Entity(['img/isometric/dither.svg'], {collision:new Collision("circle",{radius:0.1}),});
 
+// un entitiy puede tener un sprite mas grande que 1x1
+let imgA    = new Sprite('img/isometric/eiffel.png',{rowSpan:2, centerY: -1});
+
 // "flop" sera un gameObject mas complejo, con varios sprites (algunos animados)
 let sptFront    = new Sprite('img/floppa/front.svg');
 let sptFrontMv  = new Sprite(['img/floppa/front_1.svg', 'img/floppa/front_2.svg'],{ticks:15});
@@ -74,6 +77,9 @@ cerco.isometric(cercogrid,true);
 
 cerco.position.move(0,0.5);
 
+//a gregamso nuestra torre ahora que e lgid de cerco ya esta puesto
+let A    = new Entity(imgA, {grid:cerco, position: new Position(3,0),collision:new Collision("circle",{radius:0.1}),position: new Position(1,1)});
+
 // un objeto Control para ejecutar la funcion "move" mas abajo
 let controles = new Control(move, stopMove, null);
 
@@ -127,8 +133,8 @@ function move(dp){
     //if(dp[controls.click]){SFX.play('puaj')}
 
     function moveFlop(vx,vy){
-        let velX    = 1/4;
-        let velY    = 1/8;
+        let velX    = 1/8;
+        let velY    = 1/16;
         let x       = flop.position.x;
         let y       = flop.position.y;
 
