@@ -90,7 +90,7 @@ function move(button){
     if(button['a']) {
         moveFlop(-1,-0);
         flop.index = "leftMove";
-        flop.sprite.flipX = false;
+        flop.sprite.flipX = false; 
     }
     if(button['w']){
         moveFlop(0,1);
@@ -114,6 +114,10 @@ function move(button){
     if(button['mousedown']) {SFX.play('puaj')}
     if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}
     if(button['e'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue++;});}
+    if(button['z'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat--;});}
+    if(button['c'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat++;});}
+    if(button['ArrowUp'])   {Object.values(flop.sprites).forEach(sprite => {sprite.lum--;});}
+    if(button['ArrowDown']) {Object.values(flop.sprites).forEach(sprite => {sprite.lum++;});}
 }
 function stopMove(dp, controls){
     if (flop.index == "frontMove"){

@@ -42,19 +42,25 @@ class Sprite{
         let{
             index   = 0,
             flipX   = false,
+            flipY   = false,
             ticks   = 30,
             colSpan = 1,
             rowSpan = 1,
             centerX = 0,
             centerY = 0,
             hue     = 0,
+            sat     = 0,
+            lum     = 0,
             pixel   = true,
         }= options;
 
         this._index     = index;
         this._flipX     = flipX;
+        this._flipY     = flipY;
         this._ticks     = ticks;
         this._hue       = hue;
+        this._sat       = sat;
+        this._lum       = lum;
         this._pixel     = pixel;
 
         this.colSpan   = colSpan;
@@ -105,10 +111,19 @@ class Sprite{
     get flipX(){
         return this._flipX;
     }
-
     set flipX(val){
         if (val != this._flipX){
             this._flipX = val;
+            for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
+        }
+    }
+
+    get flipY(){
+        return this._flipY;
+    }
+    set flipY(val){
+        if (val != this._flipY){
+            this._flipY = val;
             for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
         }
     }
@@ -119,6 +134,21 @@ class Sprite{
     }
     get hue(){
         return this._hue;
+    }
+
+    set sat(val){
+        this._sat = val;
+        for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
+    }
+    get sat(){
+        return this._sat;
+    }
+    set lum(val){
+        this._lum = val;
+        for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
+    }
+    get lum(){
+        return this._lum;
     }
 
     set index(val){
@@ -136,29 +166,46 @@ class Sprite{
 
         if (this._pixel) context.imageSmoothingEnabled = false;
         
-        if (this._flipX) {
+        let fx = 0;
+        let fy = 0;
+
+        if (this._flipX){
             context.scale(-1, 1);
-            context.drawImage(img, -canvas.width, 0, canvas.width, canvas.height);
-            context.scale(-1, 1);
-        }else{
-            context.drawImage(img, 0, 0, canvas.width, canvas.height);
+            fx = 1;
         }
+
+        if (this._flipY) {
+            context.scale(1, -1);
+            fy = 1;
+        }
+        context.drawImage(img, -canvas.height * fx, -canvas.height * fy, canvas.width, canvas.height);
+
+        if (this._flipX) context.scale(-1, 1);
+        if (this._flipY) context.scale(1, -1);
         
         const imgData   = context.getImageData(0, 0, canvas.width, canvas.height)
         const dLength   = imgData.data.length
         
         for (let i = 0; i < dLength; i += 4) {
-            let r   = imgData.data[i]
-            let g   = imgData.data[i+1]
-            let b   = imgData.data[i+2]
-            let a   = imgData.data[i+3]
+            let rgba = {};
+            rgba.r   = imgData.data[i]
+            rgba.g   = imgData.data[i+1]
+            rgba.b   = imgData.data[i+2]
+            rgba.a   = imgData.data[i+3]
 
-            if (a>0){
-                let obj = this.changeHue(r,g,b, this._hue);
-
-                imgData.data[i]   = obj.r;
-                imgData.data[i+1] = obj.g;
-                imgData.data[i+2] = obj.b;
+            if (rgba.a > 0){
+                if (this._hue != 0){
+                    rgba = this.changeHue(rgba, this._hue);
+                }
+                if (this._sat != 0){
+                    rgba = this.changeSat(rgba, this._sat);
+                }
+                if (this._lum != 0){
+                    rgba = this.changeLum(rgba, this._lum);
+                }
+                imgData.data[i]   = rgba.r;
+                imgData.data[i+1] = rgba.g;
+                imgData.data[i+2] = rgba.b;
             }
         }
         context.putImageData(imgData, 0, 0)
@@ -183,18 +230,30 @@ class Sprite{
         return cloned;
     }
 
-    changeHue(r,g,b, degree) {
-        var hsl = this.rgbToHsl({r,g,b});
-        hsl.h += parseInt(degree);
-        if (hsl.h > 360)    hsl.h -= 360;
-        else if (hsl.h < 0) hsl.h += 360;
-        return this.hslToRgb(hsl);
+    changeHue(rgba, degree) {
+        var hsla = this.rgbaToHsla(rgba);
+        var rd = parseInt(degree)%360;
+        hsla.h += rd;
+        return this.hslaToRgba(hsla);
+    }
+
+    changeSat(rgba, sat) {
+        var hsla = this.rgbaToHsla(rgba);
+        hsla.s += parseInt(sat);
+        return this.hslaToRgba(hsla);
+    }
+
+    changeLum(rgba, lum) {
+        var hsla = this.rgbaToHsla(rgba);
+        hsla.l += parseInt(lum);
+        return this.hslaToRgba(hsla);
     }
     
-    rgbToHsl(rgb) {
-        const r = rgb.r / 255;
-        const g = rgb.g / 255;
-        const b = rgb.b / 255;
+    rgbaToHsla(rgba) {
+        const r = rgba.r / 255;
+        const g = rgba.g / 255;
+        const b = rgba.b / 255;
+        const a = rgba.a;
 
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
@@ -219,13 +278,14 @@ class Sprite{
         s *= 100;
         l *= 100;
 
-        return { h, s, l };
+        return { h, s, l, a};
     }
       
-    hslToRgb(hsl) {
-        const h = hsl.h / 360;
-        const s = hsl.s / 100;
-        const l = hsl.l / 100;
+    hslaToRgba(hsla) {
+        const h = hsla.h / 360;
+        const s = hsla.s / 100;
+        const l = hsla.l / 100;
+        const a = hsla.a;
 
         let r, g, b;
 
@@ -253,6 +313,6 @@ class Sprite{
         g *= 255;
         b *= 255;
 
-        return { r, g, b };
+        return { r, g, b, a };
     }
 }
