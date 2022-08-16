@@ -1,3 +1,12 @@
+/**
+ * eso solo se hizo para diferenciar los tipos de clicks
+ */
+const mouseEnum = {
+	1: 'LEFT_MOUSE',
+	2: 'MIDDLE_MOUSE',
+	3: 'RIGHT_MOUSE',
+}
+
 
 class Control {
 	/**
@@ -35,8 +44,22 @@ class Control {
 		}
 	}
 
+	resetActiveControls(event){
+		this.activeControls = {};
+		if( !!this.callbackUp )	this.callbackUp();
+	}
+
+	setActiveControlReseters(){
+		let that = this;
+		let resetControls = (e)=>{
+			return that.resetActiveControls(e)
+		};
+		window.addEventListener('visibilitychange', resetControls, false)
+		window.addEventListener('contextmenu', resetControls, false);
+	}
+
 	setEvents(){
-        let thisControl = this;
+    let thisControl = this;
 		function downEventFunction(event){
 			thisControl.preDown();
 			let key = event.key;
@@ -57,16 +80,27 @@ class Control {
 		window.addEventListener('keyup', upEventFunction);
 
 		if(this.useClick){
-			window.addEventListener('mousedown', ()=>{
-				let key = 'mousedown';
-				this.activeControls[key] = true;
+			window.addEventListener('mousedown', (e)=>{
+
+				switch(mouseEnum[e.which]){
+					case 'LEFT_MOUSE':
+						let key = 'mousedown';
+						this.activeControls[key] = true;
+					break;
+				}
 			});
 
-			window.addEventListener('mouseup', ()=>{
-				let key = 'mousedown';
-				delete this.activeControls[key];
+			window.addEventListener('mouseup', (e)=>{
+				switch(mouseEnum[e.which]){
+					case 'LEFT_MOUSE':
+						let key = 'mousedown';
+						delete this.activeControls[key];
+					break;
+				}
 			})
 		}
+
+		this.setActiveControlReseters();
 	}
 
 	preDown(){

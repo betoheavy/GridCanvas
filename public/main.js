@@ -82,6 +82,7 @@ GC.start(ctx =>{
 
 //las funciones que controlan el teclado
 function move(button){
+    
     if(button['d']){
         moveFlop(1,0);
         flop.index = "leftMove";
