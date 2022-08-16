@@ -22,6 +22,11 @@ let sptLeftMv   = new Sprite(['img/floppa/left_1.svg','img/floppa/left_2.svg'],{
 let sptBack     = new Sprite('img/floppa/back.svg');
 let sptBackMv   = new Sprite(['img/floppa/back_1.svg','img/floppa/back_2.svg'],{ticks:15});
 
+//agregaremos una animacion
+let route = [];
+for (let i = 1; i <= 60; i++) route.push('img/anim/gem1/'+String(i).padStart(4, '0')+'.png' );
+let sptGem = new Sprite(route,{ticks:2});
+
 //pasamos nuestros sprites a un objeto para despues ponerlo en el constructor de "flop" (GameObject)
 let flopSprites = {
     front:      sptFront,
@@ -77,8 +82,9 @@ cerco.isometric(cercogrid,true);
 
 cerco.position.move(0,0.5);
 
-//a gregamso nuestra torre ahora que e lgid de cerco ya esta puesto
+//agregamos nuestra torre ahora que el grid de cerco ya esta puesto
 let A    = new Entity(imgA, {grid:cerco, position: new Position(3,0),collision:new Collision("circle",{radius:0.1}),position: new Position(1,1)});
+let G    = new Entity(sptGem, {grid:cerco, position: new Position(-2,-1)});
 
 // un objeto Control para ejecutar la funcion "move" mas abajo
 let controles = new Control(move, stopMove, null);
