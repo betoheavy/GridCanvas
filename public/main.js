@@ -7,11 +7,23 @@ let background  = new GridLayer();
 let objects     = new GridLayer();
 let player      = new GridLayer();
 
+//los layers los veran camaras
+let mainCamera = new Camera();
+let miniCamera = new Camera({widthPercent: 25, heightPercent: 25, hPosition: 75, tiles:700});
+
+//agregamos nuestras camaras al renderer
+GC.cameras = {main: mainCamera, mini: miniCamera}
+GC.mainCamera = "main";
+
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
 let base = new Entity(['img/base.svg'], {});
 let bloc = new Entity(['img/block.svg'], {collision:new Collision("rectangle")});
 let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
 let swrd = new Entity(['img/3x3.png'], {grid:objects, position: new Position(2,3)});
+
+//agregaremos una entidad de largo 2
+let twerSprite  = new Sprite('img/isometric/eiffel.png',{rowSpan:2, centerY: -1});
+let twer        = new Entity(twerSprite, {grid:objects, position: new Position(3,0),collision:new Collision("rectangle")});
 
 // "flop" sera un gameObject mas complejo, con varios sprites (algunos animados)
 let sptFront    = new Sprite('img/floppa/front.svg');
@@ -61,8 +73,8 @@ GC.addGrid(background);
 GC.addGrid(objects);
 GC.addGrid(player);
 
-// focus permite tener un layer que no se mueva al mover la camara
-GC.focus = player;
+// la camara principal seguira al floppa
+mainCamera.position.follow(flop.position);
 
 GC.start(ctx =>{
     controles.capture();
@@ -70,26 +82,34 @@ GC.start(ctx =>{
 
 //las funciones que controlan el teclado
 function move(button){
-    let vel = 1/8;
-    
     if(button['d']){
-        GC.moveAllLayers(-vel,0);
+        moveFlop(1,0);
         flop.index = "leftMove";
         flop.sprite.flipX = true;
     }
     if(button['a']) {
-        GC.moveAllLayers(vel,0);
+        moveFlop(-1,-0);
         flop.index = "leftMove";
         flop.sprite.flipX = false;
     }
     if(button['w']){
-        GC.moveAllLayers(0,-vel);
+        moveFlop(0,1);
         flop.index = "backMove";
     }
     if(button['s'] ) {
-        GC.moveAllLayers(0,vel)
+        moveFlop(0,-1);
         flop.index = "frontMove";
     }
+
+    function moveFlop(vx,vy){
+        let vel = 1/8;
+        let x = flop.position.x;
+        let y = flop.position.y;
+
+        flop.position.move(vel * vx, vel * vy);
+        if (flop.isColliding(background) || flop.isColliding(objects)) flop.position.set(x,y);
+    }
+
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {SFX.play('puaj')}
     if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}

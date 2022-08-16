@@ -11,6 +11,9 @@ let X = new Entity(['img/isometric/green.svg'], {});
 let _ = new Entity(['img/isometric/brown.svg'], {});
 let O = new Entity(['img/isometric/dither.svg'], {collision:new Collision("circle",{radius:0.1}),});
 
+// un entitiy puede tener un sprite mas grande que 1x1
+let imgA    = new Sprite('img/isometric/eiffel.png',{rowSpan:2, centerY: -1});
+
 // "flop" sera un gameObject mas complejo, con varios sprites (algunos animados)
 let sptFront    = new Sprite('img/floppa/front.svg');
 let sptFrontMv  = new Sprite(['img/floppa/front_1.svg', 'img/floppa/front_2.svg'],{ticks:15});
@@ -18,6 +21,11 @@ let sptLeft     = new Sprite('img/floppa/left.svg');
 let sptLeftMv   = new Sprite(['img/floppa/left_1.svg','img/floppa/left_2.svg'],{ticks:15});
 let sptBack     = new Sprite('img/floppa/back.svg');
 let sptBackMv   = new Sprite(['img/floppa/back_1.svg','img/floppa/back_2.svg'],{ticks:15});
+
+//agregaremos una animacion
+let route = [];
+for (let i = 1; i <= 60; i++) route.push('img/anim/gem1/'+String(i).padStart(4, '0')+'.png' );
+let sptGem = new Sprite(route,{ticks:2});
 
 //pasamos nuestros sprites a un objeto para despues ponerlo en el constructor de "flop" (GameObject)
 let flopSprites = {
@@ -74,6 +82,10 @@ cerco.isometric(cercogrid,true);
 
 cerco.position.move(0,0.5);
 
+//agregamos nuestra torre ahora que el grid de cerco ya esta puesto
+let A    = new Entity(imgA, {grid:cerco, position: new Position(3,0),collision:new Collision("circle",{radius:0.1}),position: new Position(1,1)});
+let G    = new Entity(sptGem, {grid:cerco, position: new Position(-2,-1)});
+
 // un objeto Control para ejecutar la funcion "move" mas abajo
 let controles = new Control(move, stopMove, null);
 
@@ -84,7 +96,8 @@ let flop = new Entity(flopSprites, {collision:new Collision("circle"), index:"fr
 GC.addGrid(test);
 GC.addGrid(cerco);
 
-GC.focus = flop;
+let camera = GC.cameras[GC.mainCamera];
+camera.position.follow(flop.position);
 
 GC.start(ctx =>{
     controles.capture();
@@ -92,36 +105,19 @@ GC.start(ctx =>{
 
 //controla el teclado
 function move(dp){
-    let velX = 1/4;
-    let velY = 1/8;
+    
 
     //no diagonal
-    if(dp["w"] && !dp["a"] && !dp["d"]){
-        GC.moveAllLayers(0,-velY);
-    }
-    if(dp["a"] && !dp["w"] && !dp["s"]){
-        GC.moveAllLayers(velX,0);
-    }
-    if(dp["s"] && !dp["a"] && !dp["d"]){
-        GC.moveAllLayers(0,velY);
-    }
-    if(dp["d"] && !dp["w"] && !dp["s"]){
-        GC.moveAllLayers(-velX,0);
-    }
+    if(dp["w"] && !dp["a"] && !dp["d"]) moveFlop( 0, 1);
+    if(dp["a"] && !dp["w"] && !dp["s"]) moveFlop(-1, 0);
+    if(dp["s"] && !dp["a"] && !dp["d"]) moveFlop( 0,-1);
+    if(dp["d"] && !dp["w"] && !dp["s"]) moveFlop( 1, 0);
 
     //diagonal
-    if(dp["w"] && dp["d"]){
-        GC.moveAllLayers(-velX,-velY);
-    }
-    if(dp["w"] && dp["a"]){
-        GC.moveAllLayers(velX,-velY);
-    }
-    if(dp["s"] && dp["d"]){
-        GC.moveAllLayers(-velX,velY);
-    }
-    if(dp["s"] && dp["a"]){
-        GC.moveAllLayers(velX,velY);
-    }
+    if(dp["w"] && dp["d"])              moveFlop( 1, 1);
+    if(dp["w"] && dp["a"])              moveFlop(-1, 1);
+    if(dp["s"] && dp["d"])              moveFlop( 1,-1);
+    if(dp["s"] && dp["a"])              moveFlop(-1,-1);
 
     //sprites
     if(dp["d"]){
@@ -141,6 +137,19 @@ function move(dp){
 
     if(dp["g"]) {SFX.play('puaj')}
     //if(dp[controls.click]){SFX.play('puaj')}
+
+    function moveFlop(vx,vy){
+        let velX    = 1/8;
+        let velY    = 1/16;
+        let x       = flop.position.x;
+        let y       = flop.position.y;
+
+        flop.position.move(velX*vx, velY*vy)
+
+        // no puedo ver si flop colisiona con cerco, ya que flop ES PARTE de cerco, y se chequea con el mismo.
+        // asi que se agrega la colision del flop a la lista de ignorados
+        if (flop.isColliding(cerco,[flop.collision])) flop.position.set(x,y);
+    }
 }
 
 function stopMove(dp, controls){
