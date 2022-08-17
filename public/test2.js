@@ -7,9 +7,16 @@ let test  = new GridLayer();
 let cerco = new GridLayer();
 
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
-let X = new Entity(['img/isometric/green.svg'], {});
-let _ = new Entity(['img/isometric/brown.svg'], {});
-let O = new Entity(['img/isometric/dither.svg'], {collision:new Collision("circle",{radius:0.1}),});
+let X = new Entity(['img/isometric/green.png'], {});
+let _ = new Entity(['img/isometric/brown.png'], {});
+
+let vl   = new Sprite('img/isometric/wallA.png');
+let vr   = new Sprite('img/isometric/wallA.png');
+vr.flipX = true;
+
+let L = new Entity(vl, {collision:new Collision("circle",{radius:0.1}),});
+let R = new Entity(vr, {collision:new Collision("circle",{radius:0.1}),});
+let C = new Entity(['img/isometric/pillar.png'], {collision:new Collision("circle",{radius:0.1}),});
 
 // un entitiy puede tener un sprite mas grande que 1x1
 let imgA    = new Sprite('img/isometric/eiffel.png',{rowSpan:2, centerY: -1});
@@ -66,13 +73,18 @@ for (let i = 0; i < 19; i++) {
     if (i == 0 || i == 18) {
         let temp = [];
         for (let j = 0; j < 31; j++) {
-            temp.push(O);
+            if (j == 0 || j == 30) {
+                temp.push(C);
+            }else{
+                temp.push(L);
+            }
+            
         }
         cercogrid.push(temp);
     }else{
         let temp = [];
-        temp[0] = O;
-        temp[30] = O;
+        temp[0] = R;
+        temp[30] = R;
         cercogrid.push(temp);
     }
 }
