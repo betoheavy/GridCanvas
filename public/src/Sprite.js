@@ -58,15 +58,15 @@ class Sprite{
         this._flipX     = flipX;
         this._flipY     = flipY;
         this._ticks     = ticks;
+        this.colSpan    = colSpan;
+        this.rowSpan    = rowSpan;
+        this.centerX    = centerX;
+        this.centerY    = centerY;
         this._hue       = hue;
         this._sat       = sat;
         this._lum       = lum;
         this._pixel     = pixel;
 
-        this.colSpan   = colSpan;
-        this.rowSpan   = rowSpan;
-        this.centerX   = centerX;
-        this.centerY   = centerY;
         this.currentTick = 0;
 
         if( !!options.spriteSheetOpt ){
@@ -326,8 +326,21 @@ class Sprite{
     }
 
     clone(){
-        let cloned = new Sprite(this._imageArrayOriginal);
-        cloned.flipX = this._flipX;
+        let cloned = new Sprite(this._imageArrayOriginal,
+        {
+            index:      this._index,
+            flipX:      this._flipX,
+            flipY:      this._flipY,
+            ticks:      this._ticks,
+            colSpan:    this.colSpan,
+            rowSpan:    this.rowSpan,
+            centerX:    this.centerX,
+            centerY:    this.centerY,
+            hue:        this._hue,
+            sat:        this._sat,
+            lum:        this._lum,
+            pixel:      this._pixel,
+        });
         return cloned;
     }
 
