@@ -19,7 +19,7 @@ class Entity{
         }else if ( Array.isArray(sprite) ){
             if (sprite.length){
                 if (sprite[0].constructor.name === "Sprite") for (let i in sprite) this._sprites[i] = sprite[i];
-                if (sprite[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprite, {...options.spriteOpt,spriteSheetOpt:options.spriteSheetOpt});
+                if (sprite[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprite);
             }else{
                 throw new Error("Entity sprite can't be empty");
             }
@@ -31,30 +31,6 @@ class Entity{
             index = defaultIndex,
             grid = false,
         } = options;
-
-        if( !!options.spriteSheetOpt ){
-            let {
-                spriteSheetOpt:{
-                    xBegin=0,
-                    yBegin=0,
-                    spriteWitdth,
-                    spriteHeight,
-                    endIndex,
-                    xOff=0,
-                    yOff=0
-                }={}
-            } = options;
-
-            this.spriteSheetOpt = typeof spriteSheetOpt === 'object'?spriteSheetOpt: {
-                xBegin:0,
-                yBegin:0,
-                spriteWitdth: 128,
-                spriteHeight: 128,
-                endIndex: undefined,
-                xOff:0,
-                yOff:0
-            };
-        }
 		
         if (collision === true){
             collision = new Collision();
@@ -108,10 +84,6 @@ class Entity{
     }
     get grid(){
         return this._grid;
-    }
-
-    get isSpritesheet(){
-        return !!this.spriteSheetOpt;
     }
 
 	drawInPosition(){

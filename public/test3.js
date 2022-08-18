@@ -59,7 +59,7 @@ window.onload = function() {
 
     let image2 = new Image();
     image2.addEventListener('load', continueFunction);
-    image2.src ='img/isometric/brown.svg';
+    image2.src ='img/isometric/brown.png';
 
     function continueFunction(){
         totalimages++;
