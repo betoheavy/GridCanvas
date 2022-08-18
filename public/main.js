@@ -7,6 +7,10 @@ let background  = new GridLayer();
 let objects     = new GridLayer();
 let player      = new GridLayer();
 
+
+let sd = new SoundManager('fx', 1, 0.1, {});
+let bgMusic = new SoundManager('bg', 1, true, {inSecuence:true, autoPlay: true, loop: true});
+
 //los layers los veran camaras
 let mainCamera = new Camera();
 let miniCamera = new Camera({widthPercent: 25, heightPercent: 25, hPosition: 75, tiles:700});
@@ -85,6 +89,8 @@ GC.start(ctx =>{
 //las funciones que controlan el teclado
 function move(button){
     
+    let xAcc = 0, yAcc = 0;
+
     if(button['d']){
         moveFlop(1,0);
         flop.index = "leftMove";
@@ -114,13 +120,33 @@ function move(button){
     }
 
     if(button['f'])         {SFX.play('floppa_miau')}
-    if(button['mousedown']) {SFX.play('puaj')}
+    if(button['mousedown']) {
+        // for( let a = 0; a<20; a++ ){
+
+            sd.addToPlay('./sfx/floppa/miau.ogg', true, 0.3)
+        // }
+
+        // bgMusic.addToPlay('./sfx/Ludum Dare 32 - Track 3.wav', true, 0.01)
+    }
     if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}
     if(button['e'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue++;});}
     if(button['z'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat--;});}
     if(button['c'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat++;});}
     if(button['ArrowUp'])   {Object.values(flop.sprites).forEach(sprite => {sprite.lum--;});}
     if(button['ArrowDown']) {Object.values(flop.sprites).forEach(sprite => {sprite.lum++;});}
+    if(button['+']) bgMusic.volUp(.01);
+    if(button['-']) bgMusic.volDown(.01);
+    // if(button['/']) sd.volDown(.01);
+    if(button['*']){
+        bgMusic.playNext();
+        delete button['*']
+    }
+    if( button['o'] ){
+        bgMusic.stopAll()
+    }
+    if( button['p'] ){
+        bgMusic.resumeAll();
+    }
 }
 function stopMove(dp, controls){
     if (flop.index == "frontMove"){
@@ -136,3 +162,19 @@ function stopMove(dp, controls){
     }
         
 }
+
+bgMusic.addtoQueue('./sfx/ost/bg/Ludum Dare 32 - Track 1.wav')
+bgMusic.addtoQueue('./sfx/ost/bg/Ludum Dare 32 - Track 2.wav')
+bgMusic.addtoQueue('./sfx/ost/bg/Ludum Dare 32 - Track 3.wav')
+bgMusic.addtoQueue('./sfx/ost/bg/Ludum Dare 32 - Track 4.wav')
+
+
+let slider = document.querySelector('#volumeSlider');
+slider.value = bgMusic.currentManagerVolume*100
+slider.addEventListener('input', function(e){
+    e.preventDefault()
+    let value = e.srcElement.value;
+    value = parseFloat(value)
+    value = (value/100)
+    bgMusic.setVolume( value )
+})

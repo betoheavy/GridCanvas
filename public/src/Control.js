@@ -7,6 +7,7 @@ const mouseEnum = {
 	3: 'RIGHT_MOUSE',
 }
 
+let canvasElement = document.querySelector('#mainCanvas');
 
 class Control {
 	/**
@@ -31,7 +32,7 @@ class Control {
 	setMouseEvents(){
 		// for( let evt in controls ){
 
-		// 	window.addEventListener(evt, controls[evt]);
+		// 	canvasElement.addEventListener(evt, controls[evt]);
 		// }
 	}
 
@@ -54,8 +55,8 @@ class Control {
 		let resetControls = (e)=>{
 			return that.resetActiveControls(e)
 		};
-		window.addEventListener('visibilitychange', resetControls, false)
-		window.addEventListener('contextmenu', resetControls, false);
+		canvasElement.addEventListener('visibilitychange', resetControls, false)
+		canvasElement.addEventListener('contextmenu', resetControls, false);
 	}
 
 	setEvents(){
@@ -80,7 +81,7 @@ class Control {
 		window.addEventListener('keyup', upEventFunction);
 
 		if(this.useClick){
-			window.addEventListener('mousedown', (e)=>{
+			canvasElement.addEventListener('mousedown', (e)=>{
 
 				switch(mouseEnum[e.which]){
 					case 'LEFT_MOUSE':
@@ -90,7 +91,7 @@ class Control {
 				}
 			});
 
-			window.addEventListener('mouseup', (e)=>{
+			canvasElement.addEventListener('mouseup', (e)=>{
 				switch(mouseEnum[e.which]){
 					case 'LEFT_MOUSE':
 						let key = 'mousedown';
