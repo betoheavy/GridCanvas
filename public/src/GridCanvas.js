@@ -158,24 +158,18 @@ class GridCanvas {
                 let w = entity.position.x;
                 
                 if (oSprite.isReady){ 
+                    let cached = oSprite.image;    
+                    if (!cached) cached = oSprite.setCacheImage(indexMaxArea);
 
-
-                        let cached = oSprite.image;    
-                        if (!cached) cached = oSprite.setCacheImage(indexMaxArea);
-    
-                        if (oSprite.colSpan != 1){
-                            console.log("debug");
-                        }
-    
-                        camera.context.drawImage(
-                            cached, 
-                            w   -grid.center.x  -camera.position.x  -oSprite.centerX, 
-                            -h  -grid.center.y  +camera.position.y  +oSprite.centerY, 
-                            oSprite.colSpan * 1, 
-                            oSprite.rowSpan * 1
-                        );
-                    
-                    
+                    camera.context.globalCompositeOperation = oSprite.composite;
+                    camera.context.drawImage(
+                        cached, 
+                        w   -grid.center.x  -camera.position.x  -oSprite.centerX, 
+                        -h  -grid.center.y  +camera.position.y  +oSprite.centerY, 
+                        oSprite.colSpan * 1, 
+                        oSprite.rowSpan * 1
+                    );
+                    camera.context.globalCompositeOperation = "source-over";
                 }
             }
 

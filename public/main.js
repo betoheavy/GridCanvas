@@ -25,7 +25,13 @@ let bloc = new Entity(['img/block.svg'], {collision:new Collision("rectangle")})
 let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
 let swrd = new Entity(['img/3x3.png'], {grid:objects, position: new Position(2,3)});
 
-let energyBall = new Entity(new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true}), {grid:objects, position: new Position(2,1)});
+//ejemplo de sprite credo en un entity
+let energyBall = new Entity(
+new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true, composite:"hard-light"}),
+    {grid:objects, position: new Position(2,1)}
+);
+
+fire.sprite.composite = "lighter";
 
 //agregaremos una entidad de largo 2
 let twerSprite  = new Sprite('img/isometric/eiffel.png',{rowSpan:2, centerY: -1});

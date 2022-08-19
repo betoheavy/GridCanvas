@@ -3,30 +3,31 @@ class Sprite{
     /**
      * Contoller for drawing and managing Sprites with images 
      * 
-     * @param {HTMLImageElement[]|String[]} images                      - An array of HTML images to draw (or where are located)
-     * @param {Object}                      [options]                   - Options for Sprite rendering
-     *  
-     * @param {number}                      [options.index = 0]         - place of the array of images to draw
-     * @param {boolean}                     [options.flipX = false]     - whether to flip the image horizontally
-     * @param {boolean}                     [options.flipY = false]     - whether to flip the image verically
-     * @param {number}                      [options.ticks = 30]        - number of ticks to draw next image
-     * @param {number}                      [options.hue = 0]           - the hue of the image
-     * @param {number}                      [options.sat = 0]           - the saturation of the image
-     * @param {number}                      [options.lum = 0]           - the luminosity of the image
-     * @param {boolean}                     [options.pixel = true]      - draw without smoothing the image, useful for smaller images
-     * @param {number}                      [options.centerX = 0]       - center in the X axis of the sprite respect of the Entity parent grid
-     * @param {number}                      [options.centerY = 0]       - center in the Y axis of the sprite respect of the Entity parent grid
-     * @param {number}                      [options.colSpan = 1]       - number of colums in the Entity parent grid used by the sprite
-     * @param {number}                      [options.rowSpan = 1]       - number of rows in the Entity parent grid used by the sprite
-     * @param {Object}                      [options.sheet = false]     - allow the use of sprite sheets instead of an array fo sprites
+     * @param {HTMLImageElement[]|String[]} images                              - An array of HTML images to draw (or where are located)
+     * @param {Object}                      [options]                           - Options for Sprite rendering
+     *          
+     * @param {number}                      [options.index = 0]                 - place of the array of images to draw
+     * @param {boolean}                     [options.flipX = false]             - whether to flip the image horizontally
+     * @param {boolean}                     [options.flipY = false]             - whether to flip the image verically
+     * @param {number}                      [options.ticks = 30]                - number of ticks to draw next image
+     * @param {number}                      [options.hue = 0]                   - the hue of the image
+     * @param {number}                      [options.sat = 0]                   - the saturation of the image
+     * @param {number}                      [options.lum = 0]                   - the luminosity of the image
+     * @param {boolean}                     [options.pixel = true]              - draw without smoothing the image, useful for smaller images
+     * @param {number}                      [options.centerX = 0]               - center in the X axis of the sprite respect of the Entity parent grid
+     * @param {number}                      [options.centerY = 0]               - center in the Y axis of the sprite respect of the Entity parent grid
+     * @param {number}                      [options.colSpan = 1]               - number of colums in the Entity parent grid used by the sprite
+     * @param {number}                      [options.rowSpan = 1]               - number of rows in the Entity parent grid used by the sprite
+     * @param {string}                      [options.composite = "source-over"] - operation for context globalCompositeOperation
+     * @param {Object}                      [options.sheet = false]             - allow the use of sprite sheets instead of an array fo sprites
      * 
-     * @param {number}                      [options.sheet.xBegin = 0]  - start in the X axis of the top-left corner of the sprite sheet
-     * @param {number}                      [options.sheet.yBegin = 0]  - start in the Y axis of the top-left corner of the sprite sheet
-     * @param {number}                      [options.sheet.height = 128] - height of the sprite sheet in pixels
-     * @param {number}                      [options.sheet.width = 128] - width of the sprite sheet in pixels
-     * @param {number}                      [options.sheet.xOff = 0]    - offset in the X axis of the top-left corner of each sprite in the sprite sheet
-     * @param {number}                      [options.sheet.yOff = 0]    - offset in the Y axis of the top-left corner of each sprite in the sprite sheet
-     * @param {number}                      [options.sheet.max = 0]     - max number of sprites to load (zero means all sprites posible)
+     * @param {number}                      [options.sheet.xBegin = 0]          - start in the X axis of the top-left corner of the sprite sheet
+     * @param {number}                      [options.sheet.yBegin = 0]          - start in the Y axis of the top-left corner of the sprite sheet
+     * @param {number}                      [options.sheet.height = 128]        - height of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.width = 128]         - width of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.xOff = 0]            - offset in the X axis of the top-left corner of each sprite in the sprite sheet
+     * @param {number}                      [options.sheet.yOff = 0]            - offset in the Y axis of the top-left corner of each sprite in the sprite sheet
+     * @param {number}                      [options.sheet.max = 0]             - max number of sprites to load (zero means all sprites posible)
      */
     constructor(images = [], options = {}) {
 
@@ -69,6 +70,7 @@ class Sprite{
             sat     = 0,
             lum     = 0,
             pixel   = true,
+            composite = "source-over",
             sheet   = false 
         } = options;
 
@@ -85,6 +87,7 @@ class Sprite{
         this._lum       = lum;
         this._pixel     = pixel;
         this.sheet      = sheet;
+        this.composite  = composite;
 
         this.currentTick = 0;
 

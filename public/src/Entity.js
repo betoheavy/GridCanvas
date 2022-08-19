@@ -48,7 +48,9 @@ class Entity{
         this.drawInPosition();
 
 	}
-
+    /**
+     * @return {Sprite} - current sprite
+     */
 	get sprite(){
 		return this._sprites[this._index];
 	}
