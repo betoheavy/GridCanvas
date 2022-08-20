@@ -26,10 +26,11 @@ class Entity{
         }
 
         let {
-            collision = false,
-            position = new Position(),
-            index = defaultIndex,
-            grid = false,
+            collision   = false,
+            position    = new Position(),
+            index       = defaultIndex,
+            grid        = false,
+            rotate      = 0,
         } = options;
 		
         if (collision === true){
@@ -40,10 +41,11 @@ class Entity{
             collision.entity = this;
         }
 
-        this._grid = grid;
+        this._grid      = grid;
 		this._collision = collision;
-        this._position = position;
-        this._index = index;
+        this._position  = position;
+        this._index     = index;
+        this._rotate    = rotate;
 
         this.drawInPosition();
 
@@ -86,6 +88,12 @@ class Entity{
     }
     get grid(){
         return this._grid;
+    }
+    set rotate(value){
+        this._rotate = value;
+    }
+    get rotate(){
+        return this._rotate;
     }
 
 	drawInPosition(){

@@ -160,6 +160,18 @@ class GridCanvas {
                 if (oSprite.isReady){ 
                     let cached = oSprite.image;    
                     if (!cached) cached = oSprite.setCacheImage(indexMaxArea);
+                    
+                    let rotation = oSprite.rotate + entity.rotate;
+                    //let camCenterX = (oSprite.colSpan*camera.widthPercent)/200;
+                    //let camCenterY = (oSprite.rowSpan*camera.heightPercent)/200;
+                    let camCenterX = oSprite.colSpan/2;
+                    let camCenterY = oSprite.rowSpan/2;
+                    
+                    if (rotation != 0){
+                        camera.context.translate(camCenterX, camCenterY);
+                        camera.context.rotate(rotation * Math.PI / 180);
+                        camera.context.translate(-camCenterX, -camCenterY);
+                    }
 
                     camera.context.globalCompositeOperation = oSprite.composite;
                     camera.context.drawImage(
@@ -170,6 +182,13 @@ class GridCanvas {
                         oSprite.rowSpan * 1
                     );
                     camera.context.globalCompositeOperation = "source-over";
+
+                    if (rotation != 0){
+                        camera.context.translate(camCenterX, camCenterY);
+                        camera.context.rotate(-rotation * Math.PI / 180);
+                        camera.context.translate(-camCenterX, -camCenterY);
+                    }
+                    
                 }
             }
 

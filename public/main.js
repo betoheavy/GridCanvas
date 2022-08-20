@@ -27,9 +27,35 @@ let swrd = new Entity(['img/3x3.png'], {grid:objects, position: new Position(2,3
 
 //ejemplo de sprite credo en un entity
 let energyBall = new Entity(
-new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true, composite:"hard-light"}),
+    new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true, composite:"hard-light"}),
     {grid:objects, position: new Position(2,1)}
 );
+
+let shield = new Entity(
+    new Sprite(
+        'img/anim/shield.png', 
+        {
+            ticks:2,
+            composite:"lighter",
+            colSpan:1.4,
+            rowSpan:1.4,
+            centerX:0.2,
+            centerY:-0.2,
+            sheet:{
+                sheetWidth: 192,
+                sheetHeight: 192,
+                width: 142,
+                height: 142,
+                yOff: -50,
+            }, 
+            
+        }),
+    {
+        grid:objects, 
+        position: new Position(0,0)
+    }
+);
+
 
 fire.sprite.composite = "lighter";
 
@@ -57,6 +83,7 @@ let flopSprites = {
 
 //"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en el sprite "front"
 let flop = new Entity(flopSprites, {collision:new Collision("rectangle"), index:"front"});
+shield.position.follow(flop.position);
 
 // un objeto Control para ejecutar la funcion "move()" y "stopMove()" mas abajo
 let controles = new Control(move, stopMove);
@@ -134,8 +161,12 @@ function move(button){
 
         // bgMusic.addToPlay('./sfx/Ludum Dare 32 - Track 3.wav', true, 0.01)
     }
-    if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}
-    if(button['e'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue++;});}
+    //if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}
+    //if(button['e'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue++;});}
+    if(button['q'])         {flop.rotate++;}
+    if(button['e'])         {flop.rotate--;}
+
+    sptFront
     if(button['z'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat--;});}
     if(button['c'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat++;});}
     if(button['ArrowUp'])   {Object.values(flop.sprites).forEach(sprite => {sprite.lum--;});}

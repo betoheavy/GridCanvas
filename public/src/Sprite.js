@@ -23,8 +23,10 @@ class Sprite{
      * 
      * @param {number}                      [options.sheet.xBegin = 0]          - start in the X axis of the top-left corner of the sprite sheet
      * @param {number}                      [options.sheet.yBegin = 0]          - start in the Y axis of the top-left corner of the sprite sheet
-     * @param {number}                      [options.sheet.height = 128]        - height of the sprite sheet in pixels
-     * @param {number}                      [options.sheet.width = 128]         - width of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.sheetHeight = 128]   - height of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.sheetWidth = 128]    - width of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.height = 128]        - height of the resulting sprite in pixels
+     * @param {number}                      [options.sheet.width = 128]         - width of the resulting sprite in pixels
      * @param {number}                      [options.sheet.xOff = 0]            - offset in the X axis of the top-left corner of each sprite in the sprite sheet
      * @param {number}                      [options.sheet.yOff = 0]            - offset in the Y axis of the top-left corner of each sprite in the sprite sheet
      * @param {number}                      [options.sheet.max = 0]             - max number of sprites to load (zero means all sprites posible)
@@ -58,20 +60,21 @@ class Sprite{
         }
 
         let{
-            index   = 0,
-            flipX   = false,
-            flipY   = false,
-            ticks   = 30,
-            colSpan = 1,
-            rowSpan = 1,
-            centerX = 0,
-            centerY = 0,
-            hue     = 0,
-            sat     = 0,
-            lum     = 0,
-            pixel   = true,
-            composite = "source-over",
-            sheet   = false 
+            index       = 0,
+            flipX       = false,
+            flipY       = false,
+            ticks       = 30,
+            colSpan     = 1,
+            rowSpan     = 1,
+            centerX     = 0,
+            centerY     = 0,
+            hue         = 0,
+            sat         = 0,
+            lum         = 0,
+            rotate      = 0,
+            pixel       = true,
+            composite   = "source-over",
+            sheet       = false 
         } = options;
 
         this._index     = index;
@@ -86,6 +89,7 @@ class Sprite{
         this._sat       = sat;
         this._lum       = lum;
         this._pixel     = pixel;
+        this._rotate    = rotate;
         this.sheet      = sheet;
         this.composite  = composite;
 
@@ -96,21 +100,23 @@ class Sprite{
             const newArray  = [];
             
             let{
-                xBegin  = 0,
-                yBegin  = 0,
-                height  = 128,
-                width   = 128,
-                max     = 0,
-                xOff    = 0,
-                yOff    = 0
+                xBegin      = 0,
+                yBegin      = 0,
+                sheetHeight = 128,
+                sheetWidth  = 128,
+                height      = 128,
+                width       = 128,
+                max         = 0,
+                xOff        = 0,
+                yOff        = 0
             } = options.sheet;
 
             const sheet     = currentImage;
             const sheetH    = sheet.naturalHeight;
             const sheetW    = sheet.naturalWidth;
 
-            for (let y = yBegin; y < sheetH; y += height){
-                for (let x = xBegin; x < sheetW; x += width){
+            for (let y = yBegin; y < sheetH; y += sheetHeight){
+                for (let x = xBegin; x < sheetW; x += sheetWidth){
                     const canvas    = document.createElement('canvas');
                     const context   = canvas.getContext("2d");
                     canvas.width    = width;
@@ -185,6 +191,16 @@ class Sprite{
         if (val != this._flipY){
             this._flipY = val;
             for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
+        }
+    }
+
+    get rotate(){
+        return this._rotate;
+    }
+    set rotate(val){
+        if (val != this._rotate){
+            this._rotate = val;
+            //for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
         }
     }
 
