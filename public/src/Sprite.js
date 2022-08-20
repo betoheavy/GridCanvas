@@ -1,17 +1,33 @@
 class Sprite{
+    
     /**
      * Contoller for drawing and managing Sprites with images 
      * 
-     * @param {array[HTMLImageElement|String]} images 
-     * @param {Object} options 
+     * @param {HTMLImageElement[]|String[]} images                              - An array of HTML images to draw (or where are located)
+     * @param {Object}                      [options]                           - Options for Sprite rendering
+     *          
+     * @param {number}                      [options.index = 0]                 - place of the array of images to draw
+     * @param {boolean}                     [options.flipX = false]             - whether to flip the image horizontally
+     * @param {boolean}                     [options.flipY = false]             - whether to flip the image verically
+     * @param {number}                      [options.ticks = 30]                - number of ticks to draw next image
+     * @param {number}                      [options.hue = 0]                   - the hue of the image
+     * @param {number}                      [options.sat = 0]                   - the saturation of the image
+     * @param {number}                      [options.lum = 0]                   - the luminosity of the image
+     * @param {boolean}                     [options.pixel = true]              - draw without smoothing the image, useful for smaller images
+     * @param {number}                      [options.centerX = 0]               - center in the X axis of the sprite respect of the Entity parent grid
+     * @param {number}                      [options.centerY = 0]               - center in the Y axis of the sprite respect of the Entity parent grid
+     * @param {number}                      [options.colSpan = 1]               - number of colums in the Entity parent grid used by the sprite
+     * @param {number}                      [options.rowSpan = 1]               - number of rows in the Entity parent grid used by the sprite
+     * @param {string}                      [options.composite = "source-over"] - operation for context globalCompositeOperation
+     * @param {Object}                      [options.sheet = false]             - allow the use of sprite sheets instead of an array fo sprites
      * 
-     * options are;
-     *  index: (0)      place of the array of images to draw
-     *  flipX: (false)  whether to flip the image horizontally
-     *  ticks: (30)     number of ticks to draw next image 
-     *  hue:   (0)      the hue of the image
-     *  pixel: (true)   draw without smoothing the image
-     *  spriteSheetOpt: (false) allow the use of sprite sheets instead of an array fo sprites
+     * @param {number}                      [options.sheet.xBegin = 0]          - start in the X axis of the top-left corner of the sprite sheet
+     * @param {number}                      [options.sheet.yBegin = 0]          - start in the Y axis of the top-left corner of the sprite sheet
+     * @param {number}                      [options.sheet.height = 128]        - height of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.width = 128]         - width of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.xOff = 0]            - offset in the X axis of the top-left corner of each sprite in the sprite sheet
+     * @param {number}                      [options.sheet.yOff = 0]            - offset in the Y axis of the top-left corner of each sprite in the sprite sheet
+     * @param {number}                      [options.sheet.max = 0]             - max number of sprites to load (zero means all sprites posible)
      */
     constructor(images = [], options = {}) {
 
@@ -28,12 +44,14 @@ class Sprite{
         let thisSprite = this;
 
         if (images[0].constructor.name === "HTMLImageElement"){
-            this.imageArrayOriginal = images;
+            if(!!options.sheet) this.imageArrayOriginal = spriteSheet(images[0]);
+            else                this.imageArrayOriginal = images;
         }else{
             thisSprite.imageLoader = new ImageLoader(images);
             
             thisSprite.onImagesLoaded(custom => {}).then(response=>{
-                this.imageArrayOriginal = response;
+                if(!!options.sheet) this.imageArrayOriginal = spriteSheet(response[0]);
+                else                this.imageArrayOriginal = response;
             }).catch(err=>{
                 console.error(err);
             })
@@ -52,7 +70,9 @@ class Sprite{
             sat     = 0,
             lum     = 0,
             pixel   = true,
-        }= options;
+            composite = "source-over",
+            sheet   = false 
+        } = options;
 
         this._index     = index;
         this._flipX     = flipX;
@@ -66,106 +86,74 @@ class Sprite{
         this._sat       = sat;
         this._lum       = lum;
         this._pixel     = pixel;
+        this.sheet      = sheet;
+        this.composite  = composite;
 
         this.currentTick = 0;
 
-        if( !!options.spriteSheetOpt ){
-            let {
-                spriteSheetOpt:{
-                    xBegin=0,
-                    yBegin=0,
-                    spriteWitdth,
-                    spriteHeight,
-                    endIndex,
-                    xOff=0,
-                    yOff=0
-                }={}
-            } = options;
+        //convert a image in a array of images
+        function spriteSheet(currentImage){
+            const newArray  = [];
+            
+            let{
+                xBegin  = 0,
+                yBegin  = 0,
+                height  = 128,
+                width   = 128,
+                max     = 0,
+                xOff    = 0,
+                yOff    = 0
+            } = options.sheet;
 
-            this.spriteSheetOpt = typeof spriteSheetOpt === 'object'?spriteSheetOpt: {
-                xBegin:0,
-                yBegin:0,
-                spriteWitdth: 128,
-                spriteHeight: 128,
-                endIndex: undefined,
-                xOff:0,
-                yOff:0
-            };
+            const sheet     = currentImage;
+            const sheetH    = sheet.naturalHeight;
+            const sheetW    = sheet.naturalWidth;
+
+            for (let y = yBegin; y < sheetH; y += height){
+                for (let x = xBegin; x < sheetW; x += width){
+                    const canvas    = document.createElement('canvas');
+                    const context   = canvas.getContext("2d");
+                    canvas.width    = width;
+                    canvas.height   = height;
+
+                    context.drawImage(
+                        sheet,
+                        x + xOff, 
+                        y + yOff,       
+                        width, 
+                        height,
+                        0,
+                        0,
+                        width, 
+                        height,
+                    );
+
+                    newArray.push(canvas);
+                }
+            }
+            
+            return newArray;
         }
-
     }
 
     set imageArrayOriginal(array){
         this._imageArrayOriginal    = array;
-        // no dejar la imagen original como cached: no permite hacerle cambios con canvas
-        //this._imageArrayCache       = array;
         this._length                = this._imageArrayOriginal.length;
         this._isReady               = true;
         for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = true;
     }
 
     get image() {
-
-        if( this.isSpritesheet && this._imageArrayCache[0]){
-
-            const spreadsheet = this._imageArrayOriginal[0];
-
-            const spritesheetHeight = spreadsheet.naturalHeight;
-            const spritesheetWidth = spreadsheet.naturalWidth;
-
-
-            const spriteHeight = this.spriteSheetOpt.spriteHeight;
-            const spriteWidth = this.spriteSheetOpt.spriteWitdth;
-
-            const displayHeight = this._imageArrayCache[0].height;
-            const displayWidth = this._imageArrayCache[0].width;
-
-            let fx = 0;
-            let fy = 0;
-
-            if (this._flipX)    fx = 1;
-            if (this._flipY)    fy = 1;
-
-
-            let length = spritesheetWidth/spriteWidth;
-
-
-            if (this.currentTick < this._ticks){
-                this.currentTick++;
-            }else{
-                this.currentTick = 0;
-                this._index++;
-                if (this._index >= length) this._index = 0;
-            }
-
-            let spritePosX = spriteWidth*this._index;
-
-            const canvas    = document.createElement('canvas');
-            const context   = canvas.getContext("2d");
-
-            context.drawImage(
-                spreadsheet,
-                spritePosX, 0,        
-                spriteWidth, spriteHeight,
-                spritesheetWidth *fx, spritesheetHeight * fy,
-                displayWidth, displayHeight
-            );
-
-            this._imageArrayCache[0] = canvas
-
-            return canvas;
+        if (this.currentTick < this._ticks){
+            this.currentTick++;
         }else{
-            if (this.currentTick < this._ticks){
-                this.currentTick++;
-            }else{
-                this.currentTick = 0;
-                this._index++;
-                if (this._index >= this._length) this._index = 0;
-            }
-    
-            if (this._imageArrayStatus[this._index]) return this._imageArrayCache[this._index];
-            else return false;
+            this.currentTick = 0;
+            this._index++;
+            if (this._index >= this._length) this._index = 0;
         }
+
+        if (this._imageArrayStatus[this._index]) return this._imageArrayCache[this._index];
+        else return false;
     }
 
     get originalImage() {
@@ -254,32 +242,7 @@ class Sprite{
             fy = 1;
         }
 
-        if( this.spriteSheetOpt ){
-            
-            let xOff = this.spriteSheetOpt.xOff;
-            let yOff = this.spriteSheetOpt.yOff;
-
-            let spriteWidth = this.spriteSheetOpt.spriteWitdth
-                , spriteHeight = this.spriteSheetOpt.spriteHeight
-                , destX=0
-                , destY=0
-                , displayWidth=this.colSpan * 1
-                , displayHeight=this.rowSpan * 1;
-
-            context.drawImage(
-                img,
-                xOff, yOff,       
-                spriteHeight, spriteWidth,
-                -canvas.height * fx, -canvas.height * fy, canvas.width, canvas.height
-            );
-            
-        }else{
-
-            context.drawImage(img, -canvas.height * fx, -canvas.height * fy, canvas.width, canvas.height);
-        }
-        
-
-
+        context.drawImage(img, -canvas.height * fx, -canvas.height * fy, canvas.width, canvas.height);
 
         if (this._flipX) context.scale(-1, 1);
         if (this._flipY) context.scale(1, -1);

@@ -10,8 +10,27 @@ class Entity{
 
 		let defaultIndex = '0';
 
-		if (typeof sprite === 'string') sprite = [sprite];
-		else if (sprite.constructor.name === "Sprite") sprite = [sprite];
+        if (typeof sprite === 'string') sprite = [sprite];
+        else if (sprite.constructor.name === "Sprite") sprite = [sprite];
+        
+        if (sprite.constructor.name === "Object"){
+            this._sprites = sprite;
+            defaultIndex = Object.keys(sprite)[0];
+        }else if ( Array.isArray(sprite) ){
+            if (sprite.length){
+                if (sprite[0].constructor.name === "Sprite") for (let i in sprite) this._sprites[i] = sprite[i];
+                if (sprite[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprite);
+            }else{
+                throw new Error("Entity sprite can't be empty");
+            }
+        }
+
+        let {
+            collision = false,
+            position = new Position(),
+            index = defaultIndex,
+            grid = false,
+        } = options;
 		
 		if (sprite.constructor.name === "Object"){
 			this._sprites = sprite;
@@ -72,7 +91,9 @@ class Entity{
 		this.drawInPosition();
 
 	}
-
+    /**
+     * @return {Sprite} - current sprite
+     */
 	get sprite(){
 		return this._sprites[this._index];
 	}
@@ -108,24 +129,6 @@ class Entity{
 	}
 	get grid(){
 			return this._grid;
-	}
-
-	get isSpritesheet(){
-			return !!this.spriteSheetOpt;
-	}
-
-	moveToPoint(x, y, velocity){
-
-		while( this.position.x!=x || this.position.y!=y ){
-			let currentX = this.position.x, currentY = this.position.y;
-			let nextX	= currentX - x
-			, nextY = currentY - y;
-
-			x -= 10;
-			y -= 10;
-
-			this.position.move(nextX/velocity, nextY/velocity);
-		}
 	}
 
 	drawInPosition(){
