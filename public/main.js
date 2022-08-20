@@ -129,7 +129,7 @@ function move(button){
     if(button['mousedown']) {
         // for( let a = 0; a<20; a++ ){
 
-            sd.addToPlay('./sfx/floppa/miau.ogg', true, 0.3)
+            // sd.addToPlay('./sfx/floppa/miau.ogg', true, 0.3)
         // }
 
         // bgMusic.addToPlay('./sfx/Ludum Dare 32 - Track 3.wav', true, 0.01)
