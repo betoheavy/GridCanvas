@@ -178,3 +178,6 @@ slider.addEventListener('input', function(e){
     value = (value/100)
     bgMusic.setVolume( value )
 })
+
+
+energyBall.moveToPoint(1, 1, 10)
