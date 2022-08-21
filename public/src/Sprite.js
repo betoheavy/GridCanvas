@@ -77,6 +77,7 @@ class Sprite{
             pixel       = true,
             composite   = "source-over",
             opacity     = undefined,
+            filter      = "none",
             sheet       = false 
         } = options;
 
@@ -95,9 +96,11 @@ class Sprite{
         this._pixel     = pixel;
         this._rotate    = rotate;
         this.sheet      = sheet;
+        this._filter    = filter;
         this.composite  = composite;
 
         this.currentTick = 0;
+        this._images = images;
 
         //convert a image in a array of images
         function spriteSheet(currentImage){
@@ -144,6 +147,29 @@ class Sprite{
             
             return newArray;
         }
+    }
+
+    clone(){
+        let cloned = new Sprite(this._images,
+        {
+            index:      this._index,
+            flipX:      this._flipX,
+            flipY:      this._flipY,
+            ticks:      this._ticks,
+            colSpan:    this.colSpan,
+            rowSpan:    this.rowSpan,
+            centerX:    this.centerX,
+            centerY:    this.centerY,
+            hue:        this._hue,
+            sat:        this._sat,
+            lum:        this._lum,
+            pixel:      this._pixel,
+            sheet:      this.sheet,
+            composite:  this.composite,
+            rotate:     this._rotate,
+            opacity:    this._opacity,
+        });
+        return cloned;
     }
 
     set imageArrayOriginal(array){
@@ -221,6 +247,16 @@ class Sprite{
         }
     }
 
+    get filter(){
+        return this._filter;
+    }
+    set filter(val){
+        if (val != this._filter){
+            this._filter = val;
+            for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
+        }
+    }
+
     set hue(val){
         this._hue = val;
         for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
@@ -275,20 +311,23 @@ class Sprite{
             fy = 1;
         }
 
+        if (this._filter != "none") context.filter = this._filter;
+
         context.drawImage(img, -canvas.height * fx, -canvas.height * fy, canvas.width, canvas.height);
 
         if (this._flipX) context.scale(-1, 1);
         if (this._flipY) context.scale(1, -1);
+        if (this._filter != "none") context.filter = "none";
         
         const imgData   = context.getImageData(0, 0, canvas.width, canvas.height)
         const dLength   = imgData.data.length
         
         for (let i = 0; i < dLength; i += 4) {
             let rgba = {};
-            rgba.r   = imgData.data[i]
-            rgba.g   = imgData.data[i+1]
-            rgba.b   = imgData.data[i+2]
-            rgba.a   = imgData.data[i+3]
+            rgba.r   = imgData.data[i];
+            rgba.g   = imgData.data[i+1];
+            rgba.b   = imgData.data[i+2];
+            rgba.a   = imgData.data[i+3];
 
             if (rgba.a > 0){
                 if (this._hue != undefined){
@@ -323,25 +362,6 @@ class Sprite{
 
     get isReady(){
         return this._isReady;	
-    }
-
-    clone(){
-        let cloned = new Sprite(this._imageArrayOriginal,
-        {
-            index:      this._index,
-            flipX:      this._flipX,
-            flipY:      this._flipY,
-            ticks:      this._ticks,
-            colSpan:    this.colSpan,
-            rowSpan:    this.rowSpan,
-            centerX:    this.centerX,
-            centerY:    this.centerY,
-            hue:        this._hue,
-            sat:        this._sat,
-            lum:        this._lum,
-            pixel:      this._pixel,
-        });
-        return cloned;
     }
 
     changeHue(rgba, degree) {

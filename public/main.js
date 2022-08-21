@@ -4,6 +4,7 @@ const SFX   = new SFXPlayer({floppa_miau: './sfx/floppa/miau.ogg', puaj: './sfx/
 
 //los objetos se manejan en layers
 let background  = new GridLayer();
+let backObjects = new GridLayer();
 let objects     = new GridLayer();
 let player      = new GridLayer();
 
@@ -31,31 +32,33 @@ let energyBall = new Entity(
     {grid:objects, position: new Position(2,1)}
 );
 
-let shield = new Entity(
-    new Sprite(
-        'img/anim/shield.png', 
-        {
-            ticks:2,
-            composite:"lighter",
-            colSpan:1.4,
-            rowSpan:1.4,
-            centerX:0.2,
-            centerY:-0.2,
-            sheet:{
-                sheetWidth: 192,
-                sheetHeight: 192,
-                width: 142,
-                height: 142,
-                yOff: -50,
-            }, 
-            
-        }),
+let shldspt = new Sprite(
+    'img/anim/shield.png', 
     {
-        grid:objects, 
-        position: new Position(0,0)
+        ticks:2,
+        composite:"lighter",
+        colSpan:1.4,
+        rowSpan:1.4,
+        centerX:0.2,
+        centerY:-0.2,
+        sheet:{
+            sheetWidth: 192,
+            sheetHeight: 192,
+            width: 142,
+            height: 142,
+            yOff: -50,
+        }, 
+        
     }
 );
 
+let shldspt2 = shldspt.clone();
+shldspt2.flipY = true;
+shldspt2.filter = "blur(20px)";
+shldspt2.opacity = 0.5;
+
+let shield      = new Entity(shldspt,{grid:objects, position: new Position(0,0)});
+let shieldBack  = new Entity(shldspt2,{grid:backObjects, position: new Position(0,0)});
 
 fire.sprite.composite = "lighter";
 
@@ -84,6 +87,7 @@ let flopSprites = {
 //"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en el sprite "front"
 let flop = new Entity(flopSprites, {collision:new Collision("rectangle"), index:"front"});
 shield.position.follow(flop.position);
+shieldBack.position.follow(flop.position);
 
 // un objeto Control para ejecutar la funcion "move()" y "stopMove()" mas abajo
 let controles = new Control(move, stopMove);
@@ -109,6 +113,7 @@ player.grid([[flop]]);
 
 // ahora agregaremos los layers al gridCanvas
 GC.addGrid(background);
+GC.addGrid(backObjects);
 GC.addGrid(player);
 GC.addGrid(objects);
 
