@@ -23,7 +23,7 @@ GC.mainCamera = "main";
 let base = new Entity(['img/base.svg'], {});
 let bloc = new Entity(['img/block.svg'], {collision:new Collision("rectangle")});
 let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
-let swrd = new Entity(['img/3x3.png'], {grid:objects, position: new Position(2,3)});
+let test = new Entity(new Sprite(['img/3x3.png'],{composite:"multiply"}), {grid:objects, position: new Position(2,3)}); 
 
 //ejemplo de sprite credo en un entity
 let energyBall = new Entity(
@@ -117,6 +117,7 @@ mainCamera.position.follow(flop.position);
 
 GC.start(ctx =>{
     controles.capture();
+    test.rotate+= 3;
 });
 
 //las funciones que controlan el teclado
@@ -167,8 +168,11 @@ function move(button){
     if(button['e'])         {flop.rotate--;}
 
     sptFront
-    if(button['z'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat--;});}
-    if(button['c'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat++;});}
+    //if(button['z'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat--;});}
+    //if(button['c'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat++;});}
+    if(button['z'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity-0.01);
+    if(button['c'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity+0.01);
+
     if(button['ArrowUp'])   {Object.values(flop.sprites).forEach(sprite => {sprite.lum--;});}
     if(button['ArrowDown']) {Object.values(flop.sprites).forEach(sprite => {sprite.lum++;});}
     if(button['+']) bgMusic.volUp(.01);

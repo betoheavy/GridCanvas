@@ -162,12 +162,8 @@ class GridCanvas {
                     if (!cached) cached = oSprite.setCacheImage(indexMaxArea);
                     
                     let rotation = oSprite.rotate + entity.rotate;
-                    //let camCenterX = (oSprite.colSpan*camera.widthPercent)/200;
-                    //let camCenterY = (oSprite.rowSpan*camera.heightPercent)/200;
                     let camCenterX = entity.position.x - camera.position.x + (oSprite.colSpan/2);
                     let camCenterY = -entity.position.y + camera.position.y + (oSprite.rowSpan/2);
-
-                    if (camera.hPosition != 0 && rotation != 0) console.log( "x:" + camCenterX +", y: "+camCenterY);
                     
                     if (rotation != 0){
                         camera.context.translate(camCenterX, camCenterY);
