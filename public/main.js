@@ -4,6 +4,7 @@ const SFX   = new SFXPlayer({floppa_miau: './sfx/floppa/miau.ogg', puaj: './sfx/
 
 //los objetos se manejan en layers
 let background  = new GridLayer();
+let backObjects = new GridLayer();
 let objects     = new GridLayer();
 let player      = new GridLayer();
 
@@ -23,7 +24,7 @@ GC.mainCamera = "main";
 let base = new Entity(['img/base.svg'], {});
 let bloc = new Entity(['img/block.svg'], {collision:new Collision("rectangle")});
 let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
-let swrd = new Entity(['img/3x3.png'], {grid:objects, position: new Position(2,3)});
+let test = new Entity(new Sprite(['img/3x3.png'],{composite:"multiply"}), {grid:objects, position: new Position(2,3)}); 
 
 //ejemplo de sprite credo en un entity
 let energyBall = new Entity(
@@ -39,6 +40,34 @@ let energyBall3 = new Entity(
     new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true, composite:"hard-light"}),
         {grid:objects, position: new Position(4,1), movementSpeed:0.5, uid: 'energyBall3'}
 );
+
+let shldspt = new Sprite(
+    'img/anim/shield.png', 
+    {
+        ticks:2,
+        composite:"lighter",
+        colSpan:1.4,
+        rowSpan:1.4,
+        centerX:0.2,
+        centerY:-0.2,
+        sheet:{
+            sheetWidth: 192,
+            sheetHeight: 192,
+            width: 142,
+            height: 142,
+            yOff: -50,
+        }, 
+        
+    }
+);
+
+let shldspt2 = shldspt.clone();
+shldspt2.flipY = true;
+shldspt2.filter = "blur(20px)";
+shldspt2.opacity = 0.5;
+
+let shield      = new Entity(shldspt,{grid:objects, position: new Position(0,0)});
+let shieldBack  = new Entity(shldspt2,{grid:backObjects, position: new Position(0,0)});
 
 fire.sprite.composite = "lighter";
 
@@ -66,6 +95,8 @@ let flopSprites = {
 
 //"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en el sprite "front"
 let flop = new Entity(flopSprites, {collision:new Collision("rectangle"), index:"front"});
+shield.position.follow(flop.position);
+shieldBack.position.follow(flop.position);
 
 // un objeto Control para ejecutar la funcion "move()" y "stopMove()" mas abajo
 let controles = new Control(move, stopMove);
@@ -91,6 +122,7 @@ player.grid([[flop]]);
 
 // ahora agregaremos los layers al gridCanvas
 GC.addGrid(background);
+GC.addGrid(backObjects);
 GC.addGrid(player);
 GC.addGrid(objects);
 
@@ -99,6 +131,7 @@ mainCamera.position.follow(flop.position);
 
 GC.start(ctx =>{
     controles.capture();
+    test.rotate+= 3;
 });
 
 //las funciones que controlan el teclado
@@ -150,10 +183,17 @@ function move(button){
 
         // bgMusic.addToPlay('./sfx/Ludum Dare 32 - Track 3.wav', true, 0.01)
     }
-    if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}
-    if(button['e'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue++;});}
-    if(button['z'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat--;});}
-    if(button['c'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat++;});}
+    //if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}
+    //if(button['e'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue++;});}
+    if(button['q'])         {flop.rotate++;}
+    if(button['e'])         {flop.rotate--;}
+
+    sptFront
+    //if(button['z'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat--;});}
+    //if(button['c'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat++;});}
+    if(button['z'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity-0.01);
+    if(button['c'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity+0.01);
+
     if(button['ArrowUp'])   {Object.values(flop.sprites).forEach(sprite => {sprite.lum--;});}
     if(button['ArrowDown']) {Object.values(flop.sprites).forEach(sprite => {sprite.lum++;});}
     if(button['+']) bgMusic.volUp(.01);

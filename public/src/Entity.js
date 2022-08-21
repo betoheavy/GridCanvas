@@ -26,10 +26,11 @@ class Entity{
         }
 
         let {
-            collision = false,
-            position = new Position(),
-            index = defaultIndex,
-            grid = false,
+            collision   = false,
+            position    = new Position(),
+            index       = defaultIndex,
+            grid        = false,
+            rotate      = 0,
 						targetEntity = null,
 						fFollowTarget = false,
 						movementSpeed = 1,
@@ -58,11 +59,12 @@ class Entity{
 			collision.entity = this;
 		}
 
-		this._grid = grid;
+        this._grid      = grid;
 		this._collision = collision;
-		this._position = position;
-		this._index = index;
-		this._facingAngle = 0;
+        this._position  = position;
+        this._index     = index;
+        this._rotate    = rotate;
+				this._facingAngle = 0;
 
 		if( !!targetEntity )
 			this._targetEntity = targetEntity;
@@ -96,32 +98,48 @@ class Entity{
 	get collision(){
 			return this._collision;
 	}
+    set collision(value){
+        if (value.constructor.name === "Collision"){
+            value.entity = this;
+        }
+        this._collision = value;
+    }
+    set index(value){
+        this._index = value;
+    }
+    get index(){
+        return this._index;
+    }
+    get position(){
+        return this._position;
+    }
+    set position(value){
+        this._position = value;
+    }
+    set grid(value){
+        this._grid = value;
+        this.drawInPosition();
+    }
+    get grid(){
+        return this._grid;
+    }
+    set rotate(value){
+        this._rotate = value;
+    }
+    get rotate(){
+        return this._rotate;
+    }
 
-	set collision(value){
-			if (value.constructor.name === "Collision"){
-					value.entity = this;
-			}
-			this._collision = value;
+	drawInPosition(){
+		if (this._grid){
+			let find = this._grid.entities.findIndex(entity => entity === this);
+			if (find == -1) this._grid.addEntity(this);
+		}
 	}
-	set index(value){
-			this._index = value;
-	}
-	get index(){
-			return this._index;
-	}
-	get position(){
-			return this._position;
-	}
-	set position(value){
-			this._position = value;
-	}
-	set grid(value){
-			this._grid = value;
-			this.drawInPosition();
-	}
-	get grid(){
-			return this._grid;
-	}
+
+	delay(ms){
+		return new Promise(res => setTimeout(res, ms))
+	};
 
 	set targetEntity(newTarget){
 		this._targetEntity = newTarget;
@@ -142,17 +160,6 @@ class Entity{
 	removeTarget(){
 		this.targetEntity = null;
 	}
-
-	drawInPosition(){
-		if (this._grid){
-			let find = this._grid.entities.findIndex(entity => entity === this);
-			if (find == -1) this._grid.addEntity(this);
-		}
-	}
-
-	delay(ms){
-		return new Promise(res => setTimeout(res, ms))
-	};
 
 	async onUpdate(){
 		

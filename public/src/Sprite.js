@@ -10,21 +10,25 @@ class Sprite{
      * @param {boolean}                     [options.flipX = false]             - whether to flip the image horizontally
      * @param {boolean}                     [options.flipY = false]             - whether to flip the image verically
      * @param {number}                      [options.ticks = 30]                - number of ticks to draw next image
-     * @param {number}                      [options.hue = 0]                   - the hue of the image
-     * @param {number}                      [options.sat = 0]                   - the saturation of the image
-     * @param {number}                      [options.lum = 0]                   - the luminosity of the image
+     * @param {number}                      [options.hue]                       - the hue of the image
+     * @param {number}                      [options.sat]                       - the saturation of the image
+     * @param {number}                      [options.lum]                       - the luminosity of the image
+     * @param {number}                      [options.opacity]                   - the opacity of the image (1 opaque, 0 invisible)
      * @param {boolean}                     [options.pixel = true]              - draw without smoothing the image, useful for smaller images
      * @param {number}                      [options.centerX = 0]               - center in the X axis of the sprite respect of the Entity parent grid
      * @param {number}                      [options.centerY = 0]               - center in the Y axis of the sprite respect of the Entity parent grid
      * @param {number}                      [options.colSpan = 1]               - number of colums in the Entity parent grid used by the sprite
      * @param {number}                      [options.rowSpan = 1]               - number of rows in the Entity parent grid used by the sprite
      * @param {string}                      [options.composite = "source-over"] - operation for context globalCompositeOperation
+     * @param {string}                      [options.filter = "none"]           - property of CanvasRenderingContext2D.filter
      * @param {Object}                      [options.sheet = false]             - allow the use of sprite sheets instead of an array fo sprites
      * 
      * @param {number}                      [options.sheet.xBegin = 0]          - start in the X axis of the top-left corner of the sprite sheet
      * @param {number}                      [options.sheet.yBegin = 0]          - start in the Y axis of the top-left corner of the sprite sheet
-     * @param {number}                      [options.sheet.height = 128]        - height of the sprite sheet in pixels
-     * @param {number}                      [options.sheet.width = 128]         - width of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.sheetHeight = 128]   - height of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.sheetWidth = 128]    - width of the sprite sheet in pixels
+     * @param {number}                      [options.sheet.height = 128]        - height of the resulting sprite in pixels
+     * @param {number}                      [options.sheet.width = 128]         - width of the resulting sprite in pixels
      * @param {number}                      [options.sheet.xOff = 0]            - offset in the X axis of the top-left corner of each sprite in the sprite sheet
      * @param {number}                      [options.sheet.yOff = 0]            - offset in the Y axis of the top-left corner of each sprite in the sprite sheet
      * @param {number}                      [options.sheet.max = 0]             - max number of sprites to load (zero means all sprites posible)
@@ -58,20 +62,23 @@ class Sprite{
         }
 
         let{
-            index   = 0,
-            flipX   = false,
-            flipY   = false,
-            ticks   = 30,
-            colSpan = 1,
-            rowSpan = 1,
-            centerX = 0,
-            centerY = 0,
-            hue     = 0,
-            sat     = 0,
-            lum     = 0,
-            pixel   = true,
-            composite = "source-over",
-            sheet   = false 
+            index       = 0,
+            flipX       = false,
+            flipY       = false,
+            ticks       = 30,
+            colSpan     = 1,
+            rowSpan     = 1,
+            centerX     = 0,
+            centerY     = 0,
+            hue         = undefined,
+            sat         = undefined,
+            lum         = undefined,
+            rotate      = 0,
+            pixel       = true,
+            composite   = "source-over",
+            opacity     = undefined,
+            filter      = "none",
+            sheet       = false 
         } = options;
 
         this._index     = index;
@@ -85,32 +92,38 @@ class Sprite{
         this._hue       = hue;
         this._sat       = sat;
         this._lum       = lum;
+        this._opacity   = opacity;
         this._pixel     = pixel;
+        this._rotate    = rotate;
         this.sheet      = sheet;
+        this._filter    = filter;
         this.composite  = composite;
 
         this.currentTick = 0;
+        this._images = images;
 
         //convert a image in a array of images
         function spriteSheet(currentImage){
             const newArray  = [];
             
             let{
-                xBegin  = 0,
-                yBegin  = 0,
-                height  = 128,
-                width   = 128,
-                max     = 0,
-                xOff    = 0,
-                yOff    = 0
+                xBegin      = 0,
+                yBegin      = 0,
+                sheetHeight = 128,
+                sheetWidth  = 128,
+                height      = 128,
+                width       = 128,
+                max         = 0,
+                xOff        = 0,
+                yOff        = 0
             } = options.sheet;
 
             const sheet     = currentImage;
             const sheetH    = sheet.naturalHeight;
             const sheetW    = sheet.naturalWidth;
 
-            for (let y = yBegin; y < sheetH; y += height){
-                for (let x = xBegin; x < sheetW; x += width){
+            for (let y = yBegin; y < sheetH; y += sheetHeight){
+                for (let x = xBegin; x < sheetW; x += sheetWidth){
                     const canvas    = document.createElement('canvas');
                     const context   = canvas.getContext("2d");
                     canvas.width    = width;
@@ -134,6 +147,29 @@ class Sprite{
             
             return newArray;
         }
+    }
+
+    clone(){
+        let cloned = new Sprite(this._images,
+        {
+            index:      this._index,
+            flipX:      this._flipX,
+            flipY:      this._flipY,
+            ticks:      this._ticks,
+            colSpan:    this.colSpan,
+            rowSpan:    this.rowSpan,
+            centerX:    this.centerX,
+            centerY:    this.centerY,
+            hue:        this._hue,
+            sat:        this._sat,
+            lum:        this._lum,
+            pixel:      this._pixel,
+            sheet:      this.sheet,
+            composite:  this.composite,
+            rotate:     this._rotate,
+            opacity:    this._opacity,
+        });
+        return cloned;
     }
 
     set imageArrayOriginal(array){
@@ -184,6 +220,39 @@ class Sprite{
     set flipY(val){
         if (val != this._flipY){
             this._flipY = val;
+            for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
+        }
+    }
+
+    get rotate(){
+        return this._rotate;
+    }
+    set rotate(val){
+        if (val != this._rotate){
+            this._rotate = val;
+            //for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
+        }
+    }
+
+    get opacity(){
+        return this._opacity;
+    }
+    set opacity(val){
+        if (val != this._opacity){
+            if (val < 0)        this._opacity = 0;
+            else if (val > 1)   this._opacity = 1;
+            else                this._opacity = val;
+            
+            for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
+        }
+    }
+
+    get filter(){
+        return this._filter;
+    }
+    set filter(val){
+        if (val != this._filter){
+            this._filter = val;
             for(let i = 0; i < this._length; i++) this._imageArrayStatus[i] = false;
         }
     }
@@ -242,34 +311,41 @@ class Sprite{
             fy = 1;
         }
 
+        if (this._filter != "none") context.filter = this._filter;
+
         context.drawImage(img, -canvas.height * fx, -canvas.height * fy, canvas.width, canvas.height);
 
         if (this._flipX) context.scale(-1, 1);
         if (this._flipY) context.scale(1, -1);
+        if (this._filter != "none") context.filter = "none";
         
         const imgData   = context.getImageData(0, 0, canvas.width, canvas.height)
         const dLength   = imgData.data.length
         
         for (let i = 0; i < dLength; i += 4) {
             let rgba = {};
-            rgba.r   = imgData.data[i]
-            rgba.g   = imgData.data[i+1]
-            rgba.b   = imgData.data[i+2]
-            rgba.a   = imgData.data[i+3]
+            rgba.r   = imgData.data[i];
+            rgba.g   = imgData.data[i+1];
+            rgba.b   = imgData.data[i+2];
+            rgba.a   = imgData.data[i+3];
 
             if (rgba.a > 0){
-                if (this._hue != 0){
+                if (this._hue != undefined){
                     rgba = this.changeHue(rgba, this._hue);
                 }
-                if (this._sat != 0){
+                if (this._sat != undefined){
                     rgba = this.changeSat(rgba, this._sat);
                 }
-                if (this._lum != 0){
+                if (this._lum != undefined){
                     rgba = this.changeLum(rgba, this._lum);
+                }
+                if (this._opacity != undefined){
+                    rgba.a = rgba.a*this._opacity;
                 }
                 imgData.data[i]   = rgba.r;
                 imgData.data[i+1] = rgba.g;
                 imgData.data[i+2] = rgba.b;
+                imgData.data[i+3] = rgba.a;
             }
         }
         context.putImageData(imgData, 0, 0)
@@ -286,25 +362,6 @@ class Sprite{
 
     get isReady(){
         return this._isReady;	
-    }
-
-    clone(){
-        let cloned = new Sprite(this._imageArrayOriginal,
-        {
-            index:      this._index,
-            flipX:      this._flipX,
-            flipY:      this._flipY,
-            ticks:      this._ticks,
-            colSpan:    this.colSpan,
-            rowSpan:    this.rowSpan,
-            centerX:    this.centerX,
-            centerY:    this.centerY,
-            hue:        this._hue,
-            sat:        this._sat,
-            lum:        this._lum,
-            pixel:      this._pixel,
-        });
-        return cloned;
     }
 
     changeHue(rgba, degree) {

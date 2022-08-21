@@ -8,7 +8,7 @@ class Position{
 	 * @param {object} options
 	 */
 	constructor(x=0, y=0, options = {}){
-		this.uid = 'Position'+(new Date().getTime());
+		this.uid = 'Position'+Math.floor(100000 + Math.random() * 900000);
 		this._x = x;
 		this._y = y;
 		this._lastx = x;
