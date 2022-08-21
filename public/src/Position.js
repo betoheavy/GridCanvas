@@ -183,4 +183,50 @@ class Position{
     clone(){ 
         return new Position(this.x, this.y);
     }
+
+		/**
+		 * 
+		 * @param {number} x 
+		 * @param {number} y 
+		 * @returns angle between self position and x,y in radians
+		 */
+		calcAnlgeToPoint(x, y){
+			return Math.atan2( x-this.x, y-this.y );
+		}
+		/**
+		 * 
+		 * @param {Entity|Position} target 
+		 * @returns angle between self position and x,y in radians
+		 */
+		calcAngle(target){
+
+			if( target == null ){
+				throw ('TARGET NO SOPORTADO', target)
+			}
+
+			switch( target.constructor.name ){
+				case 'Entity':
+					target = target.position;
+				break;
+				case 'Position':
+					// target = target;
+				break;
+				default:
+					throw ('TARGET NO SOPORTADO', target)
+			}
+
+			let y = target.y
+				,x = target.x;
+
+			return this.calcAnlgeToPoint(x, y)
+		}
+
+		/**
+		 * 
+		 * @param {Entity|Position} target 
+		 * @returns angle between self position and x,y in degrees
+		 */
+		calcAngleDeg(target){
+			return this.calcAngle(target) * 180 / Math.PI;
+		}
 }

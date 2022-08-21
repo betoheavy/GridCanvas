@@ -127,6 +127,7 @@ function move(button){
 
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {
+        energyBall.targetEntity = new Entity({}, {position: new Position(3,3)});
         // for( let a = 0; a<20; a++ ){
 
             // sd.addToPlay('./sfx/floppa/miau.ogg', true, 0.3)
@@ -153,6 +154,7 @@ function move(button){
     if( button['p'] ){
         bgMusic.resumeAll();
     }
+    if( button['0'] ){ energyBall.targetEntity = flop; }
 }
 function stopMove(dp, controls){
     if (flop.index == "frontMove"){
@@ -186,4 +188,6 @@ slider.addEventListener('input', function(e){
 })
 
 
-energyBall.moveToPoint(1, 1, 10)
+energyBall.targetEntity = flop;
+
+energyBall.onUpdate()

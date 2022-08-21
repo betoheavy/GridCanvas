@@ -30,6 +30,8 @@ class Entity{
             position = new Position(),
             index = defaultIndex,
             grid = false,
+						targetEntity = null,
+						fFollowTarget = false
         } = options;
 		
 		if (sprite.constructor.name === "Object"){
@@ -42,37 +44,6 @@ class Entity{
 			}else{
 				throw new Error("Entity sprite can't be empty");
 			}
-		}
-
-		let {
-			collision = false,
-			position = new Position(),
-			index = defaultIndex,
-			grid = false,
-		} = options;
-
-		if( !!options.spriteSheetOpt ){
-			let {
-				spriteSheetOpt:{
-					xBegin=0,
-					yBegin=0,
-					spriteWitdth,
-					spriteHeight,
-					endIndex,
-					xOff=0,
-					yOff=0
-				}={}
-			} = options;
-
-			this.spriteSheetOpt = typeof spriteSheetOpt === 'object'?spriteSheetOpt: {
-				xBegin:0,
-				yBegin:0,
-				spriteWitdth: 128,
-				spriteHeight: 128,
-				endIndex: undefined,
-				xOff:0,
-				yOff:0
-			};
 		}
 	
 		if (collision === true){
@@ -87,9 +58,25 @@ class Entity{
 		this._collision = collision;
 		this._position = position;
 		this._index = index;
+		this._facingAngle = 0;
+
+		if( !!targetEntity )
+			this._targetEntity = targetEntity;
+		
+		this.fFollowTarget = fFollowTarget;
 
 		this.drawInPosition();
+		this.update = true
+		this.deltaTime  = 0;
 
+		this.mvsp = 1;
+
+		// document.getElementById('spdSlider').addEventListener('input', e=>{
+		// 	e.preventDefault()
+		// 	let value = e.srcElement.value;
+		// 	value = parseFloat(value)
+		// 	this.mvsp = value
+		// })
 	}
     /**
      * @return {Sprite} - current sprite
@@ -131,6 +118,16 @@ class Entity{
 			return this._grid;
 	}
 
+	set targetEntity(newTarget){
+		this._targetEntity = newTarget;
+	}
+
+	get targetEntity(){	return this._targetEntity	}
+
+	removeTarget(){
+		this.targetEntity = null;
+	}
+
 	drawInPosition(){
 		if (this._grid){
 			let find = this._grid.entities.findIndex(entity => entity === this);
@@ -138,8 +135,68 @@ class Entity{
 		}
 	}
 
-	onUpdate(){
-		this.updateFunction();
+	delay(ms){
+		return new Promise(res => setTimeout(res, ms))
+	};
+
+	async onUpdate(){
+		// this.updateFunction();
+		let runningTime = 0;
+		const startTime = Date.now();
+		let preCycleTime = startTime;
+		let delta = 0;
+		
+		// console.log( {runningTime, startTime} )
+		while(this.update){
+			
+			delta = Date.now() - preCycleTime;
+			preCycleTime = Date.now();
+			this.deltaTime = delta;
+
+			// if( delta < 100 ){
+				
+			// 	continue
+			// };
+			runningTime+=delta;
+
+			if( !!this.targetEntity ){
+
+				let targetPos = this.targetEntity.position;
+				let targetX = targetPos.x, targetY = targetPos.y;
+
+				let selfPos = this.position;
+				let selfX = selfPos.x, selfY = selfPos.y;
+
+				let xDiff = targetX - selfX, yDiff = targetY - selfY;
+
+				let mvsp = this.mvsp;
+				let minSpeed = .01;
+
+				if( Math.abs(xDiff) <= .1 && Math.abs(yDiff) <= .1 ){
+					console.log( 'on target vieja' )
+					this.removeTarget();
+					delta = 0;
+					continue
+				}
+
+				let moveDirX = Math.sign(xDiff) * mvsp * delta
+				let moveDirY = Math.sign(yDiff) * mvsp * delta
+
+				let angle = this.position.calcAngle(this.targetEntity.position);
+				this._facingAngle = angle;
+
+
+				let xSS = Math.sin(angle) * mvsp * .01 * delta/2
+				let ySS = Math.cos(angle) * mvsp * .01 * delta/2
+
+				this.position.move( xSS, ySS)
+			}
+
+			await this.delay(10)
+			delta = 0;
+			
+			// console.log( delta, runningTime )
+		}
 	}
 
 	isColliding(otherObject, ignore = []){
