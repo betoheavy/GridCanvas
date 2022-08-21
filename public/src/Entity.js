@@ -5,7 +5,7 @@ class Entity{
 	 */
 	constructor(sprite, options={}){
 
-		this.uid = "Entity"+(new Date().getTime());
+		
 		this._sprites = {}; 
 
 		let defaultIndex = '0';
@@ -32,8 +32,11 @@ class Entity{
             grid = false,
 						targetEntity = null,
 						fFollowTarget = false,
-						movementSpeed = 1
+						movementSpeed = 1,
+						uid = "Entity"+(new Date().getTime())
         } = options;
+
+		this.uid = uid;
 		
 		if (sprite.constructor.name === "Object"){
 			this._sprites = sprite;
@@ -71,6 +74,7 @@ class Entity{
 		this.deltaTime  = 0;
 
 		this.mvsp = movementSpeed;
+		this.easing = 'linear'
 
 		// document.getElementById('spdSlider').addEventListener('input', e=>{
 		// 	e.preventDefault()
@@ -123,10 +127,13 @@ class Entity{
 		this._targetEntity = newTarget;
 	}
 
-	setNewTarget( newTarget, movementSpeed ){
+	setNewTarget( newTarget, movementSpeed, easing ){
 		if( movementSpeed!=null ){
 			this.mvsp = movementSpeed;
 		}
+		if( easing != null )	this.easing = easing
+
+		console.log( {uid: this.uid} )
 		this.targetEntity = newTarget;
 	}
 
@@ -182,9 +189,10 @@ class Entity{
 				// se elimina el target, para que este no quede eternamente buscando 
 				// el mismo target
 				if( Math.abs(xDiff) <= .1 && Math.abs(yDiff) <= .1 ){
-					console.log( 'on target vieja' )
+					
 					this.removeTarget();
 					delta = 0;
+					console.log( 'on target vieja' )
 					continue
 				}
 
@@ -192,14 +200,26 @@ class Entity{
 				let angle = this.position.calcAngle(this.targetEntity.position);
 				this._facingAngle = angle;
 
-				// se multiplica por .01 para que la velocidad no sea imbecil
-				const mvspAfterMod = mvsp * .01
-				// se divide a la mitad la influencia del delta time en la formula
-				const deltaAfterMod = delta *.5;
+				
+
+				let yAngle
+				let xAngle
+
+				xAngle = (Math.sin(angle))
+				yAngle = (Math.cos(angle))
+				
+				xAngle += delta * (Math.sin(angle))
+				yAngle += delta * (Math.cos(angle))
+
+				// se multiplica por  para que la velocidad no sea imbecil
+				const mvspAfterMod = mvsp
 
 				// se calcula cual seran las nuevas posiciones en la grid
-				let nextXPos = Math.sin(angle) * mvspAfterMod * deltaAfterMod;
-				let nextYPos = Math.cos(angle) * mvspAfterMod * deltaAfterMod;
+				let nextXPos = xAngle * mvspAfterMod *.1;
+				let nextYPos = yAngle * mvspAfterMod *.1;
+
+				// this.nextXPos = nextXPos
+				// this.nextYPos = nextYPos
 				// se efectua el movimiento de la entidad
 				this.position.move( nextXPos, nextYPos)
 			}
@@ -242,3 +262,20 @@ class Entity{
 		})
 	}
 }
+
+let tfn = {
+  'linear': function(k) {
+		
+    return k;
+  }, 
+  'ease-in': function(k) {
+		
+		return Math.pow(k, 2)
+  }, 
+  'ease-out': function(k) {
+    return 1 - Math.pow(1 - k, 3);
+  }, 
+  'ease-in-out': function(k) {
+    return .5*(Math.sin((k - .5)*Math.PI) + 1);
+  }
+};

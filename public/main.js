@@ -27,8 +27,17 @@ let swrd = new Entity(['img/3x3.png'], {grid:objects, position: new Position(2,3
 
 //ejemplo de sprite credo en un entity
 let energyBall = new Entity(
+    new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true, composite:"hard-light"}),
+        {grid:objects, position: new Position(2,1), movementSpeed:0.5, uid: 'energyBall'}
+    );
+let energyBall2 = new Entity(
 new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true, composite:"hard-light"}),
-    {grid:objects, position: new Position(2,1), movementSpeed:0.5}
+    {grid:objects, position: new Position(3,1), movementSpeed:0.5, uid: 'energyBall2'}
+);
+
+let energyBall3 = new Entity(
+    new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true, composite:"hard-light"}),
+        {grid:objects, position: new Position(4,1), movementSpeed:0.5, uid: 'energyBall3'}
 );
 
 fire.sprite.composite = "lighter";
@@ -127,7 +136,13 @@ function move(button){
 
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {
-        energyBall.targetEntity = new Entity({}, {position: new Position(3,3)});
+        // energyBall.targetEntity = new Entity({}, {position: new Position(3,3)});
+        // energyBall2.targetEntity = new Entity({}, {position: new Position(4,3)});
+        // energyBall3.targetEntity = new Entity({}, {position: new Position(5,3)});
+
+        energyBall.setNewTarget( new Entity({}, {position: new Position(3,3)}), .1, 'linear')
+        energyBall2.setNewTarget( new Entity({}, {position: new Position(4,3)}), .1, 'ease-in')
+        energyBall3.setNewTarget( new Entity({}, {position: new Position(5,3)}), .1, 'ease-out')
         // for( let a = 0; a<20; a++ ){
 
             // sd.addToPlay('./sfx/floppa/miau.ogg', true, 0.3)
@@ -154,7 +169,11 @@ function move(button){
     if( button['p'] ){
         bgMusic.resumeAll();
     }
-    if( button['0'] ){ energyBall.setNewTarget(flop , 5 ) }
+    if( button['0'] ){ 
+        energyBall.setNewTarget(flop , .1, 'linear')
+        energyBall2.setNewTarget(flop , .1, 'ease-in')
+        energyBall3.setNewTarget(flop , .1, 'ease-out')
+    }
 }
 function stopMove(dp, controls){
     if (flop.index == "frontMove"){
@@ -188,6 +207,8 @@ slider.addEventListener('input', function(e){
 })
 
 
-energyBall.targetEntity = flop;
+// energyBall.targetEntity = flop;
 
 energyBall.onUpdate()
+energyBall2.onUpdate()
+energyBall3.onUpdate()
