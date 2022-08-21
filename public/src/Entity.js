@@ -31,7 +31,8 @@ class Entity{
             index = defaultIndex,
             grid = false,
 						targetEntity = null,
-						fFollowTarget = false
+						fFollowTarget = false,
+						movementSpeed = 1
         } = options;
 		
 		if (sprite.constructor.name === "Object"){
@@ -69,7 +70,7 @@ class Entity{
 		this.update = true
 		this.deltaTime  = 0;
 
-		this.mvsp = 1;
+		this.mvsp = movementSpeed;
 
 		// document.getElementById('spdSlider').addEventListener('input', e=>{
 		// 	e.preventDefault()
