@@ -78,6 +78,8 @@ class Entity{
 		this.mvsp = movementSpeed;
 		this.easing = 'linear'
 
+		this.onReachActions = []
+
 		// document.getElementById('spdSlider').addEventListener('input', e=>{
 		// 	e.preventDefault()
 		// 	let value = e.srcElement.value;
@@ -145,13 +147,21 @@ class Entity{
 		this._targetEntity = newTarget;
 	}
 
-	setNewTarget( newTarget, movementSpeed, easing ){
+	setNewTarget( newTarget, {movementSpeed, easing, onReach}={} ){
 		if( movementSpeed!=null ){
 			this.mvsp = movementSpeed;
 		}
 		if( easing != null )	this.easing = easing
 
-		console.log( {uid: this.uid} )
+		if( onReach != null ){
+			if( Array.isArray( onReach ) ){
+				this.onReachActions = onReach;
+			}else{
+				this.onReachActions.push( onReach )
+			}
+			
+		}	
+
 		this.targetEntity = newTarget;
 	}
 
@@ -159,6 +169,7 @@ class Entity{
 
 	removeTarget(){
 		this.targetEntity = null;
+		this.onReachActions = [];
 	}
 
 	async onUpdate(){
@@ -197,9 +208,12 @@ class Entity{
 				// el mismo target
 				if( Math.abs(xDiff) <= .1 && Math.abs(yDiff) <= .1 ){
 					
-					this.removeTarget();
 					delta = 0;
-					console.log( 'on target vieja' )
+					this.onReachActions.forEach((val)=>{
+						if( val != null )	val();
+					})
+
+					this.removeTarget();
 					continue
 				}
 
@@ -207,7 +221,7 @@ class Entity{
 				let angle = this.position.calcAngle(this.targetEntity.position);
 				this._facingAngle = angle;
 
-				
+				this.rotate = this.position.calcAngleDeg( this.targetEntity.position ) + 270
 
 				let yAngle
 				let xAngle
@@ -215,15 +229,16 @@ class Entity{
 				xAngle = (Math.sin(angle))
 				yAngle = (Math.cos(angle))
 				
-				xAngle += delta * (Math.sin(angle))
-				yAngle += delta * (Math.cos(angle))
+
+				xAngle += delta * Math.sign(Math.sin(angle)) * .05
+				yAngle += delta * Math.sign(Math.cos(angle)) * .05
 
 				// se multiplica por  para que la velocidad no sea imbecil
-				const mvspAfterMod = mvsp
+				const mvspAfterMod = mvsp *.1
 
 				// se calcula cual seran las nuevas posiciones en la grid
-				let nextXPos = xAngle * mvspAfterMod *.1;
-				let nextYPos = yAngle * mvspAfterMod *.1;
+				let nextXPos = xAngle * mvspAfterMod;
+				let nextYPos = yAngle * mvspAfterMod;
 
 				// this.nextXPos = nextXPos
 				// this.nextYPos = nextYPos
