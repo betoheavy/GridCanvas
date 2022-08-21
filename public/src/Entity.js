@@ -123,6 +123,13 @@ class Entity{
 		this._targetEntity = newTarget;
 	}
 
+	setNewTarget( newTarget, movementSpeed ){
+		if( movementSpeed!=null ){
+			this.mvsp = movementSpeed;
+		}
+		this.targetEntity = newTarget;
+	}
+
 	get targetEntity(){	return this._targetEntity	}
 
 	removeTarget(){
@@ -141,23 +148,22 @@ class Entity{
 	};
 
 	async onUpdate(){
-		// this.updateFunction();
+		
+		// almacen la cantidad de ms que el juego lleva corriendo
 		let runningTime = 0;
+		// timestamp del comienzo del juego
 		const startTime = Date.now();
-		let preCycleTime = startTime;
+		// timestamp del ciclo actual
+		let currentTime = startTime;
+		// diferencia de startTime y 
 		let delta = 0;
 		
-		// console.log( {runningTime, startTime} )
 		while(this.update){
 			
-			delta = Date.now() - preCycleTime;
-			preCycleTime = Date.now();
+			delta = Date.now() - currentTime;
+			currentTime = Date.now();
 			this.deltaTime = delta;
 
-			// if( delta < 100 ){
-				
-			// 	continue
-			// };
 			runningTime+=delta;
 
 			if( !!this.targetEntity ){
@@ -171,8 +177,10 @@ class Entity{
 				let xDiff = targetX - selfX, yDiff = targetY - selfY;
 
 				let mvsp = this.mvsp;
-				let minSpeed = .01;
 
+				// en caso de que el target este a menos de cierta distancia
+				// se elimina el target, para que este no quede eternamente buscando 
+				// el mismo target
 				if( Math.abs(xDiff) <= .1 && Math.abs(yDiff) <= .1 ){
 					console.log( 'on target vieja' )
 					this.removeTarget();
@@ -180,23 +188,24 @@ class Entity{
 					continue
 				}
 
-				let moveDirX = Math.sign(xDiff) * mvsp * delta
-				let moveDirY = Math.sign(yDiff) * mvsp * delta
-
+				// se calcula el angulo entre este entity y el target
 				let angle = this.position.calcAngle(this.targetEntity.position);
 				this._facingAngle = angle;
 
+				// se multiplica por .01 para que la velocidad no sea imbecil
+				const mvspAfterMod = mvsp * .01
+				// se divide a la mitad la influencia del delta time en la formula
+				const deltaAfterMod = delta *.5;
 
-				let xSS = Math.sin(angle) * mvsp * .01 * delta/2
-				let ySS = Math.cos(angle) * mvsp * .01 * delta/2
-
-				this.position.move( xSS, ySS)
+				// se calcula cual seran las nuevas posiciones en la grid
+				let nextXPos = Math.sin(angle) * mvspAfterMod * deltaAfterMod;
+				let nextYPos = Math.cos(angle) * mvspAfterMod * deltaAfterMod;
+				// se efectua el movimiento de la entidad
+				this.position.move( nextXPos, nextYPos)
 			}
 
-			await this.delay(10)
+			await this.delay(1000/60)
 			delta = 0;
-			
-			// console.log( delta, runningTime )
 		}
 	}
 

@@ -28,7 +28,7 @@ let swrd = new Entity(['img/3x3.png'], {grid:objects, position: new Position(2,3
 //ejemplo de sprite credo en un entity
 let energyBall = new Entity(
 new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true, composite:"hard-light"}),
-    {grid:objects, position: new Position(2,1)}
+    {grid:objects, position: new Position(2,1), movementSpeed:0.5}
 );
 
 fire.sprite.composite = "lighter";
@@ -154,7 +154,7 @@ function move(button){
     if( button['p'] ){
         bgMusic.resumeAll();
     }
-    if( button['0'] ){ energyBall.targetEntity = flop; }
+    if( button['0'] ){ energyBall.setNewTarget(flop , 5 ) }
 }
 function stopMove(dp, controls){
     if (flop.index == "frontMove"){
