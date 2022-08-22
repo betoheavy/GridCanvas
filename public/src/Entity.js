@@ -1,29 +1,27 @@
 class Entity{
 	/**
-	 * @param {Sprite|String|Array[Sprite|String]|Object[Sprite]} sprite
-	 * @param {Object} 	[options] 
-	 * @param {uid}			[options.uid]	-	unique id
-	 * @param	{Entity}	[options.targetEntity] - 
-	 * @param {number} [options.movementSpeed = 1] - entity's movement speed
-	 * @param {boolean} [options.fFollowTarget = false] - entity follow flag
+	 * @param {Sprite|String|Sprite[]|String[]|Object.<Sprite>} [sprites] 						- One or many collections of Sprites to show
+	 * @param {Object}											[options]                       - Options for Entity creation
+	 * @param {string}											[options.uid]	                - Unique id
+	 * @param {Entity}											[options.targetEntity] 			- 
+	 * @param {number}											[options.movementSpeed = 1] 	- entity's movement speed
+	 * @param {boolean}											[options.fFollowTarget = false] - entity follow flag
 	 */
-	constructor(sprite, options={}){
+	constructor(sprites, options={}){
 
 		this._sprites = {}; 
 		let defaultIndex = '0';
 
-		if (typeof sprite === 'string') sprite = [sprite];
-		else if (sprite.constructor.name === "Sprite") sprite = [sprite];
+		if (typeof sprites === 'string') sprites = [sprites];
+		else if (sprites.constructor.name === "Sprite") sprites = [sprites];
 		
-		if (sprite.constructor.name === "Object"){
-			this._sprites = sprite;
-			defaultIndex = Object.keys(sprite)[0];
-		}else if ( Array.isArray(sprite) ){
-			if (sprite.length){
-				if (sprite[0].constructor.name === "Sprite") for (let i in sprite) this._sprites[i] = sprite[i];
-				if (sprite[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprite);
-			}else{
-				throw new Error("Entity sprite can't be empty");
+		if (sprites.constructor.name === "Object"){
+			this._sprites = sprites;
+			defaultIndex = Object.keys(sprites)[0];
+		}else if ( Array.isArray(sprites) ){
+			if (sprites.length){
+				if (sprites[0].constructor.name === "Sprite") for (let i in sprites) this._sprites[i] = sprites[i];
+				if (sprites[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprites);
 			}
 		}
 
@@ -36,22 +34,10 @@ class Entity{
 			targetEntity = null,
 			fFollowTarget = false,
 			movementSpeed = 1,
-			uid = "Entity"+(new Date().getTime())
+			uid = "Entity"+Math.floor(100000 + Math.random() * 900000),
 		} = options;
 
 		this.uid = uid;
-		
-		if (sprite.constructor.name === "Object"){
-			this._sprites = sprite;
-			defaultIndex = Object.keys(sprite)[0];
-		}else if ( Array.isArray(sprite) ){
-			if (sprite.length){
-				if (sprite[0].constructor.name === "Sprite") for (let i in sprite) this._sprites[i] = sprite[i];
-				if (sprite[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprite, {...options.spriteOpt,spriteSheetOpt:options.spriteSheetOpt});
-			}else{
-				throw new Error("Entity sprite can't be empty");
-			}
-		}
 	
 		if (collision === true){
 			collision = new Collision();
