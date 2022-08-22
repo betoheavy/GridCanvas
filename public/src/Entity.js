@@ -238,15 +238,18 @@ class Entity{
 
 				this.rotate = this.position.calcAngleDeg( this.targetEntity.position ) + 270
 				
-				const mvspAfterMod = mvsp * timeSpeedMod;
+				const mvspAfterMod = mvsp;
 
 				// new_Pos = old pos + mvsp (/secs (mill)) * time delta
 
-				let nextXPos =  (mvspAfterMod * Math.sign(Math.sin(angle)))
-				let nextYPos =  (mvspAfterMod * Math.sign(Math.cos(angle)))
+				const angleTiltX = Math.sin(angle);
+				const angleTiltY = Math.cos(angle);
 
-				nextXPos *= delta
-				nextYPos *= delta
+				let nextXPos = Math.abs(angleTiltX) * (mvspAfterMod * Math.sign(angleTiltX))
+				let nextYPos = Math.abs(angleTiltY) * (mvspAfterMod * Math.sign(angleTiltY))
+
+				nextXPos *= delta * timeSpeedMod
+				nextYPos *= delta * timeSpeedMod
 
 				nextXPos = (Math.abs(nextXPos) >= Math.abs(xDiff)) ? xDiff: nextXPos;
 				nextYPos = (Math.abs(nextYPos) >= Math.abs(yDiff)) ? yDiff: nextYPos;
