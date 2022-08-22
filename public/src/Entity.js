@@ -1,7 +1,11 @@
 class Entity{
 	/**
 	 * @param {Sprite|String|Array[Sprite|String]|Object[Sprite]} sprite
-	 * @param {object} options 
+	 * @param {Object} 	[options] 
+	 * @param {uid}			[options.uid]	-	unique id
+	 * @param	{Entity}	[options.targetEntity] - 
+	 * @param {number} [options.movementSpeed = 1] - entity's movement speed
+	 * @param {boolean} [options.fFollowTarget = false] - entity follow flag
 	 */
 	constructor(sprite, options={}){
 
@@ -78,6 +82,8 @@ class Entity{
 
 		this.onReachActions = []
 
+		this.selfFps = 60
+
 		// document.getElementById('spdSlider').addEventListener('input', e=>{
 		// 	e.preventDefault()
 		// 	let value = e.srcElement.value;
@@ -145,6 +151,13 @@ class Entity{
 		this._targetEntity = newTarget;
 	}
 
+	/**
+	 * sets new target with configuration
+	 * @param {Entity}	newTarget 
+	 * @param {object}	[options] 
+	 * @param {number}	[options.movementSpeed] - sets entity's movement speed
+	 * @param {Function|Function[]}	[options.onReach] - on reaching target will execute this as callback( this, target )
+	 */
 	setNewTarget( newTarget, {movementSpeed, easing, onReach}={} ){
 		if( movementSpeed!=null ){
 			this.mvsp = movementSpeed;
@@ -169,7 +182,9 @@ class Entity{
 		this.targetEntity = null;
 		this.onReachActions = [];
 	}
-
+	/**
+	 * 
+	 */
 	async onUpdate(){
 		
 		// almacen la cantidad de ms que el juego lleva corriendo
@@ -180,6 +195,8 @@ class Entity{
 		let currentTime = startTime;
 		// diferencia de startTime y 
 		let delta = 0;
+
+		const timeSpeedMod = .001;
 		
 		while(this.update){
 			
@@ -204,11 +221,11 @@ class Entity{
 				// en caso de que el target este a menos de cierta distancia
 				// se elimina el target, para que este no quede eternamente buscando 
 				// el mismo target
-				if( Math.abs(xDiff) <= .1 && Math.abs(yDiff) <= .1 ){
+				if( Math.abs(xDiff) <= .01 && Math.abs(yDiff) <= .01 ){
 					
 					delta = 0;
 					this.onReachActions.forEach((val)=>{
-						if( val != null )	val();
+						if( val != null )	val(this, this.targetEntity);
 					})
 
 					this.removeTarget();
@@ -221,30 +238,30 @@ class Entity{
 
 				this.rotate = this.position.calcAngleDeg( this.targetEntity.position ) + 270
 
-				let yAngle
-				let xAngle
-
-				xAngle = (Math.sin(angle))
-				yAngle = (Math.cos(angle))
+				nxtXPosByAngle = Math.sin(angle)
+				nxtYPosByAngle = Math.cos(angle)
 				
+				const mvspAfterMod = mvsp * timeSpeedMod;
 
-				xAngle += delta * Math.sign(Math.sin(angle)) * .05
-				yAngle += delta * Math.sign(Math.cos(angle)) * .05
+				// new_Pos = old pos + mvsp (/secs (mill)) * time delta
 
-				// se multiplica por  para que la velocidad no sea imbecil
-				const mvspAfterMod = mvsp *.1
+				let nextXPos =  (mvspAfterMod * Math.sign(Math.sin(angle)))
+				let nextYPos =  (mvspAfterMod * Math.sign(Math.cos(angle)))
 
-				// se calcula cual seran las nuevas posiciones en la grid
-				let nextXPos = xAngle * mvspAfterMod;
-				let nextYPos = yAngle * mvspAfterMod;
+				nextXPos *= delta
+				nextYPos *= delta
 
-				// this.nextXPos = nextXPos
-				// this.nextYPos = nextYPos
+				nextXPos = (Math.abs(nextXPos) >= Math.abs(xDiff)) ? xDiff: nextXPos;
+				nextYPos = (Math.abs(nextYPos) >= Math.abs(yDiff)) ? yDiff: nextYPos;
+
+				this.nextXPos = nextXPos
+				this.nextYPos = nextYPos
 				// se efectua el movimiento de la entidad
 				this.position.move( nextXPos, nextYPos)
+				// this.position.set(nextXPos, nextYPos)
 			}
 
-			await this.delay(1000/60)
+			await this.delay(1000/this.selfFps)
 			delta = 0;
 		}
 	}
