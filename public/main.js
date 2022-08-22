@@ -1,6 +1,6 @@
 // GridCanvas se encarga de dibujar y SFXPlayer de cargar los sonidos
 const GC    = new GridCanvas('mainCanvas',{debug:false});
-const SFX   = new SFXPlayer({floppa_miau: './sfx/floppa/miau.ogg', puaj: './sfx/floppa/guah.wav'});
+const SFX   = new SFXPlayer({floppa_miau: './sfx/floppa/miau.ogg', puaj: './sfx/floppa/guah.wav', explo:'./sfx/explo.wav'});
 
 //los objetos se manejan en layers
 let background  = new GridLayer();
@@ -9,7 +9,7 @@ let objects     = new GridLayer();
 let player      = new GridLayer();
 
 
-let sd = new SoundManager('fx', 1, 0.1, {});
+let sd = new SoundManager('fx', 50, 0.1, {});
 let bgMusic = new SoundManager('bg', 1, true, {inSecuence:true, autoPlay: true, loop: true});
 
 //los layers los veran camaras
@@ -26,11 +26,9 @@ let bloc = new Entity(['img/block.svg'], {collision:new Collision("rectangle")})
 let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
 let test = new Entity(new Sprite(['img/3x3.png'],{composite:"multiply"}), {grid:objects, position: new Position(2,3)}); 
 
-//ejemplo de sprite credo en un entity
-let energyBall = new Entity(
-    new Sprite('img/anim/projectiles/Energy ball/EnergyBall.png' , {ticks:5, sheet:true, composite:"hard-light"}),
-    {grid:objects, position: new Position(2,1)}
-);
+let energyBall = getEnergyBall('energy_ball', objects, 2, 1)
+let energyBall2 = getEnergyBall('energy_ball2', objects, 3, 1)
+let energyBall3 = getEnergyBall('energy_ball3', objects, 4, 1)
 
 let shldspt = new Sprite(
     'img/anim/shield.png', 
@@ -160,6 +158,13 @@ function move(button){
 
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {
+        // energyBall.targetEntity = new Entity({}, {position: new Position(3,3)});
+        // energyBall2.targetEntity = new Entity({}, {position: new Position(4,3)});
+        // energyBall3.targetEntity = new Entity({}, {position: new Position(5,3)});
+
+        energyBall.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:1, onReach: null})
+        energyBall2.setNewTarget( new Entity({}, {position: new Position(4,3)}),  {movementSpeed:1, onReach: null})
+        energyBall3.setNewTarget( new Entity({}, {position: new Position(5,3)}),  {movementSpeed:1, onReach: null})
         // for( let a = 0; a<20; a++ ){
 
             // sd.addToPlay('./sfx/floppa/miau.ogg', true, 0.3)
@@ -193,6 +198,11 @@ function move(button){
     if( button['p'] ){
         bgMusic.resumeAll();
     }
+    if( button['0'] ){ 
+        energyBall.setNewTarget(flop , {movementSpeed:.5, onReach: onHitEnergyBall})
+        energyBall2.setNewTarget(flop ,  {movementSpeed:.25, onReach: onHitEnergyBall})
+        energyBall3.setNewTarget(flop ,  {movementSpeed:.1, onReach: onHitEnergyBall})
+    }
 }
 function stopMove(dp, controls){
     if (flop.index == "frontMove"){
@@ -223,5 +233,17 @@ slider.addEventListener('input', function(e){
     value = parseFloat(value)
     value = (value/100)
     bgMusic.setVolume( value )
-    // beto el puto
 })
+
+
+// energyBall.targetEntity = flop;
+
+energyBall.onUpdate()
+energyBall2.onUpdate()
+energyBall3.onUpdate()
+
+function onHitEnergyBall(){
+    console.log('cagaste floppa')
+    SFX.play('explo')
+    sd.addToPlay('./sfx/explo.wav', true, 1)
+}
