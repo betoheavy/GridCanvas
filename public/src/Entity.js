@@ -71,18 +71,20 @@ class Entity{
 		if( !!targetEntity )
 			this._targetEntity = targetEntity;
 		
-		this.fFollowTarget = fFollowTarget;
-
 		this.drawInPosition();
-		this.update = true
-		this.deltaTime  = 0;
 
 		this.mvsp = movementSpeed;
-		this.easing = 'linear'
 
 		this.onReachActions = []
 
-		this.selfFps = 60
+		this.frameUpdateConfig = {
+			fFollowTarget: fFollowTarget
+			,update: true
+			,deltaTime: 0
+			,easingMovement: 'linear'
+			,selfFps: 60
+			,animationFrameId: null
+		}
 
 		// document.getElementById('spdSlider').addEventListener('input', e=>{
 		// 	e.preventDefault()
@@ -158,11 +160,11 @@ class Entity{
 	 * @param {number}	[options.movementSpeed] - sets entity's movement speed
 	 * @param {Function|Function[]}	[options.onReach] - on reaching target will execute this as callback( this, target )
 	 */
-	setNewTarget( newTarget, {movementSpeed, easing, onReach}={} ){
+	setNewTarget( newTarget, {movementSpeed, easing, onReach, fFollowTarget=true}={} ){
 		if( movementSpeed!=null ){
 			this.mvsp = movementSpeed;
 		}
-		if( easing != null )	this.easing = easing
+		if( easing != null )	this.frameUpdateConfig.easing = easing
 
 		if( onReach != null ){
 			if( Array.isArray( onReach ) ){
@@ -174,6 +176,9 @@ class Entity{
 		}	
 
 		this.targetEntity = newTarget;
+
+		this.frameUpdateConfig.fFollowTarget = fFollowTarget
+		if( this.frameUpdateConfig.fFollowTarget )	this.onUpdate()
 	}
 
 	get targetEntity(){	return this._targetEntity	}
@@ -187,83 +192,96 @@ class Entity{
 	 */
 	async onUpdate(){
 		
-		// almacen la cantidad de ms que el juego lleva corriendo
-		let runningTime = 0;
 		// timestamp del comienzo del juego
 		const startTime = Date.now();
 		// timestamp del ciclo actual
 		let currentTime = startTime;
 		// diferencia de startTime y 
 		let delta = 0;
-
+		// modiicador para manejo tiempo (ms a s)
 		const timeSpeedMod = .001;
-		
-		while(this.update){
-			
-			delta = Date.now() - currentTime;
-			currentTime = Date.now();
-			this.deltaTime = delta;
+		// se verifica 
+		if( this.frameUpdateConfig.animationFrameId != null ){
+			cancelAnimationFrame(this.frameUpdateConfig.animationFrameId)
+		}
 
-			runningTime+=delta;
+		const updateFunction = (runningTime)=>{
+
+			delta = Date.now() - (currentTime);
+			currentTime = Date.now();
+			this.frameUpdateConfig.deltaTime = delta;
+
 
 			if( !!this.targetEntity ){
 
 				let targetPos = this.targetEntity.position;
-				let targetX = targetPos.x, targetY = targetPos.y;
+				let targetX = targetPos.x
+					, targetY = targetPos.y;
 
 				let selfPos = this.position;
-				let selfX = selfPos.x, selfY = selfPos.y;
+				let selfX = selfPos.x
+					, selfY = selfPos.y;
 
-				let xDiff = targetX - selfX, yDiff = targetY - selfY;
+				let xDiff = targetX - selfX
+					, yDiff = targetY - selfY;
 
 				let mvsp = this.mvsp;
-
-				// en caso de que el target este a menos de cierta distancia
-				// se elimina el target, para que este no quede eternamente buscando 
-				// el mismo target
-				if( Math.abs(xDiff) <= .01 && Math.abs(yDiff) <= .01 ){
-					
-					delta = 0;
-					this.onReachActions.forEach((val)=>{
-						if( val != null )	val(this, this.targetEntity);
-					})
-
-					this.removeTarget();
-					continue
-				}
 
 				// se calcula el angulo entre este entity y el target
 				let angle = this.position.calcAngle(this.targetEntity.position);
 				this._facingAngle = angle;
 
+				// se efectua la rotacion del sprite
 				this.rotate = this.position.calcAngleDeg( this.targetEntity.position ) + 270
 				
+				// se aplican los modificadores de velocidad bloque/seg
 				const mvspAfterMod = mvsp;
 
-				// new_Pos = old pos + mvsp (/secs (mill)) * time delta
-
+				// new pos = old pos + mvsp (/secs (mill)) * time delta
+				
+				// se calcula la posicion de acuerdo al angulo entre las 2 posicines
+				// y obtener la distancia relativa
 				const angleTiltX = Math.sin(angle);
 				const angleTiltY = Math.cos(angle);
-
-				let nextXPos = Math.abs(angleTiltX) * (mvspAfterMod * Math.sign(angleTiltX))
-				let nextYPos = Math.abs(angleTiltY) * (mvspAfterMod * Math.sign(angleTiltY))
-
+				// se calcula la distancia entre las 2 posiciones
+				const distanceX = Math.abs(angleTiltX);
+				const distanceY = Math.abs(angleTiltY);
+				// se calcula la siguiente posicion de la entidad aplicando 
+				// la velocidad de movimiento
+				let nextXPos = distanceX * (mvspAfterMod * Math.sign(angleTiltX))
+				let nextYPos = distanceY * (mvspAfterMod * Math.sign(angleTiltY))
+				// se recalcula la siguiente posicion de la entidad para 
+				// aplicar blques/segundos ( delta_time (ms) / 1000 )
 				nextXPos *= delta * timeSpeedMod
 				nextYPos *= delta * timeSpeedMod
 
-				nextXPos = (Math.abs(nextXPos) >= Math.abs(xDiff)) ? xDiff: nextXPos;
-				nextYPos = (Math.abs(nextYPos) >= Math.abs(yDiff)) ? yDiff: nextYPos;
+				//se verifica que la siguiente posicion no sobre pase la posicion actual del
+				// objetivo  
+				nextXPos = (Math.abs(nextXPos) >= Math.abs(xDiff)) ? xDiff*distanceX: nextXPos;
+				nextYPos = (Math.abs(nextYPos) >= Math.abs(yDiff)) ? yDiff*distanceY: nextYPos;
 
-				this.nextXPos = nextXPos
-				this.nextYPos = nextYPos
 				// se efectua el movimiento de la entidad
 				this.position.move( nextXPos, nextYPos)
-				// this.position.set(nextXPos, nextYPos)
+
+				// en caso de que el target este a menos de cierta distancia
+				// se elimina el target, para que este no quede eternamente buscando 
+				// el mismo target
+				if( Math.abs(xDiff*distanceX) <= .05 && Math.abs(yDiff*distanceY) <= .05 ){
+					
+					this.onReachActions.forEach((val)=>{
+						if( val != null )	val(this, this.targetEntity);
+					})
+
+					this.removeTarget();
+					this.frameUpdateConfig.animationFrameId = cancelAnimationFrame(this.frameUpdateConfig.animationFrameId)
+					return;
+				}
 			}
 
-			await this.delay(1000/this.selfFps)
-			delta = 0;
+			this.frameUpdateConfig.animationFrameId = requestAnimationFrame(updateFunction)
 		}
+
+		updateFunction(0);
 	}
 
 	isColliding(otherObject, ignore = []){
