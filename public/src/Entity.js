@@ -237,9 +237,6 @@ class Entity{
 				this._facingAngle = angle;
 
 				this.rotate = this.position.calcAngleDeg( this.targetEntity.position ) + 270
-
-				nxtXPosByAngle = Math.sin(angle)
-				nxtYPosByAngle = Math.cos(angle)
 				
 				const mvspAfterMod = mvsp * timeSpeedMod;
 

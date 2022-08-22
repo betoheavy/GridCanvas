@@ -200,7 +200,7 @@ function move(button){
     }
     if( button['0'] ){ 
         console.time('eb')
-        energyBall.setNewTarget(flop , {movementSpeed:4, onReach: onHitEnergyBall})
+        energyBall.setNewTarget(flop , {movementSpeed:10, onReach: onHitEnergyBall})
         // energyBall2.setNewTarget(flop ,  {movementSpeed:.5, onReach: onHitEnergyBall})
         // energyBall3.setNewTarget(flop ,  {movementSpeed:.1, onReach: onHitEnergyBall})
     }
