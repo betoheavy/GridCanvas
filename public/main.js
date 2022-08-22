@@ -223,4 +223,5 @@ slider.addEventListener('input', function(e){
     value = parseFloat(value)
     value = (value/100)
     bgMusic.setVolume( value )
+    // beto el puto
 })
