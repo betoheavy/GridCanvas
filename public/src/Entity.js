@@ -5,9 +5,7 @@ class Entity{
 	 */
 	constructor(sprite, options={}){
 
-		
 		this._sprites = {}; 
-
 		let defaultIndex = '0';
 
 		if (typeof sprite === 'string') sprite = [sprite];
@@ -288,16 +286,16 @@ class Entity{
 let tfn = {
   'linear': function(k) {
 		
-	return k;
+		return k;
   }, 
   'ease-in': function(k) {
 		
 		return Math.pow(k, 2)
   }, 
   'ease-out': function(k) {
-	return 1 - Math.pow(1 - k, 3);
+		return 1 - Math.pow(1 - k, 3);
   }, 
   'ease-in-out': function(k) {
-	return .5*(Math.sin((k - .5)*Math.PI) + 1);
+		return .5*(Math.sin((k - .5)*Math.PI) + 1);
   }
 };
