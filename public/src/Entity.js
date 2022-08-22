@@ -10,32 +10,32 @@ class Entity{
 
 		let defaultIndex = '0';
 
-        if (typeof sprite === 'string') sprite = [sprite];
-        else if (sprite.constructor.name === "Sprite") sprite = [sprite];
-        
-        if (sprite.constructor.name === "Object"){
-            this._sprites = sprite;
-            defaultIndex = Object.keys(sprite)[0];
-        }else if ( Array.isArray(sprite) ){
-            if (sprite.length){
-                if (sprite[0].constructor.name === "Sprite") for (let i in sprite) this._sprites[i] = sprite[i];
-                if (sprite[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprite);
-            }else{
-                throw new Error("Entity sprite can't be empty");
-            }
-        }
+		if (typeof sprite === 'string') sprite = [sprite];
+		else if (sprite.constructor.name === "Sprite") sprite = [sprite];
+		
+		if (sprite.constructor.name === "Object"){
+			this._sprites = sprite;
+			defaultIndex = Object.keys(sprite)[0];
+		}else if ( Array.isArray(sprite) ){
+			if (sprite.length){
+				if (sprite[0].constructor.name === "Sprite") for (let i in sprite) this._sprites[i] = sprite[i];
+				if (sprite[0].constructor.name === "String") this._sprites[defaultIndex] = new Sprite(sprite);
+			}else{
+				throw new Error("Entity sprite can't be empty");
+			}
+		}
 
-        let {
-            collision   = false,
-            position    = new Position(),
-            index       = defaultIndex,
-            grid        = false,
-            rotate      = 0,
-						targetEntity = null,
-						fFollowTarget = false,
-						movementSpeed = 1,
-						uid = "Entity"+(new Date().getTime())
-        } = options;
+		let {
+			collision   = false,
+			position    = new Position(),
+			index       = defaultIndex,
+			grid        = false,
+			rotate      = 0,
+			targetEntity = null,
+			fFollowTarget = false,
+			movementSpeed = 1,
+			uid = "Entity"+(new Date().getTime())
+		} = options;
 
 		this.uid = uid;
 		
@@ -59,12 +59,12 @@ class Entity{
 			collision.entity = this;
 		}
 
-        this._grid      = grid;
+		this._grid      = grid;
 		this._collision = collision;
-        this._position  = position;
-        this._index     = index;
-        this._rotate    = rotate;
-				this._facingAngle = 0;
+		this._position  = position;
+		this._index     = index;
+		this._rotate    = rotate;
+		this._facingAngle = 0;
 
 		if( !!targetEntity )
 			this._targetEntity = targetEntity;
@@ -87,50 +87,50 @@ class Entity{
 		// 	this.mvsp = value
 		// })
 	}
-    /**
-     * @return {Sprite} - current sprite
-     */
+	/**
+	 * @return {Sprite} - current sprite
+	 */
 	get sprite(){
 		return this._sprites[this._index];
 	}
 	get sprites(){
-			return this._sprites;
+		return this._sprites;
 	}
 
 	get collision(){
-			return this._collision;
+		return this._collision;
 	}
-    set collision(value){
-        if (value.constructor.name === "Collision"){
-            value.entity = this;
-        }
-        this._collision = value;
-    }
-    set index(value){
-        this._index = value;
-    }
-    get index(){
-        return this._index;
-    }
-    get position(){
-        return this._position;
-    }
-    set position(value){
-        this._position = value;
-    }
-    set grid(value){
-        this._grid = value;
-        this.drawInPosition();
-    }
-    get grid(){
-        return this._grid;
-    }
-    set rotate(value){
-        this._rotate = value;
-    }
-    get rotate(){
-        return this._rotate;
-    }
+	set collision(value){
+		if (value.constructor.name === "Collision"){
+			value.entity = this;
+		}
+		this._collision = value;
+	}
+	set index(value){
+		this._index = value;
+	}
+	get index(){
+		return this._index;
+	}
+	get position(){
+		return this._position;
+	}
+	set position(value){
+		this._position = value;
+	}
+	set grid(value){
+		this._grid = value;
+		this.drawInPosition();
+	}
+	get grid(){
+		return this._grid;
+	}
+	set rotate(value){
+		this._rotate = value;
+	}
+	get rotate(){
+		return this._rotate;
+	}
 
 	drawInPosition(){
 		if (this._grid){
@@ -288,16 +288,16 @@ class Entity{
 let tfn = {
   'linear': function(k) {
 		
-    return k;
+	return k;
   }, 
   'ease-in': function(k) {
 		
 		return Math.pow(k, 2)
   }, 
   'ease-out': function(k) {
-    return 1 - Math.pow(1 - k, 3);
+	return 1 - Math.pow(1 - k, 3);
   }, 
   'ease-in-out': function(k) {
-    return .5*(Math.sin((k - .5)*Math.PI) + 1);
+	return .5*(Math.sin((k - .5)*Math.PI) + 1);
   }
 };

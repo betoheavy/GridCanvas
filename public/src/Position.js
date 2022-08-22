@@ -16,9 +16,9 @@ class Position{
 		this._afterFunction = {};
 		this._afterFunctionCount = 0 ;
 
-        let {
-            onChange = false
-        } = options;
+		let {
+				onChange = false
+		} = options;
 
 		this._onChange = onChange;
 	}
