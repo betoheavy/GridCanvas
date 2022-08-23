@@ -245,8 +245,8 @@ energyBall3.onUpdate()
 
 function onHitEnergyBall(){
     console.log('cagaste floppa')
-    SFX.play('explo')
-    sd.addToPlay('./sfx/explo.wav', true, 1)
+    // SFX.play('explo')
+    // sd.addToPlay('./sfx/explo.wav', true, 1)
     console.timeEnd('eb')
 }
 

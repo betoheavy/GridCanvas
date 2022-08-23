@@ -37,6 +37,7 @@ class Entity{
 			fFollowTarget = false,
 			movementSpeed = 1,
 			uid = "Entity"+(new Date().getTime())
+			, states = {}
 		} = options;
 
 		this.uid = uid;
@@ -86,6 +87,9 @@ class Entity{
 			,animationFrameId: null
 		}
 
+		this.states = states;
+		this.currentState = states[ Object.keys(states)[0] ];
+
 		// document.getElementById('spdSlider').addEventListener('input', e=>{
 		// 	e.preventDefault()
 		// 	let value = e.srcElement.value;
@@ -99,6 +103,12 @@ class Entity{
 	get sprite(){
 		return this._sprites[this._index];
 	}
+
+	addNewSprite(newSprite){
+		this._sprites['tst'] = newSprite
+		this._index = 'tst'
+	}
+
 	get sprites(){
 		return this._sprites;
 	}
@@ -144,10 +154,6 @@ class Entity{
 			if (find == -1) this._grid.addEntity(this);
 		}
 	}
-
-	delay(ms){
-		return new Promise(res => setTimeout(res, ms))
-	};
 
 	set targetEntity(newTarget){
 		this._targetEntity = newTarget;
@@ -272,6 +278,7 @@ class Entity{
 						if( val != null )	val(this, this.targetEntity);
 					})
 
+					this.currentState.onExplosion();
 					this.removeTarget();
 					this.frameUpdateConfig.animationFrameId = cancelAnimationFrame(this.frameUpdateConfig.animationFrameId)
 					return;
@@ -306,6 +313,28 @@ class Entity{
 		}
 
 		return false;
+	}
+
+	addNewState(state){
+		// let state = new State( name, this, enter, leave )
+		this.states[state.name] = state
+		if( !this.currentState ){
+			this.changeState( this.states[state.name] )
+		}
+	}
+
+	changeState(state){
+		if( !!this.currentState && !!this.currentState.leave ){
+			this.currentState.leave();
+		}
+
+		if( state instanceof State )
+			this.currentState = state
+		else
+			this.currentState = this.states[state]
+		
+		if( !!this.currentState.enter )
+			this.currentState.enter();
 	}
 
 	clone(){
