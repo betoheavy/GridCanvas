@@ -87,6 +87,9 @@ let flop = new Entity(flopSprites, {collision:new Collision("rectangle"), index:
 shield.position.follow(flop.position);
 shieldBack.position.follow(flop.position);
 
+let deltaTimeInput = 0;
+let currentInputTime = Date.now();
+
 // un objeto Control para ejecutar la funcion "move()" y "stopMove()" mas abajo
 let controles = new Control(move, stopMove);
  
@@ -122,10 +125,14 @@ GC.start(ctx =>{
     controles.capture();
     test.rotate+= 3;
 });
-
+let energy_ball
 //las funciones que controlan el teclado
+
 function move(button){
+
+    deltaTimeInput = Date.now() - currentInputTime
     
+    currentInputTime = Date.now();
     let xAcc = 0, yAcc = 0;
 
     if(button['d']){
@@ -158,19 +165,17 @@ function move(button){
 
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {
-        // energyBall.targetEntity = new Entity({}, {position: new Position(3,3)});
-        // energyBall2.targetEntity = new Entity({}, {position: new Position(4,3)});
-        // energyBall3.targetEntity = new Entity({}, {position: new Position(5,3)});
 
-        energyBall.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:null, onReach: null})
-        // energyBall2.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:1, onReach: null})
-        // energyBall3.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:1, onReach: null})
-        // for( let a = 0; a<20; a++ ){
+        if( deltaTimeInput >= 5 ){
 
-            // sd.addToPlay('./sfx/floppa/miau.ogg', true, 0.3)
-        // }
+            let speed = Math.random()*9+1
 
-        // bgMusic.addToPlay('./sfx/Ludum Dare 32 - Track 3.wav', true, 0.01)
+
+            energy_ball = getEnergyBall('energy_ball', objects, Math.random()*2, Math.random()*1)
+            energy_ball.setNewTarget( flop,  {movementSpeed:speed, onReach: null})
+        }
+
+        
     }
     //if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}
     //if(button['e'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue++;});}
@@ -199,8 +204,8 @@ function move(button){
         bgMusic.resumeAll();
     }
     if( button['0'] ){ 
-        console.time('eb')
-        energyBall.setNewTarget(flop , {movementSpeed:8, onReach: onHitEnergyBall})
+        
+        // energy_ball.setNewTarget(flop , {movementSpeed:8})
         // energyBall2.setNewTarget(flop ,  {movementSpeed:.5, onReach: onHitEnergyBall})
         // energyBall3.setNewTarget(flop ,  {movementSpeed:.1, onReach: onHitEnergyBall})
     }
@@ -235,32 +240,3 @@ slider.addEventListener('input', function(e){
     value = (value/100)
     bgMusic.setVolume( value )
 })
-
-
-// energyBall.targetEntity = flop;
-
-energyBall.onUpdate()
-energyBall2.onUpdate()
-energyBall3.onUpdate()
-
-function onHitEnergyBall(){
-    console.log('cagaste floppa')
-    // SFX.play('explo')
-    // sd.addToPlay('./sfx/explo.wav', true, 1)
-    console.timeEnd('eb')
-}
-
-
-// let fn = function(){
-//     console.log( arguments[0]/1000 )
-
-//     console.count()
-//     if( arguments[0] < 1000 )
-//         window.requestAnimationFrame(fn)
-
-
-
-// }
-
-// window.requestAnimationFrame(fn)
-

@@ -104,13 +104,20 @@ class Entity{
 		return this._sprites[this._index];
 	}
 
-	addNewSprite(newSprite){
-		this._sprites['tst'] = newSprite
-		this._index = 'tst'
+	addNewSprite(newSprite, tag){
+
+		tag = !tag ? Date.now(): tag
+
+		this._sprites[tag] = newSprite
+		this._index = tag
 	}
 
 	get sprites(){
 		return this._sprites;
+	}
+
+	currentSpriteFrameCount(){
+		this.sprite._length
 	}
 
 	get collision(){
@@ -344,6 +351,12 @@ class Entity{
 			index: this.index,
 			grid: this.grid
 		})
+	}
+
+	destroy() {
+		const gridLayer = this._grid;
+		let nttIndex = gridLayer.getEntityIndex(this)
+		gridLayer.destroyEntityByIndex(nttIndex)
 	}
 }
 

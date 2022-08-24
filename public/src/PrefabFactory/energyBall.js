@@ -6,16 +6,18 @@ class StateEnergyBall extends State {
 		this.entity = entity;
 	}
 
+	follow(){
+
+	}
+
 	onExplosion(){
-		console.log( 'bum' )
+		
 		this.entity.changeState('E_B-exp')
 	}
 }
 
 let spriteSheet= 'img/anim/projectiles/Energy ball/energyBallImpact.png'
-	
-let spriteConfig = {ticks: 5, sheet:true, composite:"hard-light"};
-let sprite = new Sprite( spriteSheet, spriteConfig);
+
 class StateExplosion extends State {
 	constructor(state, entity){
 		super(state)
@@ -24,18 +26,21 @@ class StateExplosion extends State {
 	}
 
 	enter(){
-		console.log( 'soy una explosion', sprite.isReady )
-		SFX.play('explo')
+		let spriteConfig = {ticks: 5, sheet:true, composite:"hard-light"};
+		let sprite = new Sprite( spriteSheet, spriteConfig);
+		
+		// SFX.play('explo')
 		this.entity.addNewSprite(sprite)
-		this.leave()
-	}
+		this.entity.sprite._onFinishAnimationCycle = ()=>{
+			this.leave()
+		}
 
-	follow(){
-
+		sd.addToPlay( './sfx/explo.wav', false, 1 )
 	}
 
 	leave(){
 		this.entity.removeTarget()
+		this.entity.destroy();
 	}
 }
 
@@ -61,7 +66,8 @@ function getEnergyBall(uid, grid, x=0, y=0, config={}){
 
 	entity.addNewState(new StateEnergyBall('E_B-def', entity))
 	entity.addNewState(new StateExplosion('E_B-exp', entity))
-	console.log( {entity} )
+	
+	console.count('energy ball factory')
 	return entity;
 }
 

@@ -78,7 +78,7 @@ class Sprite{
 			composite   = "source-over",
 			opacity     = undefined,
 			filter      = "none",
-			sheet       = false 
+			sheet       = false,
 		} = options;
 
 		this._index     = index;
@@ -184,8 +184,13 @@ class Sprite{
 			this.currentTick++;
 		}else{
 			this.currentTick = 0;
-			this._index++;
-			if (this._index >= this._length) this._index = 0;
+			if( this._index < this._length-1 ){
+
+				this._index++;
+			}else{
+				this.onFinishAnimationCycle()
+				this._index = 0;
+			}
 		}
 
 		if (this._imageArrayStatus[this._index]) return this._imageArrayCache[this._index];
@@ -448,5 +453,11 @@ class Sprite{
 		b *= 255;
 
 		return { r, g, b, a };
+	}
+
+	onFinishAnimationCycle(){
+		if(!!this._onFinishAnimationCycle){
+			this._onFinishAnimationCycle();
+		}
 	}
 }

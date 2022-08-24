@@ -83,6 +83,16 @@ class GridLayer {
         this.entitiesLength++;
     }
 
+    destroyEntityByIndex(entityIndex){
+
+        this.entities.splice(entityIndex, 1)
+    }
+
+    getEntityIndex(entity){
+
+        return this.entities.indexOf( entity );
+    }
+
     isColliding(otherGrid, ignore = []){
         let collided = false;
         let thisGrid = this;
