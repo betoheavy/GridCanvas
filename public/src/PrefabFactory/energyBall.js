@@ -67,7 +67,6 @@ function getEnergyBall(uid, grid, x=0, y=0, config={}){
 	entity.addNewState(new StateEnergyBall('E_B-def', entity))
 	entity.addNewState(new StateExplosion('E_B-exp', entity))
 	
-	console.count('energy ball factory')
 	return entity;
 }
 
