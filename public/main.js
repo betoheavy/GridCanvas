@@ -166,14 +166,7 @@ function move(button){
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {
 
-        if( deltaTimeInput >= 5 ){
 
-            let speed = Math.random()*9+1
-
-
-            energy_ball = getEnergyBall('energy_ball', objects, Math.random()*2, Math.random()*1)
-            energy_ball.setNewTarget( flop,  {movementSpeed:speed, onReach: null})
-        }
 
         
     }
@@ -204,12 +197,28 @@ function move(button){
         bgMusic.resumeAll();
     }
     if( button['0'] ){ 
+
+        if( deltaTimeInput >= 5 ){
+
+            let speed = Math.random()*9+1
+
+
+            energy_ball = getEnergyBall('energy_ball', objects, Math.random()*2, Math.random()*1)
+            energy_ball.setNewTarget( flop,  {movementSpeed:speed, onReach: null})
+        }
         
         // energy_ball.setNewTarget(flop , {movementSpeed:8})
         // energyBall2.setNewTarget(flop ,  {movementSpeed:.5, onReach: onHitEnergyBall})
         // energyBall3.setNewTarget(flop ,  {movementSpeed:.1, onReach: onHitEnergyBall})
     }
+    if( button['1'] ){
+        if( !!rocket )  return;
+        rocket = simpleRocketFactory('simple_rocket_1', objects, 3, 2)
+        rocket.update()
+    }
 }
+
+let rocket
 function stopMove(dp, controls){
     if (flop.index == "frontMove"){
         flop.index = "front";
@@ -240,3 +249,19 @@ slider.addEventListener('input', function(e){
     value = (value/100)
     bgMusic.setVolume( value )
 })
+
+
+
+
+// const sprSheet = 'img/anim/projectiles/simple_rocket.png'
+// let spriteConfig = {ticks: 5, sheet:{
+//         sheetHeight: 32,
+//         sheetWidth: 32, height: 32, width:32
+//     }, composite:'hard-light'};
+// let sprite = new Sprite( sprSheet, spriteConfig);
+
+// let position = new Position(3,3);
+
+// let entityConfig = { grid:objects, position, movementSpeed: 1, uid:'asd' };
+
+// let entity = new Entity( sprite, entityConfig );

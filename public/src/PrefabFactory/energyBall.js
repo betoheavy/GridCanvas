@@ -39,8 +39,10 @@ class StateExplosion extends State {
 	}
 
 	leave(){
+		rocket = null;
 		this.entity.removeTarget()
 		this.entity.destroy();
+		
 	}
 }
 

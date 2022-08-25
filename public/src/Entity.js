@@ -285,7 +285,7 @@ class Entity{
 						if( val != null )	val(this, this.targetEntity);
 					})
 
-					this.currentState.onExplosion();
+					if( !!this.currentState.onExplosion )	this.currentState.onExplosion();
 					this.removeTarget();
 					this.frameUpdateConfig.animationFrameId = cancelAnimationFrame(this.frameUpdateConfig.animationFrameId)
 					return;
@@ -296,6 +296,36 @@ class Entity{
 		}
 
 		updateFunction(0);
+	}
+
+	update(){
+				// timestamp del comienzo del juego
+				const startTime = Date.now();
+				// timestamp del ciclo actual
+				let currentTime = startTime;
+				// diferencia de startTime y 
+				let delta = 0;
+				// modiicador para manejo tiempo (ms a s)
+				const timeSpeedMod = .001;
+				// se verifica 
+				if( this.frameUpdateConfig.animationFrameId != null ){
+					cancelAnimationFrame(this.frameUpdateConfig.animationFrameId)
+				}
+		
+				const updateFunction = (runningTime)=>{
+		
+					delta = Date.now() - (currentTime);
+					currentTime = Date.now();
+					this.frameUpdateConfig.deltaTime = delta;
+
+					if(!!this.currentState){
+						this.currentState.update(delta);
+					}
+		
+					this.frameUpdateConfig.animationFrameId = requestAnimationFrame(updateFunction)
+				}
+		
+				updateFunction(0);
 	}
 
 	isColliding(otherObject, ignore = []){

@@ -57,11 +57,12 @@ class SoundManager{
 	 * @param {float} volume - NACIO MUERTO
 	 * @returns 
 	 */
-	addToPlay(url, addtoQueue=false, volume){
+	addToPlay(url, addtoQueue=false, volume, callbackFunction=()=>{}){
 
 		if( this.currentPlaying.length >= this._maxSounds && addtoQueue ){
 
 			this.addtoQueue(url)
+			callbackFunction()
 			return;
 		}else if( this.currentPlaying.length >= this._maxSounds ){
 			return;
@@ -77,6 +78,7 @@ class SoundManager{
 				that.addtoQueue(_player.src)
 			}
 			that.currentPlaying.splice(index, 1);
+			callbackFunction()
 			that.onFinishPlay();
 		}
 
