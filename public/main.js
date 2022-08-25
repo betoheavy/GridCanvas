@@ -125,8 +125,6 @@ GC.start(ctx =>{
 
 //las funciones que controlan el teclado
 function move(button){
-    
-    let xAcc = 0, yAcc = 0;
 
     if(button['d']){
         moveFlop(1,0);
@@ -172,22 +170,14 @@ function move(button){
 
         // bgMusic.addToPlay('./sfx/Ludum Dare 32 - Track 3.wav', true, 0.01)
     }
-    //if(button['q'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue--;});}
-    //if(button['e'])         {Object.values(flop.sprites).forEach(sprite => {sprite.hue++;});}
     if(button['q'])         {flop.rotate++;}
     if(button['e'])         {flop.rotate--;}
-
-    sptFront
-    //if(button['z'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat--;});}
-    //if(button['c'])         {Object.values(flop.sprites).forEach(sprite => {sprite.sat++;});}
     if(button['z'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity-0.01);
     if(button['c'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity+0.01);
-
     if(button['ArrowUp'])   {Object.values(flop.sprites).forEach(sprite => {sprite.lum--;});}
     if(button['ArrowDown']) {Object.values(flop.sprites).forEach(sprite => {sprite.lum++;});}
     if(button['+']) bgMusic.volUp(.01);
     if(button['-']) bgMusic.volDown(.01);
-    // if(button['/']) sd.volDown(.01);
     if(button['*']){
         bgMusic.playNext();
         delete button['*']
@@ -199,10 +189,7 @@ function move(button){
         bgMusic.resumeAll();
     }
     if( button['0'] ){ 
-        console.time('eb')
         energyBall.setNewTarget(flop , {movementSpeed:8, onReach: onHitEnergyBall})
-        // energyBall2.setNewTarget(flop ,  {movementSpeed:.5, onReach: onHitEnergyBall})
-        // energyBall3.setNewTarget(flop ,  {movementSpeed:.1, onReach: onHitEnergyBall})
     }
 }
 function stopMove(dp, controls){
