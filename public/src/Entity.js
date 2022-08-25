@@ -191,7 +191,7 @@ class Entity{
 		this.targetEntity = newTarget;
 
 		this.frameUpdateConfig.fFollowTarget = fFollowTarget
-		if( this.frameUpdateConfig.fFollowTarget )	this.onUpdate()
+		if( this.frameUpdateConfig.fFollowTarget )	this.update()
 	}
 
 	get targetEntity(){	return this._targetEntity	}
@@ -200,11 +200,8 @@ class Entity{
 		this.targetEntity = null;
 		this.onReachActions = [];
 	}
-	/**
-	 * 
-	 */
-	async onUpdate(){
-		
+
+	update(){
 		// timestamp del comienzo del juego
 		const startTime = Date.now();
 		// timestamp del ciclo actual
@@ -224,108 +221,14 @@ class Entity{
 			currentTime = Date.now();
 			this.frameUpdateConfig.deltaTime = delta;
 
-
-			if( !!this.targetEntity ){
-
-				let targetPos = this.targetEntity.position;
-				let targetX = targetPos.x
-					, targetY = targetPos.y;
-
-				let selfPos = this.position;
-				let selfX = selfPos.x
-					, selfY = selfPos.y;
-
-				let xDiff = targetX - selfX
-					, yDiff = targetY - selfY;
-
-				let mvsp = this.mvsp;
-
-				// se calcula el angulo entre este entity y el target
-				let angle = this.position.calcAngle(this.targetEntity.position);
-				this._facingAngle = angle;
-
-				// se efectua la rotacion del sprite
-				this.rotate = this.position.calcAngleDeg( this.targetEntity.position ) + 270
-				
-				// se aplican los modificadores de velocidad bloque/seg
-				const mvspAfterMod = mvsp;
-
-				// new pos = old pos + mvsp (/secs (mill)) * time delta
-				
-				// se calcula la posicion de acuerdo al angulo entre las 2 posicines
-				// y obtener la distancia relativa
-				const angleTiltX = Math.sin(angle);
-				const angleTiltY = Math.cos(angle);
-				// se calcula la distancia entre las 2 posiciones
-				const distanceX = Math.abs(angleTiltX);
-				const distanceY = Math.abs(angleTiltY);
-				// se calcula la siguiente posicion de la entidad aplicando 
-				// la velocidad de movimiento
-				let nextXPos = distanceX * (mvspAfterMod * Math.sign(angleTiltX))
-				let nextYPos = distanceY * (mvspAfterMod * Math.sign(angleTiltY))
-				// se recalcula la siguiente posicion de la entidad para 
-				// aplicar blques/segundos ( delta_time (ms) / 1000 )
-				nextXPos *= delta * timeSpeedMod
-				nextYPos *= delta * timeSpeedMod
-
-				//se verifica que la siguiente posicion no sobre pase la posicion actual del
-				// objetivo  
-				nextXPos = (Math.abs(nextXPos) >= Math.abs(xDiff)) ? xDiff*distanceX: nextXPos;
-				nextYPos = (Math.abs(nextYPos) >= Math.abs(yDiff)) ? yDiff*distanceY: nextYPos;
-
-				// se efectua el movimiento de la entidad
-				this.position.move( nextXPos, nextYPos)
-
-				// en caso de que el target este a menos de cierta distancia
-				// se elimina el target, para que este no quede eternamente buscando 
-				// el mismo target
-				if( Math.abs(xDiff*distanceX) <= .05 && Math.abs(yDiff*distanceY) <= .05 ){
-					
-					this.onReachActions.forEach((val)=>{
-						if( val != null )	val(this, this.targetEntity);
-					})
-
-					if( !!this.currentState.onExplosion )	this.currentState.onExplosion();
-					this.removeTarget();
-					this.frameUpdateConfig.animationFrameId = cancelAnimationFrame(this.frameUpdateConfig.animationFrameId)
-					return;
-				}
+			if(!!this.currentState){
+				this.currentState.update(delta, runningTime);
 			}
 
 			this.frameUpdateConfig.animationFrameId = requestAnimationFrame(updateFunction)
 		}
 
 		updateFunction(0);
-	}
-
-	update(){
-				// timestamp del comienzo del juego
-				const startTime = Date.now();
-				// timestamp del ciclo actual
-				let currentTime = startTime;
-				// diferencia de startTime y 
-				let delta = 0;
-				// modiicador para manejo tiempo (ms a s)
-				const timeSpeedMod = .001;
-				// se verifica 
-				if( this.frameUpdateConfig.animationFrameId != null ){
-					cancelAnimationFrame(this.frameUpdateConfig.animationFrameId)
-				}
-		
-				const updateFunction = (runningTime)=>{
-		
-					delta = Date.now() - (currentTime);
-					currentTime = Date.now();
-					this.frameUpdateConfig.deltaTime = delta;
-
-					if(!!this.currentState){
-						this.currentState.update(delta);
-					}
-		
-					this.frameUpdateConfig.animationFrameId = requestAnimationFrame(updateFunction)
-				}
-		
-				updateFunction(0);
 	}
 
 	isColliding(otherObject, ignore = []){

@@ -1,3 +1,6 @@
+let sprExplConfig = {ticks: 5, sheet:{sheetHeight: 100, sheetWidth: 100, height: 100, width:100}, composite:"hard-light"};
+let sprExplosion = new Sprite( 'img/anim/explosions/explo_1/spritesheet.png', sprExplConfig);
+
 function simpleRocketFactory(uid, grid, x=0, y=0, config={}){
 
 	let {
@@ -26,37 +29,120 @@ function simpleRocketFactory(uid, grid, x=0, y=0, config={}){
 	let stateReached = new State('rocket_reach', entity);
 
 	stateDeployed.enter = ()=>{
-		sd.addToPlay( './sfx/FX065.mp3', false, 0.1, 
-		()=>{
-			entity.changeState('rocket_homming')
-		})
-	}
+		sd.addToPlay( './sfx/FX065.mp3', false, 0.1) }
+
+	setTimeout(() => {
+		entity.changeState('rocket_homming')
+	}, 500);
 
 	
 	stateHomming.enter = function(){
-		// console.log( 'hommin' )
+		
 		sd.addToPlay( './sfx/FX78.mp3', true, 0.1,
 		()=>{
-			this.ctx.setNewTarget( flop,  {movementSpeed:9, onReach: ()=>{
-				this.ctx.changeState('rocket_reach')
-			}})
+			this.ctx.setNewTarget( flop,  {movementSpeed:9})
 		})
 	}
-	stateHomming.update = function(delta){}
+	stateHomming.update = function(deltaTime){
+		
+		const entity = this.ctx;
+		const timeSpeedMod = .001;
+
+		if( !!entity.targetEntity ){
+
+			let targetPos = entity.targetEntity.position;
+			let targetX = targetPos.x
+				, targetY = targetPos.y;
+
+			let selfPos = entity.position;
+			let selfX = selfPos.x
+				, selfY = selfPos.y;
+
+			let xDiff = targetX - selfX
+				, yDiff = targetY - selfY;
+
+			let mvsp = entity.mvsp;
+
+			// se calcula el angulo entre este entity y el target
+			let angle = entity.position.calcAngle(entity.targetEntity.position);
+			entity._facingAngle = angle;
+
+			// se efectua la rotacion del sprite
+			entity.rotate = entity.position.calcAngleDeg( entity.targetEntity.position ) + 270
+			
+			// se aplican los modificadores de velocidad bloque/seg
+			const mvspAfterMod = mvsp;
+
+			// new pos = old pos + mvsp (/secs (mill)) * time delta
+			
+			// se calcula la posicion de acuerdo al angulo entre las 2 posicines
+			// y obtener la distancia relativa
+			const angleTiltX = Math.sin(angle);
+			const angleTiltY = Math.cos(angle);
+			// se calcula la distancia entre las 2 posiciones
+			const distanceX = Math.abs(angleTiltX);
+			const distanceY = Math.abs(angleTiltY);
+			// se calcula la siguiente posicion de la entidad aplicando 
+			// la velocidad de movimiento
+			let nextXPos = distanceX * (mvspAfterMod * Math.sign(angleTiltX))
+			let nextYPos = distanceY * (mvspAfterMod * Math.sign(angleTiltY))
+			// se recalcula la siguiente posicion de la entidad para 
+			// aplicar blques/segundos ( delta_time (ms) / 1000 )
+			nextXPos *= deltaTime * timeSpeedMod
+			nextYPos *= deltaTime * timeSpeedMod
+
+			//se verifica que la siguiente posicion no sobre pase la posicion actual del
+			// objetivo  
+			nextXPos = (Math.abs(nextXPos) >= Math.abs(xDiff)) ? xDiff*distanceX: nextXPos;
+			nextYPos = (Math.abs(nextYPos) >= Math.abs(yDiff)) ? yDiff*distanceY: nextYPos;
+
+			// se efectua el movimiento de la entidad
+			entity.position.move( nextXPos, nextYPos)
+
+			// en caso de que el target este a menos de cierta distancia
+			// se elimina el target, para que este no quede eternamente buscando 
+			// el mismo target
+			if( Math.abs(xDiff*distanceX) <= .05 && Math.abs(yDiff*distanceY) <= .05 ){
+				
+				entity.onReachActions.forEach((val)=>{
+					if( val != null )	val(entity, entity.targetEntity);
+				})
+
+				if( !!entity.currentState.onExplosion )	entity.currentState.onExplosion();
+				entity.changeState('rocket_reach')
+			}
+		}
+	}
 
 	stateReached.enter = function(){
 
+		const entity = this.ctx;
+
 		sd.addToPlay( './sfx/FX100.wav', true, 0.1)
 		
-		this.ctx.addNewSprite(sprExplosion, 'explosion')
-		this.ctx.sprite._onFinishAnimationCycle = ()=>{
-			this.leave()
+		entity.addNewSprite(sprExplosion, 'explosion')
+
+		rocket = null;
+		
+		entity.targetEntity.sprite.hue = 250;
+		
+		setTimeout(() => {
+			entity.targetEntity.sprite.hue = 0;
+		}, 50);
+		entity.sprite._onFinishAnimationCycle = ()=>{
+			if( entity.targetEntity ){
+				
+				this.leave()
+			}
 		}
 	}
 
 	stateReached.leave = function(){
-		this.ctx.removeTarget()
-		this.ctx.destroy();
+
+		const entity = this.ctx;
+
+		entity.removeTarget()
+		entity.destroy();
 	}
 
 	
@@ -68,7 +154,4 @@ function simpleRocketFactory(uid, grid, x=0, y=0, config={}){
 	
 	return entity;
 }
-
-let sprExplConfig = {ticks: 5, sheet:{sheetHeight: 100, sheetWidth: 100, height: 100, width:100}, composite:"hard-light"};
-let sprExplosion = new Sprite( 'img/anim/explosions/explo_1/spritesheet.png', sprExplConfig);
 

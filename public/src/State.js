@@ -4,6 +4,6 @@ class State {
 		this.ctx = context;
 	}
 	enter(){}
-	update(delta){}
+	update(deltaTime){}
 	leave(){}
 }
