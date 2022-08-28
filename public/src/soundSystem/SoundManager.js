@@ -72,16 +72,16 @@ class SoundManager{
 		let callback = function(_player){
 			let index = that.currentPlaying.indexOf(_player);
 			
-			if( that._loop ){
+			if( this._loop ){
 				
-				that.addtoQueue(_player.src)
+				this.addtoQueue(_player.src)
 			}
-			that.currentPlaying.splice(index, 1);
-			that.onFinishPlay();
+			this.currentPlaying.splice(index, 1);
+			this.onFinishPlay();
 		}
 
 		let audioVolume = volume || this.managerVolume
-		let player = new SFXPlayer({url:url}, callback, {volume:audioVolume});
+		let player = new SFXPlayer({url:url}, callback.bind(this), {volume:audioVolume});
 
 		this.currentPlaying.push( player );
 		player.play()

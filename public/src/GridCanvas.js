@@ -59,6 +59,10 @@ class GridCanvas {
 		return this._mainCamera;
 	}
 
+	get interactiveCamera(){
+		return this.cameras[this.mainCamera]
+	}
+
 	addGrid(grid){
 		this._grids.push(grid);
 	}
@@ -236,6 +240,57 @@ class GridCanvas {
 		);
 	}
 
+	checkCartesianEntityByPixel(grids, camera, xPos, yPos, callback){
+		
+		let cameraActual = camera;
+
+		let clickPosX = xPos
+		let clickPosY = yPos
+
+		console.log( clickPosX, clickPosY )
+
+		let cameraWidth = cameraActual.canvas.width;
+		let cameraHeight = cameraActual.canvas.height;
+
+		let cameraCenterPosX = (cameraWidth / 2)
+		let cameraCenterPosY = (cameraHeight / 2)
+
+		let cellArea = cameraActual.maxArea;
+
+		let cameraOffsetX = cameraActual.position.x * cellArea
+			, cameraOffsetY = cameraActual.position.y * cellArea
+
+		let clickPosCartesianCameraX = clickPosX - cameraCenterPosX + cameraOffsetX
+		let clickPosCartesianCameraY = cameraCenterPosY - clickPosY + cameraOffsetY
+		
+		grids.forEach(grid=>{
+			grid.entities.forEach(function(entity) {
+
+				const { position, sprite={} } = entity;
+	
+				function getPixelCoordByCartesian( coord, pixels ){
+					const centerPos = coord * pixels
+					return {begin: centerPos-(pixels/2), end: centerPos+(pixels/2)}
+				}
+	
+				let y = getPixelCoordByCartesian(position.y*(cameraActual.heightPercent / 100), cameraActual.maxArea).begin
+					, offsetY = getPixelCoordByCartesian(position.y*(cameraActual.heightPercent / 100), cameraActual.maxArea).end;
+				offsetY += (sprite.rowSpan*cameraActual.maxArea) - cameraActual.maxArea
+				
+				
+				let x = getPixelCoordByCartesian(position.x*(cameraActual.widthPercent / 100), cameraActual.maxArea).begin
+					, offsetX = getPixelCoordByCartesian(position.x*(cameraActual.widthPercent / 100), cameraActual.maxArea).end;
+				offsetX += (sprite.colSpan*cameraActual.maxArea) - cameraActual.maxArea
+				// console.log( sprite.rowSpan, Math.abs((position.y||1)*sprite.rowSpan) )
+
+				if (clickPosCartesianCameraY > y && clickPosCartesianCameraY < offsetY
+					&& clickPosCartesianCameraX > x && clickPosCartesianCameraX < offsetX)
+				{
+					callback(entity)
+				}
+			});
+		})
+	}
 }
 
 

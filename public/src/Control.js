@@ -86,7 +86,7 @@ class Control {
 				switch(mouseEnum[e.which]){
 					case 'LEFT_MOUSE':
 						let key = 'mousedown';
-						this.activeControls[key] = true;
+						this.activeControls[key] = e;
 					break;
 				}
 			});

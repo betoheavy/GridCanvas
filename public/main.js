@@ -23,7 +23,7 @@ GC.mainCamera = "main";
 // en los layers se pueden colocar GameObject, que tienen propiedades del juego (colisiones vida, posicion, etc..)
 let base = new Entity(['img/base.svg'], {});
 let bloc = new Entity(['img/block.svg'], {collision:new Collision("rectangle")});
-let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1)});
+let fire = new Entity(['img/trasparent.png'], {grid:objects, position: new Position(0,-1), uid:'fueguito'});
 let test = new Entity(new Sprite(['img/3x3.png'],{composite:"multiply"}), {grid:objects, position: new Position(2,3)}); 
 
 let energyBall = getEnergyBall('energy_ball', objects, 2, 1)
@@ -31,23 +31,23 @@ let energyBall = getEnergyBall('energy_ball', objects, 2, 1)
 // let energyBall3 = getEnergyBall('energy_ball3', objects, 4, 1)
 
 let shldspt = new Sprite(
-    'img/anim/shield.png', 
-    {
-        ticks:2,
-        composite:"lighter",
-        colSpan:1.4,
-        rowSpan:1.4,
-        centerX:0.2,
-        centerY:-0.2,
-        sheet:{
-            sheetWidth: 192,
-            sheetHeight: 192,
-            width: 142,
-            height: 142,
-            yOff: -50,
-        }, 
-        
-    }
+	'img/anim/shield.png', 
+	{
+		ticks:2,
+		composite:"lighter",
+		colSpan:1.4,
+		rowSpan:1.4,
+		centerX:0.2,
+		centerY:-0.2,
+		sheet:{
+			sheetWidth: 192,
+			sheetHeight: 192,
+			width: 142,
+			height: 142,
+			yOff: -50,
+		}, 
+		
+	}
 );
 
 let shldspt2 = shldspt.clone();
@@ -62,7 +62,7 @@ fire.sprite.composite = "lighter";
 
 //agregaremos una entidad de largo 2
 let twerSprite  = new Sprite('img/isometric/eiffel.png',{rowSpan:2, centerY: -1});
-let twer        = new Entity(twerSprite, {grid:objects, position: new Position(3,0),collision:new Collision("rectangle")});
+let twer        = new Entity(twerSprite, {grid:objects, position: new Position(3,0),collision:new Collision("rectangle"), uid:'eiffel'});
 
 // "flop" sera un gameObject mas complejo, con varios sprites (algunos animados)
 let sptFront    = new Sprite('img/floppa/front.svg');
@@ -74,12 +74,12 @@ let sptBackMv   = new Sprite(['img/floppa/back_1.svg','img/floppa/back_2.svg'],{
 
 //pasamos nuestros sprites a un objeto para despues ponerlo en el constructor del GameObject "flop"
 let flopSprites = {
-    front:      sptFront,
-    frontMove : sptFrontMv,
-    left:       sptLeft,
-    leftMove:   sptLeftMv,
-    back:       sptBack,
-    backMove:   sptBackMv,
+	front:      sptFront,
+	frontMove : sptFrontMv,
+	left:       sptLeft,
+	leftMove:   sptLeftMv,
+	back:       sptBack,
+	backMove:   sptBackMv,
 }
 
 //"flop" tendra todos los sprites anteriores, y ademas se le paso la opcion que inicie en el sprite "front"
@@ -94,12 +94,12 @@ let controles = new Control(move, stopMove);
 //(es necesario clonar los objetos usando "clone()", ya que sino intentara poner el mismo objeto en todos los lugares)
 let customGrid = [];
 for (let x = 0; x < 18; x++){
-    let col = [];
-    for (let y = 0; y < 18; y++){
-        if (y == 0 || y == 17 || x == 0 || x== 17) col.push(bloc.clone());
-        else col.push(base.clone());
-    }
-    customGrid.push(col);
+	let col = [];
+	for (let y = 0; y < 18; y++){
+		if (y == 0 || y == 17 || x == 0 || x== 17) col.push(bloc.clone());
+		else col.push(base.clone());
+	}
+	customGrid.push(col);
 }
 customGrid[2][2] = bloc.clone();
 customGrid[2][3] = bloc.clone();
@@ -119,93 +119,97 @@ GC.addGrid(objects);
 mainCamera.position.follow(flop.position);
 
 GC.start(ctx =>{
-    controles.capture();
-    test.rotate+= 3;
+	controles.capture();
+	test.rotate+= 3;
 });
 
 //las funciones que controlan el teclado
 function move(button){
 
-    if(button['d']){
-        moveFlop(1,0);
-        flop.index = "leftMove";
-        flop.sprite.flipX = true;
-    }
-    if(button['a']) {
-        moveFlop(-1,-0);
-        flop.index = "leftMove";
-        flop.sprite.flipX = false; 
-    }
-    if(button['w']){
-        moveFlop(0,1);
-        flop.index = "backMove";
-    }
-    if(button['s'] ) {
-        moveFlop(0,-1);
-        flop.index = "frontMove";
-    }
+	if(button['d']){
+		moveFlop(1,0);
+		flop.index = "leftMove";
+		flop.sprite.flipX = true;
+	}
+	if(button['a']) {
+		moveFlop(-1,-0);
+		flop.index = "leftMove";
+		flop.sprite.flipX = false; 
+	}
+	if(button['w']){
+		moveFlop(0,1);
+		flop.index = "backMove";
+	}
+	if(button['s'] ) {
+		moveFlop(0,-1);
+		flop.index = "frontMove";
+	}
 
-    function moveFlop(vx,vy){
-        let vel = 1/8;
-        let x = flop.position.x;
-        let y = flop.position.y;
+	function moveFlop(vx,vy){
+		let vel = 1/8;
+		let x = flop.position.x;
+		let y = flop.position.y;
 
-        flop.position.move(vel * vx, vel * vy);
-        if (flop.isColliding(background) || flop.isColliding(objects)) flop.position.set(x,y);
-    }
+		flop.position.move(vel * vx, vel * vy);
+		if (flop.isColliding(background) || flop.isColliding(objects)) flop.position.set(x,y);
+	}
 
-    if(button['f'])         {SFX.play('floppa_miau')}
-    if(button['mousedown']) {
-        // energyBall.targetEntity = new Entity({}, {position: new Position(3,3)});
-        // energyBall2.targetEntity = new Entity({}, {position: new Position(4,3)});
-        // energyBall3.targetEntity = new Entity({}, {position: new Position(5,3)});
+	if(button['f'])         {SFX.play('floppa_miau')}
+	if(button['mousedown']) {
+		
+		let clickEvent = button['mousedown']
+		let x = clickEvent.clientX, y = clickEvent.clientY;
 
-        energyBall.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:null, onReach: null})
-        // energyBall2.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:1, onReach: null})
-        // energyBall3.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:1, onReach: null})
-        // for( let a = 0; a<20; a++ ){
+		
+		// return;
 
-            // sd.addToPlay('./sfx/floppa/miau.ogg', true, 0.3)
-        // }
-
-        // bgMusic.addToPlay('./sfx/Ludum Dare 32 - Track 3.wav', true, 0.01)
-    }
-    if(button['q'])         {flop.rotate++;}
-    if(button['e'])         {flop.rotate--;}
-    if(button['z'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity-0.01);
-    if(button['c'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity+0.01);
-    if(button['ArrowUp'])   {Object.values(flop.sprites).forEach(sprite => {sprite.lum--;});}
-    if(button['ArrowDown']) {Object.values(flop.sprites).forEach(sprite => {sprite.lum++;});}
-    if(button['+']) bgMusic.volUp(.01);
-    if(button['-']) bgMusic.volDown(.01);
-    if(button['*']){
-        bgMusic.playNext();
-        delete button['*']
-    }
-    if( button['o'] ){
-        bgMusic.stopAll()
-    }
-    if( button['p'] ){
-        bgMusic.resumeAll();
-    }
-    if( button['0'] ){ 
-        energyBall.setNewTarget(flop , {movementSpeed:8, onReach: onHitEnergyBall})
-    }
+		let grids = [objects];
+		
+		GC.checkCartesianEntityByPixel(grids, GC.cameras.main, x, y, (entity)=>{
+			console.log( entity )
+		});
+    
+		// energyBall.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:null, onReach: null})
+	}
+	
+	if(button['q'])         {flop.rotate++;}
+	if(button['e'])         {flop.rotate--;}
+	if(button['z'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity-0.01);
+	if(button['c'])         Object.values(flop.sprites).forEach(sprite => sprite.opacity = (sprite.opacity == undefined) ? 1 : sprite.opacity+0.01);
+	if(button['ArrowUp'])   {Object.values(flop.sprites).forEach(sprite => {sprite.lum--;});}
+	if(button['ArrowDown']) {Object.values(flop.sprites).forEach(sprite => {sprite.lum++;});}
+	if(button['+']) bgMusic.volUp(.01);
+	if(button['-']) bgMusic.volDown(.01);
+	if(button['*']){
+		bgMusic.playNext();
+		delete button['*']
+	}
+	if( button['o'] ){
+		bgMusic.stopAll()
+	}
+	if( button['p'] ){
+		bgMusic.resumeAll();
+	}
+	if( button['0'] ){ 
+		energyBall.setNewTarget(flop , {movementSpeed:8, onReach: onHitEnergyBall})
+	}
 }
 function stopMove(dp, controls){
-    if (flop.index == "frontMove"){
-        flop.index = "front";
-    }
-    if (flop.index == "leftMove"){
-        let currentFlipX = flop.sprite.flipX;
-        flop.index = "left";
-        flop.sprite.flipX = currentFlipX;
-    }
-    if (flop.index == "backMove"){
-        flop.index = "back";
-    }
-        
+	if (flop.index == "frontMove"){
+		flop.index = "front";
+	}
+	if (flop.index == "leftMove"){
+		let currentFlipX = flop.sprite.flipX;
+		flop.index = "left";
+		flop.sprite.flipX = currentFlipX;
+	}
+	if (flop.index == "backMove"){
+		flop.index = "back";
+	}
+		
 }
+
+let clickEvt;
 
 bgMusic.addtoQueue('./sfx/ost/bg/Ludum Dare 32 - Track 1.wav')
 bgMusic.addtoQueue('./sfx/ost/bg/Ludum Dare 32 - Track 2.wav')
@@ -216,25 +220,23 @@ bgMusic.addtoQueue('./sfx/ost/bg/Ludum Dare 32 - Track 4.wav')
 let slider = document.querySelector('#volumeSlider');
 slider.value = bgMusic.currentManagerVolume*100
 slider.addEventListener('input', function(e){
-    e.preventDefault()
-    let value = e.srcElement.value;
-    value = parseFloat(value)
-    value = (value/100)
-    bgMusic.setVolume( value )
+	e.preventDefault()
+	let value = e.srcElement.value;
+	value = parseFloat(value)
+	value = (value/100)
+	bgMusic.setVolume( value )
 })
 
 
 // energyBall.targetEntity = flop;
 
-energyBall.onUpdate()
-energyBall2.onUpdate()
-energyBall3.onUpdate()
+// energyBall.onUpdate()
 
 function onHitEnergyBall(){
-    console.log('cagaste floppa')
-    SFX.play('explo')
-    sd.addToPlay('./sfx/explo.wav', true, 1)
-    console.timeEnd('eb')
+	console.log('cagaste floppa')
+	SFX.play('explo')
+	sd.addToPlay('./sfx/explo.wav', true, 1)
+	console.timeEnd('eb')
 }
 
 
