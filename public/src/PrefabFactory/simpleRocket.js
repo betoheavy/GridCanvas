@@ -43,7 +43,7 @@ function simpleRocketFactory(uid, grid, x=0, y=0, config={}){
 			this.ctx.setNewTarget( flop,  {movementSpeed:9})
 		})
 	}
-	stateHomming.update = function(deltaTime){
+	stateHomming.update = function(deltaTime, runningTime){
 		
 		const entity = this.ctx;
 		const timeSpeedMod = .001;
@@ -63,8 +63,12 @@ function simpleRocketFactory(uid, grid, x=0, y=0, config={}){
 
 			let mvsp = entity.mvsp;
 
+			// const maxAngle = .95
+
 			// se calcula el angulo entre este entity y el target
 			let angle = entity.position.calcAngle(entity.targetEntity.position);
+			// angle = Math.abs(angle) > maxAngle? (maxAngle* angle): angle;
+			// angle = angle*maxAngle/mvsp
 			entity._facingAngle = angle;
 
 			// se efectua la rotacion del sprite
