@@ -240,14 +240,12 @@ class GridCanvas {
 		);
 	}
 
-	checkCartesianEntityByPixel(grids, camera, xPos, yPos, callback){
+	checkCartesianEntityByPixel(grids, camera, xPos, yPos, callback, callbackNot){
 		
 		let cameraActual = camera;
 
 		let clickPosX = xPos
 		let clickPosY = yPos
-
-		console.log( clickPosX, clickPosY )
 
 		let cameraWidth = cameraActual.canvas.width;
 		let cameraHeight = cameraActual.canvas.height;
@@ -287,6 +285,8 @@ class GridCanvas {
 					&& clickPosCartesianCameraX > x && clickPosCartesianCameraX < offsetX)
 				{
 					callback(entity)
+				}else if( !!callbackNot ){
+					callbackNot(entity);
 				}
 			});
 		})

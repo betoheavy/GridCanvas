@@ -81,7 +81,7 @@ class Control {
 		window.addEventListener('keyup', upEventFunction);
 
 		if(this.useClick){
-			canvasElement.addEventListener('mousedown', (e)=>{
+			canvasElement.addEventListener('mousedown', function(e){
 
 				switch(mouseEnum[e.which]){
 					case 'LEFT_MOUSE':
@@ -89,16 +89,28 @@ class Control {
 						this.activeControls[key] = e;
 					break;
 				}
-			});
+			}.bind(this));
 
-			canvasElement.addEventListener('mouseup', (e)=>{
+			canvasElement.addEventListener('mouseup', function(e){
 				switch(mouseEnum[e.which]){
 					case 'LEFT_MOUSE':
 						let key = 'mousedown';
 						delete this.activeControls[key];
 					break;
 				}
-			})
+			}.bind(this))
+
+			// canvasElement.addEventListener('mouseover', function(e){
+
+						// let key = 'mousemove';
+						// this.activeControls[key] = e;
+			// }.bind(this));
+
+			// canvasElement.addEventListener('mouseover', (e)=>{
+
+			// 			let key = 'mouseover';
+			// 			delete this.activeControls[key];
+			// })
 		}
 
 		this.setActiveControlReseters();

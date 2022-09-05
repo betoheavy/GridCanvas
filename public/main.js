@@ -155,22 +155,22 @@ function move(button){
 	}
 
 	if(button['f'])         {SFX.play('floppa_miau')}
-	if(button['mousedown']) {
+	// if(button['mousedown']) {
 		
-		let clickEvent = button['mousedown']
-		let x = clickEvent.clientX, y = clickEvent.clientY;
+	// 	let clickEvent = button['mousedown']
+	// 	let x = clickEvent.clientX, y = clickEvent.clientY;
 
 		
 		// return;
 
-		let grids = [objects];
+		// let grids = [objects];
 		
-		GC.checkCartesianEntityByPixel(grids, GC.cameras.main, x, y, (entity)=>{
-			console.log( entity )
-		});
+		// GC.checkCartesianEntityByPixel(grids, GC.cameras.main, x, y, (entity)=>{
+		// 	console.log( entity )
+		// });
     
 		// energyBall.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:null, onReach: null})
-	}
+	// }
 	
 	if(button['q'])         {flop.rotate++;}
 	if(button['e'])         {flop.rotate--;}
@@ -192,6 +192,25 @@ function move(button){
 	}
 	if( button['0'] ){ 
 		energyBall.setNewTarget(flop , {movementSpeed:8, onReach: onHitEnergyBall})
+	}
+
+	if( button['mousedown'] ){ 
+		let grids = [objects];
+		let clickEvent = button['mousedown']
+		let x = clickEvent.clientX, y = clickEvent.clientY;
+		// console.log( {x, y} )
+		if( !clickEvt )
+		// clickEvt = setTimeout(() => {
+			GC.checkCartesianEntityByPixel(grids, GC.cameras.main, x, y, (entity)=>{
+				// console.log( entity )
+				entity.sprite.hue = 180
+				clickEvt = null
+			}, (entity)=>{
+				entity.sprite.hue = 0
+				clickEvt = null
+			});
+
+		// }, 200);
 	}
 }
 function stopMove(dp, controls){
