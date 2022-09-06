@@ -5,7 +5,9 @@
     "baseUrl": "./public/",
     "paths": {
       "@/*": ["src/*"],
-			"@":["src/*"]
+      "/@/*": ["src/*"],
+			"@":["src/*"],
+      "/@*": ["src/*"],
     },
     "checkJs": false
   },
