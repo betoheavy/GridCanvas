@@ -156,19 +156,7 @@ function move(button){
 
     if(button['f'])         {SFX.play('floppa_miau')}
     if(button['mousedown']) {
-        // energyBall.targetEntity = new Entity({}, {position: new Position(3,3)});
-        // energyBall2.targetEntity = new Entity({}, {position: new Position(4,3)});
-        // energyBall3.targetEntity = new Entity({}, {position: new Position(5,3)});
-
         energyBall.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:null, onReach: null})
-        // energyBall2.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:1, onReach: null})
-        // energyBall3.setNewTarget( new Entity({}, {position: new Position(3,3)}),  {movementSpeed:1, onReach: null})
-        // for( let a = 0; a<20; a++ ){
-
-            // sd.addToPlay('./sfx/floppa/miau.ogg', true, 0.3)
-        // }
-
-        // bgMusic.addToPlay('./sfx/Ludum Dare 32 - Track 3.wav', true, 0.01)
     }
     if(button['q'])         {flop.rotate++;}
     if(button['e'])         {flop.rotate--;}

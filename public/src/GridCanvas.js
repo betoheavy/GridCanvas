@@ -67,45 +67,58 @@ class GridCanvas {
 		this.canvas.addEventListener("click",customFunction);
 	}
 
-	async start(drawFunction){
-		this._onDraw = drawFunction;
-		this._play = true;
-		
+	start(drawFunction){
+		this._onDraw 		= drawFunction;
+		this._play 			= true;
+		let thisGC 			= this;
+		let start			= Date.now();
+		let lastTimeStamp	= start;
+
 		window.addEventListener('resize', this.resizeCanvas.bind(this), false);
 		this.resizeCanvas();
 
-		while (this._play){
-			//rellenamos el fondo negro
-			this.context.fillStyle = this.backgroundColor;
-			this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		function step(timestamp) {
 
-			if (this._onDraw )                  this._onDraw(this ,this.grids);
-			
-			// ordena los Grids antes de dibujarlos
-			for (let oGrid of this._grids){
-				oGrid.entities.sort((a,b)=>{
-					if (a.position.y > b.position.y) return -1;
-					else{
-						if (a.position.y < b.position.y) return 1;
+			if (lastTimeStamp !== timestamp){
+				const elapsed = timestamp - lastTimeStamp;
+				thisGC.lastFrameDuration = elapsed;
+
+				thisGC.context.fillStyle = thisGC.backgroundColor;
+				thisGC.context.fillRect(0, 0, thisGC.canvas.width, thisGC.canvas.height);
+
+				if (thisGC._onDraw ) thisGC._onDraw(thisGC ,thisGC.grids);
+				
+				// ordena los Grids antes de dibujarlos
+				for (let oGrid of thisGC._grids){
+					oGrid.entities.sort((a,b)=>{
+						if (a.position.y > b.position.y) return -1;
 						else{
-							if (a.position.x < b.position.x) return -1;
-							else if (a.position.x > b.position.x) return 1;
-							else return 0 ;
+							if (a.position.y < b.position.y) return 1;
+							else{
+								if (a.position.x < b.position.x) return -1;
+								else if (a.position.x > b.position.x) return 1;
+								else return 0 ;
+							}
 						}
-					}
-				});
+					});
+				}
+
+				//primero renderiza la camara principal
+				thisGC.drawCamera(thisGC._cameras[thisGC._mainCamera]);
+
+				//luego las demas camaras (esto asegura que los sprites salgan con la calidad de la principal)
+				for (let idx in thisGC._cameras){
+					if(thisGC._cameras[idx] !== thisGC._cameras[thisGC._mainCamera]) thisGC.drawCamera(thisGC._cameras[idx]);
+				}
 			}
 
-			//primero renderiza la camara principal
-			this.drawCamera(this._cameras[this._mainCamera]);
-
-			//luego las demas camaras (esto asegura que los sprites salgan con la calidad de la principal)
-			for (let idx in this._cameras){
-				if(this._cameras[idx] !== this._cameras[this._mainCamera]) this.drawCamera(this._cameras[idx]);
+			if (thisGC._play) {
+				lastTimeStamp = timestamp;
+				window.requestAnimationFrame(step);
 			}
-
-			await this.delay(this.frameDuration);
 		}
+
+		window.requestAnimationFrame(step);
 	}
 
 	resizeCanvas() {

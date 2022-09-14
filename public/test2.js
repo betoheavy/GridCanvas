@@ -89,8 +89,15 @@ for (let i = 0; i < 19; i++) {
     }
 }
 
-test.isometric(customGrid,true);
-cerco.isometric(cercogrid,true);
+//test.isometric(customGrid,true);
+let isometricConfig = {
+    clone: true,
+	rowOffset: new Position(-0.5, -0.25),
+	colOffset: new Position(0.5, -0.25),
+};
+
+test.grid(customGrid,isometricConfig);
+cerco.grid(cercogrid,isometricConfig);
 
 cerco.position.move(0,0.5);
 
