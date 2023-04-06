@@ -26,7 +26,7 @@ class GridCanvas {
 		this._background = null;
 
 		let{
-			frameDuration = 16,
+			frameDuration = 13,
 			backgroundColor = "black",
 			cameras = [new Camera()],
 			mainCamera = '0',
@@ -38,6 +38,8 @@ class GridCanvas {
 		this.frameDuration      = frameDuration;
 		this._cameras           = cameras;
 		this._mainCamera        = mainCamera;
+
+		this.resizeCanvas();
 	}
 
 	set grids(value) {
@@ -54,6 +56,7 @@ class GridCanvas {
 	}
 	set mainCamera(value) {
 		this._mainCamera = value;
+		this.resizeCanvas();
 	}
 	get mainCamera() {
 		return this._mainCamera;
@@ -71,7 +74,7 @@ class GridCanvas {
 		this._onDraw 		= drawFunction;
 		this._play 			= true;
 		let thisGC 			= this;
-		let start			= Date.now();
+		let start			= performance.now();
 		let lastTimeStamp	= start;
 
 		window.addEventListener('resize', this.resizeCanvas.bind(this), false);
@@ -79,9 +82,12 @@ class GridCanvas {
 
 		function step(timestamp) {
 
-			if (lastTimeStamp !== timestamp){
-				const elapsed = timestamp - lastTimeStamp;
-				thisGC.lastFrameDuration = elapsed;
+			const elapsed = timestamp - lastTimeStamp;
+			thisGC.lastFrameDuration = elapsed;
+
+			if (elapsed >= thisGC.frameDuration){
+
+				lastTimeStamp = timestamp;
 
 				thisGC.context.fillStyle = thisGC.backgroundColor;
 				thisGC.context.fillRect(0, 0, thisGC.canvas.width, thisGC.canvas.height);
@@ -113,7 +119,6 @@ class GridCanvas {
 			}
 
 			if (thisGC._play) {
-				lastTimeStamp = timestamp;
 				window.requestAnimationFrame(step);
 			}
 		}
@@ -144,6 +149,10 @@ class GridCanvas {
 
 			camera.context.save();
 		}
+	}
+
+	getOptimalArea(){
+		return this.cameras[this._mainCamera].maxArea;
 	}
 
 	// TODO: trasladar esto a helpers

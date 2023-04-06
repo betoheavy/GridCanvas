@@ -118,9 +118,35 @@ GC.addGrid(objects);
 // la camara principal seguira al floppa
 mainCamera.position.follow(flop.position);
 
+
+//// quiero poner un texto 
+let oarea = GC.getOptimalArea()
+let canvas    = document.createElement('canvas');
+let context   = canvas.getContext("2d");
+canvas.width    = oarea;
+canvas.height   = oarea;
+
+context.font = "24px Arial";
+context.fillStyle = "green";
+context.textAlign = "center";
+context.fillText("TEST", oarea/2, oarea/2);
+
+var image = canvas.toDataURL("image/png")
+let textoSprite = new Sprite(image);
+let textoEntity = new Entity(textoSprite, {grid:player, position: new Position(2,3)});
+textoEntity.position.follow(flop.position);
+
 GC.start(ctx =>{
     controles.capture();
     test.rotate+= 3;
+    if (GC.lastFrameDuration){
+        context.clearRect(0, 0, oarea, oarea);
+        let text = (1000/GC.lastFrameDuration).toFixed(2) + " FPS"
+        context.fillText(text, oarea/2, oarea/2);
+
+        textoSprite.imageArrayOriginal = [canvas];
+        textoSprite.setCacheImage(oarea)
+    }
 });
 
 //las funciones que controlan el teclado
@@ -211,12 +237,9 @@ slider.addEventListener('input', function(e){
     bgMusic.setVolume( value )
 })
 
-
-// energyBall.targetEntity = flop;
-
 energyBall.onUpdate()
-energyBall2.onUpdate()
-energyBall3.onUpdate()
+//energyBall2.onUpdate()
+//energyBall3.onUpdate()
 
 function onHitEnergyBall(){
     console.log('cagaste floppa')
@@ -226,16 +249,9 @@ function onHitEnergyBall(){
 }
 
 
-// let fn = function(){
-//     console.log( arguments[0]/1000 )
-
-//     console.count()
-//     if( arguments[0] < 1000 )
-//         window.requestAnimationFrame(fn)
+/////////////////// quiero poner un texto
 
 
 
-// }
 
-// window.requestAnimationFrame(fn)
-
+//creo todo un canvas para generar un texto
